@@ -703,7 +703,7 @@ def main():
         else:
             generator = genFactory.handleArg(arg)
             if generator:
-                gen = generator
+                gen = genFactory.getCombinedGenerator(gen)
     if encat != '':
         encatfalist, encatlists = encatlist(encat)
         if encatlists:
