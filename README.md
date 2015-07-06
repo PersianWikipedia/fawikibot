@@ -3,12 +3,14 @@ Collection of pywikibot-based tools for Persian Wikipedia
 
 <div dir="rtl">
 **روش نصب و اجرا**
+</div>
 ```
    git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pwb
    cd pwb
    git submodule foreach git pull origin master
    python pwb.py fawikibot/rade.py --newpages:100
 ```
+<div dir="rtl">
 **راهنمای کدها**
 
 **dar.py**
@@ -34,3 +36,4 @@ Collection of pywikibot-based tools for Persian Wikipedia
 **ref_link_correction_core.py**
 
 اصلاح پیوند فارسی موجود در ارجاع‌های لاتین و تبدیل آنها به پیوند لاتین.
+</div>
