@@ -48,11 +48,7 @@ from pywikibot import config
 from pywikibot import pagegenerators
 import re
 import sys
-try:
-    import fa_cosmetic_changes
-    cc = True
-except:
-    cc = False
+import fa_cosmetic_changes_core
 import pywikibot
 import codecs
 import string
@@ -561,8 +557,8 @@ def run(gen):
                 radehfmsg = u' %s رده' % numadd
             msg = u'ربات [[وپ:رده همسنگ#' + version + u'|ردهٔ همسنگ (' + version + u')]] %s: + %s'
             text_new = text
-            if page.namespace() == 0 and cc:  # ----------------cleaning
-                text_new, cleaning_version, msg_clean = fa_cosmetic_changes.fa_cosmetic_changes(text, page)
+            if page.namespace() == 0:  # ----------------cleaning
+                text_new, cleaning_version, msg_clean = fa_cosmetic_changes_core.fa_cosmetic_changes(text, page)
             else:
                 msg_clean = u' '
             msg = msg % (msg_clean, radehfmsg)
