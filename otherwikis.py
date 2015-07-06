@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Distributed under the terms of MIT License (MIT)
 import pywikibot
 import re
 from pywikibot import pagegenerators

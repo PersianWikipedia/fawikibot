@@ -6,9 +6,9 @@
 # Amir (User:Ladgroups) Category sorting part
 # Ebraminio (User:Ebraminio) Some of Regexs
 #
-# Distributed under the terms of the CC-BY-SA 3.0 .
-# -*- coding: utf-8 -*-
-# for calling this bot you can use  fa_cosmetic_changes(text,page) function
+# Distributed under the terms of MIT License (MIT)
+#
+# for calling this bot you can use  fa_cosmetic_changes_core(text,page) function
 import pywikibot
 from pywikibot import pagegenerators
 from pywikibot import config

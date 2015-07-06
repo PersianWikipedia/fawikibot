@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 # Reza (User:reza1615)
-# Distributed under the terms of the CC-BY-SA 3.0 .
-# -*- coding: utf-8 -*-
+# Distributed under the terms of MIT License (MIT)
 import pywikibot
 from pywikibot import pagegenerators
 import sys

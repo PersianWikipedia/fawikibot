@@ -2,9 +2,7 @@
 # -*- coding: utf-8  -*-
 #
 # Reza(User:reza1615), 2011
-#
-# Distributed under the terms of the CC-BY-SA 3.0 .
-# -*- coding: utf-8 -*-
+# Distributed under the terms of MIT License (MIT)
 """
 -file        - Work on all pages given in a local text file.
                Will read any [[wiki link]] and use these articles.

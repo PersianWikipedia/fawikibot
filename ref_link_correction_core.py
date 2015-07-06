@@ -1,10 +1,7 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8  -*-
-#
 # Reza(User:reza1615), 2014
-#
-# Distributed under the terms of the CC-BY-SA 3.0 .
-# -*- coding: utf-8 -*-
+# Distributed under the terms of MIT License (MIT)
 import pywikibot,re,codecs
 from pywikibot.compat import query
 pywikibot.config.put_throttle = 0

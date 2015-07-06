@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Credit: Amir Sarabadani <ladsgroup@gmail.com>
+# Distributed under the terms of MIT License (MIT)
 import pywikibot
 import time
 from pywikibot.data.api import Request

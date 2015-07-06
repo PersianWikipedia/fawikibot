@@ -1,5 +1,5 @@
 # Author: Amir Sarabadani
-# License: MIT
+# Distributed under the terms of MIT License (MIT)
 
 
 def cache(func):
