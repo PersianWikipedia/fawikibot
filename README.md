@@ -6,7 +6,7 @@ Collection of pywikibot-based tools for Persian Wikipedia
 
 
 در صورتی که نام پوشه کتابخانه pywikibot (core) شما pycore باشد.
-</div>
+<div dir="ltr">
 ```
    git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pycore
    cd pycore
