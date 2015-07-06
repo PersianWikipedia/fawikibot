@@ -3,10 +3,12 @@ Collection of pywikibot-based tools for Persian Wikipedia
 
 <div dir="rtl">
 **روش نصب و اجرا**
+
+در صورتی که نام پوشه کتابخانه کور شما pycore باشد.
 </div>
 ```
-   git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pwb
-   cd pwb
+   git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pycore
+   cd pycore
    git submodule foreach git pull origin master
    python pwb.py fawikibot/rade.py --newpages:100
 ```
