@@ -23,6 +23,7 @@ Fawikibot مجموعه‌ای از کدهای نوشته شده توسط کار�
    git submodule foreach git pull origin master
 ```
 
+<div dir="rtl">
 برای اجرا مانند دستور زیر عمل کنید.
 
 <div dir="ltr">
