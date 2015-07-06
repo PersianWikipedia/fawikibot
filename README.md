@@ -2,10 +2,11 @@
 Collection of pywikibot-based tools for Persian Wikipedia
 
 <div dir="rtl">
+مجموعه‌ای از کدهای بومی ویکی‌پدیای فارسی که برای آمارگیری، گزارشگیری، اصلاح مقالات و... کاربرد دارند. این کدها از کتابخانه پایتون پای‌ویکی‌بات pywikibot نسخه دوم (Core) استفاده می‌کنند. برای آشنایی با روش نصب و استفاده از این کدها و کتابخانه پای‌ویکی‌بات به ویکی‌پدیای فارسی صفحه «راهنما:شروع کار با ربات پایتون» مراجعه کنید.
+
 **روش نصب و اجرا**
 
-
-در صورتی که نام پوشه کتابخانه pywikibot (core) شما pycore باشد.
+در صورتی که نام پوشه pywikibot کتابخانه core شما pycore باشد.
 <div dir="ltr">
 ```
    git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pycore
