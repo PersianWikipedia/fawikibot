@@ -10,6 +10,7 @@ Collection of pywikibot-based tools for Persian Wikipedia
    git submodule foreach git pull origin master
    python pwb.py fawikibot/rade.py --newpages:100
 ```
+
 <div dir="rtl">
 **راهنمای کدها**
 
@@ -36,4 +37,3 @@ Collection of pywikibot-based tools for Persian Wikipedia
 **ref_link_correction_core.py**
 
 اصلاح پیوند فارسی موجود در ارجاع‌های لاتین و تبدیل آنها به پیوند لاتین.
-</div>
