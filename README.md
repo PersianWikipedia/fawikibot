@@ -28,6 +28,7 @@ Fawikibot مجموعه‌ای از کدهای نوشته شده توسط کار�
 
 <div dir="ltr">
 ```
+   cd pycore
    python pwb.py fawikibot/rade.py --newpages:100
 ```
 
