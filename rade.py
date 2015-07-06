@@ -353,12 +353,6 @@ def pedar(catfa, radehi, link):
     for x in range(0, len(radehtest)):
         if radehtest[x].find(u'مقاله‌های') != -1:
             continue
-        cat_queries_result=catquery(radehtest[x], 'fa', True)
-        print str(cat_queries_result)
-        if cat_queries_result:
-            if u'رده:رده‌های پنهان' in cat_queries_result:
-                pywikibot.output(u'>> Continueing the hidden category '+radehtest[x])
-                continue
         catslistx = category(radehtest[x], koltuple)  # ----------category function
         if catslistx is False:
             continue
@@ -408,8 +402,13 @@ def run(gen):
         if catsfa is False:
             continue
         for tem in catsfa:
-            if unicode(str(tem), 'UTF-8').find(u'رده:مقاله‌های ایجاد شده توسط ایجادگر') != -1:
-                continue
+            #if unicode(str(tem), 'UTF-8').find(u'رده:مقاله‌های ایجاد شده توسط ایجادگر') != -1:
+            #    continue
+            cat_queries_result=catquery(unicode(str(tem), 'UTF-8'), 'fa', True)
+            if cat_queries_result:
+                if u'رده:رده‌های پنهان' in cat_queries_result:
+                    pywikibot.output(u'>> Continueing the hidden category '+unicode(str(tem), 'UTF-8'))
+                    continue
             catsfas += unicode(str(tem), 'UTF-8') + ','
         maghalehen = englishdictionry(pagework, fa_site, en_site)
         if not maghalehen:
