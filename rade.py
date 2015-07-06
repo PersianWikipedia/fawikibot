@@ -354,6 +354,7 @@ def pedar(catfa, radehi, link):
         if radehtest[x].find(u'مقاله‌های') != -1:
             continue
         cat_queries_result=catquery(radehtest[x], 'fa', True)
+        print str(cat_queries_result)
         if cat_queries_result:
             if u'رده:رده‌های پنهان' in cat_queries_result:
                 pywikibot.output(u'>> Continueing the hidden category '+radehtest[x])
