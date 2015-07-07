@@ -307,7 +307,7 @@ def pagefafinder(encatTitle):
     # -----------------start sql---------------------------------------
     queries = 'SELECT /* SLOW_OK */ ll_title  FROM page JOIN categorylinks JOIN langlinks WHERE cl_to = "' + item + \
         '" AND cl_from=page_id AND page_namespace = 0 AND page_id =ll_from AND ll_lang = "fa" AND page_namespace = 0 GROUP BY ll_title ;'
-    cn = MySQLdb.connect("enwiki.labsdb", db=en_site.dbName(), user=config.db_username, passwd=config.db_password)
+    cn = MySQLdb.connect("enwiki.labsdb", db=en_site.dbName()+ '_p', user=config.db_username, passwd=config.db_password)
     cur = cn.cursor()
     cur.execute(queries)
     results = cur.fetchall()
