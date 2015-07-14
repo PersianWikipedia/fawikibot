@@ -758,10 +758,9 @@ def main():
                 workpage = workpage.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
                 workpage = englishdictionry(workpage, fa_site, en_site)
                 if workpage is not False:
-                    encatfalist, encatlists = encatlist(workpage)
-                    if encatlists:
-                        run(encatlists)
-                    if encatfalist is not False:
+                    encatfalist,encatlists=encatlist(workpage)
+                    workpage=englishdictionry(workpage,'fa','en')
+                    if encatfalist:
                         run(encatfalist)
         pywikibot.stopme()
         sys.exit()
