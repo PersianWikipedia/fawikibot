@@ -74,6 +74,18 @@ if lastversion != version:
 
 #-----------------------------------------------------------------------------------------------
 
+def login_fa():    
+    try:
+        password_fa = open("/data/project/rezabot/pycore/passfile", 'r')
+    except:
+        password_fa = open("/home/reza/pycore/passfile", 'r')
+
+    password_fa=password_fa.read().replace('"','').strip()
+    passwords=password_fa.split('(')[1].split(',')[1].split(')')[0].strip()
+    usernames=password_fa.split('(')[1].split(',')[0].split(')')[0].strip()
+    #-------------------------------------------
+    botlog=pywikibot.data.api.LoginManager(password=passwords, sysop=False, site=fa_site, user=usernames)
+    botlog.login()
 
 def namespacefinder(enlink, site):
     if _cache.get(tuple([enlink, site, 'ns'])):
@@ -763,4 +775,5 @@ def main():
 
 
 if __name__ == '__main__':
+    login_fa()
     main()
