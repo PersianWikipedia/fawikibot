@@ -23,11 +23,14 @@ List of parameters
             the result table. For instance, using -pref:'{{/up}}' will include
             the /up at the beginning of the page (which can then be editted to
             add explanations about the query results.
-  -link     A comma separated list of numbers, representing the columns that
-            should be treated as wiki page titles (i.e. they should be linked
-            in the output table). The column index starts at 0. For instance,
-            if the third column is to be treated as page titles, then "-link:3"
-            should be used.
+  -frmt     This optional parameter specifies the format of the output (rows of
+            the table). If this is not specified, then a simple table will be
+            generated where each row of the query result will be shown as a row
+            in the table; in this case, the only parsing that is done is by 
+            localizing the numeric cells. If this parameter is specified, then
+            it will be used as a formatting string in the standard way that
+            python handles string formatting (i.e. %s will be replaced with a
+            given string and so on).
 
 This bot always stores the SQL query in an HTML comment (<!-- ... -->) at the
 top of the page to allow reproducibility of the results by others.
@@ -52,7 +55,7 @@ import MySQLdb as mysqldb
 class StatsBot:
 
     def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 link=None):
+                 frmt=None):
         if not (sql and out and cols and summary):
             raise ValueError('You must define sql, out, cols, and summary')
         self.sql = sql
@@ -60,7 +63,7 @@ class StatsBot:
         self.cols = cols
         self.summary = summary
         self.pref = pref
-        self.link = link
+        self.frmt = frmt
 
     def run(self):
         site = pywikibot.Site()
@@ -79,17 +82,15 @@ class StatsBot:
         results = cursor.fetchall()
         for row in results:
             text += u'|-\n'
+            row = list(row)
             for idx in range(len(row)):
-                item = row[idx]
-                if isinstance(item, int) or isinstance(item, long):
-                    item = textlib.to_local_digits(str(item), 'fa')
-                else:
-                    item = str(item)
-                if idx in self.link:
-                    item = u'[[' + item.decode('utf-8').replace('_', ' ') + u']]'
-                else:
-                    item = item.decode('utf-8')
-                text += u'| ' + item + u'\n'
+                row[idx] = str(row[idx]).decode('utf-8')
+            if self.frmt:
+                text += self.frmt % tuple(row)
+                text += u'\n'
+            else:
+                for item in row:
+                    text += u'| ' + item + u'\n'
         text += u'|}'
 
         if not self.save(text, page, self.summary):
@@ -132,7 +133,7 @@ def main(*args):
     cols = None
     summary = None
     pref = 'آخرین به روز رسانی: ~~~~~\n\n'
-    link = []
+    frmt = None
     for arg in local_args:
         if arg.startswith('-sql:'):
             sql = arg[len('-sql:'):]
@@ -144,10 +145,9 @@ def main(*args):
             summary = arg[len('-summary:'):]
         elif arg.startswith('-pref:'):
             pref = arg[len('-pref:'):] + '\n\n' + pref
-        elif arg.startswith('-link:'):
-            link = [int(l) for l in arg[len('-link:'):].split(',')
-                    if l.strip().isdigit()]
-    bot = StatsBot(sql, out, cols, summary, pref, link)
+        elif arg.startswith('-frmt:'):
+            frmt = arg[len('-frmt:'):]
+    bot = StatsBot(sql, out, cols, summary, pref, frmt)
     bot.run()
 
 if __name__ == "__main__":
