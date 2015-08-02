@@ -58,7 +58,7 @@ class StatsBot:
     def run(self):
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
-        text = '<!-- SQL = ' + self.sql + ' -->\n'
+        text = u'<!-- SQL = ' + self.sql + ' -->\n'
         text += self.pref
         text += u'{| class="wikitable sortable"\n'
         for col in self.cols.split(','):
@@ -71,15 +71,14 @@ class StatsBot:
         cursor.execute(self.sql)
         results = cursor.fetchall()
         for row in results:
-            print row
-            text += '|-\n'
+            text += u'|-\n'
             for item in row:
                 if isinstance(item, int) or isinstance(item, long):
                     item = textlib.to_local_digits(str(item), 'fa')
                 else:
                     item = str(item)
-                text += '| ' + item + '\n'
-        text += "|}"
+                text += u'| ' + item.decode('utf-8') + u'\n'
+        text += u'|}'
 
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
