@@ -68,8 +68,8 @@ class StatsBot:
     def run(self):
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
-        text = u'<!-- SQL = ' + self.sql + ' -->\n'
-        text += self.pref
+        text = u'<!-- SQL = ' + self.sql + u' -->\n'
+        text += self.pref + u'\n'
         text += u'{| class="wikitable sortable"\n'
         for col in self.cols:
             text += u'!' + col + u'\n'
