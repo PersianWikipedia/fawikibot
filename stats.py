@@ -55,7 +55,7 @@ import MySQLdb as mysqldb
 class StatsBot:
 
     def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 frmt=None):
+                 frmt=None, sign=True):
         if not (sql and out and cols and summary):
             raise ValueError('You must define sql, out, cols, and summary')
         self.sql = sql
@@ -64,10 +64,12 @@ class StatsBot:
         self.summary = summary
         self.pref = pref
         self.frmt = frmt
+        self.sign = sign
 
     def run(self):
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
+        sign = pywikibot.Page(site, self.out + u'/امضا')
         text = u'<!-- SQL = ' + self.sql + u' -->\n'
         text += self.pref + u'\n'
         text += u'{| class="wikitable sortable"\n'
@@ -95,6 +97,11 @@ class StatsBot:
 
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
+
+        if self.sign:
+            if not self.save('~~~~~', sign, self.summary):
+                pywikibot.outout(u'Signature note saved in %s.' %
+                    sign.title(asLink=True))
 
     def save(self, text, page, comment=None, minorEdit=True,
              botflag=True):
@@ -147,7 +154,9 @@ def main(*args):
             pref = arg[len('-pref:'):] + '\n\n' + pref
         elif arg.startswith('-frmt:'):
             frmt = arg[len('-frmt:'):]
-    bot = StatsBot(sql, out, cols, summary, pref, frmt)
+        elif arg.startswith('-sign:'):
+            sign = False
+    bot = StatsBot(sql, out, cols, summary, pref, frmt, sign)
     bot.run()
 
 if __name__ == "__main__":
