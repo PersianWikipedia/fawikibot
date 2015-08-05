@@ -48,7 +48,6 @@ from __future__ import unicode_literals
 import pywikibot
 import sys
 import re
-from pywikibot import config, textlib
 import MySQLdb as mysqldb
 
 
@@ -82,13 +81,19 @@ class StatsBot:
         self.sql = self.sql.encode(site.encoding())
         cursor.execute(self.sql)
         results = cursor.fetchall()
-        for row in results:
+        print len(results), ' rows will be processed'
+
+        for rowid in range(len(results)):
+            row = results[rowid]
             text += u'|-\n'
             row = list(row)
             for idx in range(len(row)):
                 row[idx] = str(row[idx]).decode('utf-8')
             if self.frmt:
-                text += self.frmt % tuple(row)
+                row = tuple(row)
+                if '%d' in self.frmt:
+                   row = (rowid + 1,) + row
+                text += self.frmt % row
                 text += u'\n'
             else:
                 for item in row:
