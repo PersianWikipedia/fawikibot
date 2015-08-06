@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 #
 
 import pywikibot
+import sys
 from scripts import stats
 
 
@@ -256,35 +257,43 @@ def main():
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
         'sign'    : True
+        },
+        {
+        'sql'     : "select page_title, cnt from enwiki_p.page join (select ll_from, count(ll_lang) cnt from enwiki_p.langlinks group by ll_from having cnt >= 40 and max(ll_lang='fa') = 0) highll on page_id = ll_from where page_namespace = 0 order by cnt desc",
+        'out'     : 'وپ:گزارش دیتابیس/مقاله‌های مهم ایجادنشده بر پایه دیگر میان‌ویکی‌ها',
+        'cols'    : [u'ردیف', u'مقاله', u'میان‌ویکی‌ها'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select page_title, page_len from enwiki_p.page join (select ll_from, count(ll_lang) cnt from enwiki_p.langlinks group by ll_from having max(ll_lang='fa') = 0) highll on page_id = ll_from where page_namespace = 0 and page_len > 150 * 1024 order by page_len desc",
+        'out'     : 'وپ:گزارش دیتابیس/مقاله‌های مهم ایجادنشده بر پایه حجم',
+        'cols'    : [u'ردیف', u'مقاله', u'حجم'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست طولانی‌ترین مقاله‌های ویکی‌پدیای انگلیسی را نشان می‌دهد که در ویکی‌پدیای فارسی معادل ندارند (یا دست کم پیوند میان‌ویکی داده نشده‌است).\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select distinct page_title from page join iwlinks on page_id = iwl_from left join langlinks on page_id = ll_from where page_namespace = 0 and ll_from is null and iwl_prefix not in ('b', 'n', 'q', 's', 'm', 'commons')",
+        'out'     : 'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به ویکی که میان‌ویکی ندارند',
+        'cols'    : [u'ردیف', u'الگو'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[%s]]',
+        'sign'    : True
         }
     ]
 
     for t in tasks:
         bot = stats.StatsBot(t['sql'], t['out'], t['cols'], t['summary'], t['pref'], t['frmt'], t['sign'])
-        bot.run()
+        try:
+            bot.run()
+        except:
+            print sys.exc_info()[0]
 
 if __name__ == "__main__":
     main()
-
-"""Other tasks not included because they cause 503 error (page too long?)
-
-        {
-        'sql'     : "select page_title, cat_pages, cat_subcats, cat_files from page join category on page_title = cat_title left join categorylinks on page_id = cl_from where page_namespace = 14 and cl_from is null",
-        'out'     : 'وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده',
-        'cols'    : [u'ردیف', u'رده', u'تعداد صفحه‌ها', u'تعداد زیررده‌ها', u'تعداد پرونده‌ها'],
-        'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}'
-        }
-
-        {
-        'sql'     : "select page_title, str_to_date(left(rev_timestamp,8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from where page_namespace = 10 and cl_to is null",
-        'out'     : 'وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده',
-        'cols'    : [u'ردیف', u'الگو', u'آخرین ویرایش'],
-        'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[الگو:%s]] || {{formatnum:%s|NOSEP}}'
-        }
-
-"""
 
