@@ -151,7 +151,7 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select page_title, page_len from page join categorylinks on page_id = cl_from and cl_to = 'همه_مقاله‌های_خرد' where page_len > 1024 order by page_len desc",
+        'sql'     : "select page_title, page_len from page join categorylinks on page_id = cl_from and cl_to = 'همه_مقاله‌های_خرد' where page_len > 10 * 1024 order by page_len desc",
         'out'     : 'وپ:گزارش دیتابیس/مقاله‌های خرد بلند',
         'cols'    : [u'ردیف', u'مقاله', u'حجم'],
         'summary' : u'به روز کردن آمار',
