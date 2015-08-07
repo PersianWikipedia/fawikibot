@@ -293,6 +293,15 @@ def main():
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[%s]]',
         'sign'    : True
+        },
+        {
+        'sql'     : "select cl_to from categorylinks join page on cl_from = page_id where page_title = cl_to and page_namespace = 14",
+        'out'     : 'وپ:گزارش دیتابیس/رده‌های حلقوی',
+        'cols'    : [u'ردیف', u'رده'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]]',
+        'sign'    : True
         }
     ]
 
