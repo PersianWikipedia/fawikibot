@@ -6,27 +6,22 @@
 # Amir (User:Ladgroups) Category sorting part
 # Ebraminio (User:Ebraminio) Some of Regexs
 #
-# Distributed under the terms of MIT License (MIT)
-#
-# for calling this bot you can use  fa_cosmetic_changes_core(text,page) function
-import pywikibot
-from pywikibot import pagegenerators
-from pywikibot import config
-import string
-from pywikibot.compat import query
-from datetime import datetime
-import re
-from pywikibot import cosmetic_changes
-import urllib
-import ref_link_correction_core
-pywikibot.config.put_throttle = 0
-pywikibot.config.maxthrottle = 0
-
+# Distributed under the terms of the CC-BY-SA 3.0 .
+# -*- coding: utf-8 -*-
+# for calling this bot you can use  fa_cosmetic_changes(text,page) function
+import re,cosmetic_changes,query,pywikibot
+import wikipedia,pagegenerators,urllib,zz_ref_link_correction
+try:
+    from wikipedia import i18n
+except:
+    from pywikibot import i18n
 testpass=False
-cleaning_version=u'۱۰.۵'
-msg=u'('+cleaning_version +u')' 
-faSite=pywikibot.Site('fa',fam='wikipedia')
-_cache = {}
+wikipedia.config.put_throttle = 0    
+wikipedia.put_throttle.setDelay()
+cleaning_version=u'۹.۵'
+msg=u'('+cleaning_version +u')'
+faSite = wikipedia.getSite('fa')    
+    
 #-----------------
 tags = ur'b|big|blockquote|charinsert|code|comment|del|div|em|gallery|hyperlink|i|includeonly|imagemap|inputbox|link|math|noinclude|nowiki|pre|ref|s|small|source|startspace|strong|sub|sup|template|timeline'
 faChrs = u'ءاآأإئؤبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهیيككﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ'
@@ -400,7 +395,7 @@ def subs (text):
     return text
 
 def Citation_links(text,msg):
-    return ref_link_correction_core.main(text,msg)
+    return zz_ref_link_correction.main(text,msg)
 
 def Citation (text,msg):
     done=False
@@ -463,7 +458,7 @@ def catsorting(text,page,msg_short,msg=msg):
             return text,msg
         for i in cats:
             new_text=new_text+u"\n"+i
-        ccToolkit = cosmetic_changes.CosmeticChangesToolkit(page.site, redirect=page.isRedirectPage(), namespace = page.namespace(), pageTitle=page.title())
+        ccToolkit = cosmetic_changes.CosmeticChangesToolkit(page.site(), redirect=page.isRedirectPage(), namespace = page.namespace(), pageTitle=page.title())
         new_text = ccToolkit.change(new_text)
         if msg_short:
             msg=u'مرتب+'+msg    
@@ -612,30 +607,24 @@ def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
 def run(preloadingGen,msg):
     msg_o=msg
     for fapage in preloadingGen:
-        
         #try:
-            pywikibot.output(u'------fa_cosmetic_changes starting on '+fapage.title()+u' .....------------')
             msg=msg_o
-            try:
-                text=fapage.get()
-            except:
-                pywikibot.output(u'Page '+fapage.title()+u' had problem!')
-                continue
+            text=fapage.get()
             old_text=text
             text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
             text=reverting(text,old_text)
             if old_text!=text and text!=minor_edits(old_text):            
-                pywikibot.output(u'-------------------------------------------')
+                wikipedia.output(u'-------------------------------------------')
                 msg=u'ربات:زیباسازی'+msg.strip()+u' ('+cleaning_version +u')'
                 msg=msg.replace(u"+(",u" (").replace(u"+ (",u" (").replace(u"++",u"+").replace(u"+ +",u"+").strip()
                 fapage.put(text,msg)
                 msg_short=u''                
                 msg=u''
         #except:
-        #    continue
+            #continue
 def fa_replaceExcept(text, old, new, exceptions,marker='', site=None):
     if site is None:
-        site = pywikibot.Site()
+        site = pywikibot.getSite()
     exceptionRegexes = {
         'comment':      re.compile(r'(?s)<!--.*?-->'),
         'header':       re.compile(r'\r?\n=+.+=+ *\r?\n'),
@@ -782,10 +771,7 @@ def compileLinkR(withoutBracketed=False, onlyBracketed=False):
         regex=r'(?:(?<!\[)'+ regex+r'|\['+regexb+')'
     linkR = re.compile(regex)
     return linkR
-
 def templatequery(enlink,firstsite):
-    if _cache.get(tuple([enlink, firstsite, 'templatequery'])):
-        return _cache[tuple([enlink, firstsite, 'templatequery'])]
     temps=[]
     try:
         enlink=unicode(str(enlink),'UTF-8').replace(u'[[',u'').replace(u']]',u'').replace(u'en:',u'').replace(u'fa:',u'')
@@ -793,22 +779,26 @@ def templatequery(enlink,firstsite):
         enlink=enlink.replace(u'[[',u'').replace(u']]',u'').replace(u'en:',u'').replace(u'fa:',u'')
     enlink=enlink.split(u'#')[0].strip()
     if enlink==u'':
-        _cache[tuple([enlink, firstsite, 'templatequery'])] = False
         return False    
     enlink=enlink.replace(u' ',u'_')
-    site = pywikibot.Site(firstsite)
+    site = wikipedia.getSite(firstsite)
+    params = {
+            'action': 'query',
+            'prop':'templates',
+            'titles': enlink,
+            'redirects': 1,
+            'tllimit':500,
+    }
+
     try:
-        categoryname = pywikibot.data.api.Request(site=site, action="query", prop="templates",titles=enlink,redirects=1,tllimit=500)
-        categoryname=categoryname.submit()
+        categoryname = query.GetData(params,site)
         for item in categoryname[u'query'][u'pages']:
             templateha=categoryname[u'query'][u'pages'][item][u'templates']
             break
         for temp in templateha:
-            temps.append(temp[u'title'].replace(u'_',u' '))  
-        _cache[tuple([enlink, firstsite, 'templatequery'])] = temps
+            temps.append(temp[u'title'].replace(u'_',u' '))         
         return temps
-    except:
-        _cache[tuple([enlink, firstsite, 'templatequery'])] = False
+    except: 
         return False
 
 def main():
@@ -816,19 +806,22 @@ def main():
     exceptions,PageTitles,namespaces = [],[],[]
     autoText,autoTitle = False,False
     genFactory = pagegenerators.GeneratorFactory()
-    for arg in pywikibot.handleArgs():
+    wikipedia.setAction( msg )
+    arg=True#------if you dont want to work with arguments leave it False if you want change it to True---
+    if arg==True:
+        for arg in wikipedia.handleArgs():
             if arg == '-autotitle':
                 autoTitle = True
             elif arg == '-autotext':
                 autoText = True
             elif arg.startswith( '-page:' ):
                 if len(arg) == 6:
-                    PageTitles.append(pywikibot.input( u'Which page do you want to chage?' ))
+                    PageTitles.append(wikipedia.input( u'Which page do you want to chage?' ))
                 else:
                     PageTitles.append(arg[6:])
             elif arg.startswith( '-cat:' ):
                 if len(arg) == 5:
-                    PageTitles.append(pywikibot.input( u'Which Category do you want to chage?' ))
+                    PageTitles.append(wikipedia.input( u'Which Category do you want to chage?' ))
                 else:
                     PageTitles.append('Category:'+arg[5:])
             elif arg.startswith('-except:'):
@@ -837,15 +830,22 @@ def main():
                 namespaces.append( int( arg[11:] ) )
             elif arg.startswith( '-ns:' ):
                 namespaces.append( int( arg[4:] ) )
+            elif arg.startswith( '-summary:' ):
+                wikipedia.setAction( arg[9:] )
+                summary_commandline = True
             else:
                 generator = genFactory.handleArg(arg)
-    #if generator:
-    gen = genFactory.getCombinedGenerator(gen)
+                if generator:
+                    gen = generator
+    else:
+        PageTitles = [raw_input(u'Page:> ').decode('utf-8')]
+        
     if PageTitles:
-        pages = [pywikibot.Page(faSite,PageTitle) for PageTitle in PageTitles]
+        pages = [wikipedia.Page(faSite,PageTitle) for PageTitle in PageTitles]
         gen = iter( pages )
     if not gen:
-        pywikibot.stopme()
+        wikipedia.stopme()
+        
     if namespaces != []:    
         gen = pagegenerators.NamespaceFilterPageGenerator( gen,namespaces )
     preloadingGen = pagegenerators.PreloadingGenerator( gen,pageNumber = 60 )#---number of pages that you want load at same time
