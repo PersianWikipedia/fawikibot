@@ -25,12 +25,12 @@ from scripts import stats
 def main():
     tasks = [
         {
-        'sql'     : "select distinct log_id, user_name, ar_namespace, ar_title, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d') from logging join user_groups on log_user = ug_user join user on user_id = ug_user join archive on log_page = ar_page_id where ug_group = 'eliminator' and log_type = 'delete' and (log_comment like '%سرشناس%' or log_comment like '%م۷%') order by log_id desc",
+        'sql'     : "select distinct log_id, user_name, CONCAT('{{ns:', ar_namespace, '}}:', ar_title) as link, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d'), 'حذف تصویر' as issue from logging join user_groups on log_user = ug_user join user on log_user = user_id join archive on log_page = ar_page_id where ug_group = 'eliminator' and log_type = 'delete' and ar_namespace = 6 and log_timestamp >= date_format(date_sub(now(), interval 30 day), '%Y%m%d000000') union select distinct log_id, u.user_name, CONCAT('کاربر:', log_title) as link, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d'), 'بستن غیرمجاز' as issue from logging join user_groups ug on log_user = ug.ug_user join user u on log_user = u.user_id join user u2 on log_title = u2.user_name join user_groups ug2 on u2.user_id = ug2.ug_user where ug.ug_group = 'eliminator' and log_type = 'block' and ug2.ug_group in ('sysop', 'bureaucrat', 'patroller', 'autopatrol', 'rollbacker') and log_timestamp >= date_format(date_sub(now(), interval 30 day), '%Y%m%d000000') order by log_id desc",
         'out'     : u'وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها',
-        'cols'    : [u'شناسه', u'کاربر', u'صفحه', u'توضیح', u'تاریخ'],
+        'cols'    : [u'شناسه', u'کاربر', u'هدف', u'توضیح', u'تاریخ', u'مشکل'],
         'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| %s || [[کاربر:%s|]] || [[{{ns:%s}}:%s]] || <nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}}',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه جدولی از فعالیت‌های ویکی‌بان‌ها در یک ماه گذشته را نشان می‌دهد که ممکن است ناقض [[وپ:ویکی‌بان]] باشند. به طور خاص، حذف تصاویر (چک کنید که کاربر دسترسی جداگانه برای حذف تصاویر داشته باشد) و بستن کاربران دارای دسترسی گشت خودکار یا گشت یا واگردان یا مدیر را شناسایی می‌کند \n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| %s || [[کاربر:%s|]] || [[%s]] || <nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}} || {{%s}}',
         'sign'    : True
         },
         {
@@ -52,15 +52,15 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select page_title from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_namespace = 10 and tl_title = 'رده_خالی' where page_namespace = 14 and cl_to is null and tl_title is null",
-        'out'     : 'وپ:گزارش دیتابیس/رده‌های خالی',
-        'cols'    : [u'ردیف', u'رده'],
+        'sql'     : "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), ipb_reason from ipblocks where ipb_expiry = 'infinity' AND ipb_user = 0",
+        'out'     : 'وپ:گزارش دیتابیس/آی‌پی‌های بی‌پایان بسته شده',
+        'cols'    : [u'ردیف', u'آی‌پی', u'مدیر', u'تاریخ', u'دلیل'],
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]]',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] || [[کاربر:%s|]] || {{formatnum:%s|NOSEP}} || %s',
         'sign'    : True
         },
-        {
+       {
         'sql'     : "select if(up_value = 'male', 'مرد', 'زن'), count(up_value) from user_properties where up_property = 'gender' group by up_value",
         'out'     : 'وپ:گزارش دیتابیس/ترجیحات کاربران/جنسیت',
         'cols'    : [u'جنسیت', u'تعداد'],
@@ -301,6 +301,15 @@ def main():
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]]',
+        'sign'    : True
+        },
+        {
+        'sql'     : "SELECT page_title FROM page_restrictions JOIN page ON page_id = pr_page AND page_namespace = 0 AND pr_type = 'edit' AND pr_level = 'sysop' AND pr_expiry = 'infinity';",
+        'out'     : 'ویکی‌پدیا:گزارش دیتابیس/مقاله‌های دارای محافظت کامل بی‌پایان',
+        'cols'    : [u'ردیف', u'مقاله'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[%s]] ',
         'sign'    : True
         }
     ]
