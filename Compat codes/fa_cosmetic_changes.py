@@ -183,7 +183,7 @@ def dictation(txt,msg_short,msg=msg):
     txt = re.sub(u'ویکی ?(?=سازی|فا |[مپ]دیا)', u'ویکی‌', txt)
     txt = re.sub(u'ویکی‌پدیا ?(?='+langs+u')', u'ویکی‌پدیای ', txt)
     txt = re.sub(u'علاقه?[‌ ]?مند', u'علاقه‌مند', txt)
-    txt = re.sub(u' باقی مانده ', u' باقی‌مانده ', txt)
+    #txt = re.sub(u' باقی مانده ', u' باقی‌مانده ', txt) کتاب باقی مانده است.
     txt = re.sub(u'مت[عاأ][سص]ّ?فانه', u'متأسفانه', txt)
 
     txt = re.sub(bLB+u' من[‌ ]را'+bLA, u' مرا', txt)
