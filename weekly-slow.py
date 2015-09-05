@@ -41,15 +41,6 @@ def main():
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| %d || [[الگو:%s]] || %s',
         'sign'    : True
-        },
-        {
-        'sql'     : "select page_title from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_namespace = 10 and tl_title in ('رده_خالی' , 'رده_بهتر') where page_namespace = 14 and cl_to is null and tl_title is null group by page_title",
-        'out'     : 'وپ:گزارش دیتابیس/رده‌های خالی',
-        'cols'    : [u'ردیف', u'رده', u'تعداد میان‌ویکی'],
-        'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s|}}',
-        'sign'    : True
         }
     ]
 

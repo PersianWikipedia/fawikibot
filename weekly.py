@@ -311,7 +311,25 @@ def main():
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[%s]] ',
         'sign'    : True
-        }
+        },
+        {
+        'sql'     : "select page_title, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_namespace = 10 and tl_title in ('رده_خالی' , 'رده_بهتر') left join langlinks on page_id = ll_from where page_namespace = 14 and cl_to is null and tl_title is null group by page_title",
+        'out'     : 'وپ:گزارش دیتابیس/رده‌های خالی',
+        'cols'    : [u'ردیف', u'رده', u'تعداد میان‌ویکی'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s|}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, ipb_timestamp, ipb_expiry, ipb_reason from ipblocks where ipb_address like '%/%'",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده',
+        'cols'    : [u'ردیف', u'بازه', u'تعداد آی‌پی', u'مدیر', u'تاریخ بستن', u'انقضا', u'دلیل'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || %s || {{formatnum:%s|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
+        'sign'    : True
+        },
     ]
 
     for t in tasks:
