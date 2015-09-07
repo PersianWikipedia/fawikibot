@@ -111,7 +111,7 @@ while True:
 savetext = savetext + "\n|}"
 wikipedia.output(savetext)
 
-page = wikipedia.Page(faSite,u"ویکی‌پدیا:مقاله‌های مهم ایجادنشده")
+page = wikipedia.Page(faSite,u"ویکی‌پدیا:گزارش دیتابیس/مقاله‌های مهم ایجادنشده")
 page.put(savetext,u"ربات: به روز رسانی")
 
 
