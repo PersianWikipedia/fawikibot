@@ -567,6 +567,8 @@ def reverting (text,old_text):
     for source in sources:
         text=text.replace(sources[count],old_sources[count])
         count+=1
+    text=text.replace(u'\r',u'')
+    text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')
     return text
 def finall_cleaning(txt):
     #---zwnj cleaning
