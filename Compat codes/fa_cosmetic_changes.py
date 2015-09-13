@@ -625,6 +625,7 @@ def run(preloadingGen,msg):
                 msg=u''
         #except:
             #continue
+
 def fa_replaceExcept(text, old, new, exceptions,marker='', site=None):
     if site is None:
         site = pywikibot.getSite()
