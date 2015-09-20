@@ -35,11 +35,20 @@ def main():
         },
         {
         'sql'     : "select page_title from categorylinks join page on cl_from = page_id left join imagelinks on il_to = page_title where cl_to = 'پرونده‌های_مالکیت_عمومی' and page_namespace = 6 and il_from is null",
-        'out'     : 'وپ:گزارش دیتابیس/پرونده های آزاد استفاده نشده',
+        'out'     : 'وپ:گزارش دیتابیس/پرونده‌های آزاد استفاده نشده',
         'cols'    : [u'ردیف', u'پرونده'],
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:File:%s]]',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select page_title from categorylinks join page on cl_from = page_id left join imagelinks on il_to = page_title where cl_to = 'محتویات_غیر_آزاد' and page_namespace = 6 and il_from is null",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/پرونده‌های غیر آزاد استفاده نشده',
+        'cols'    : [u'ردیف', u'پرونده'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]]',
         'sign'    : True
         },
         {
@@ -328,6 +337,42 @@ def main():
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || %s || {{formatnum:%s|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select page_title, il_to from page join imagelinks on page_id = il_from where (not exists (select 1 from image where img_name = il_to)) and (not exists (select 1 from commonswiki_p.page where page_title = il_to and page_namespace = 6)) and (not exists (select 1 from page where page_title = il_to and page_namespace = 6)) and page_namespace = 10",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای پیوند به پروندهای ناموجود',
+        'cols'    : [u'ردیف', u'الگو', u'پرونده'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || [[:پرونده:%s]]',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select tl_title, count(*) from templatelinks where tl_namespace = 10 group by tl_title order by count(*) desc limit 1000",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای بیشترین تراگنجایش',
+        'cols'    : [u'ردیف', u'الگو', u'تعداد تراگنجایش'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه فهرست ۱۰۰۰ الگوی دارای بیشترین تراگنجایش را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || {{formatnum:%s|NOSEP}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select tl_title, count(*) from page join templatelinks on page_title = tl_title and page_namespace = tl_namespace left join page_restrictions on pr_page = page_id and pr_level in ('sysop', 'autoconfirmed') and pr_type = 'edit' where tl_namespace = 10 and pr_page is null group by tl_title having count(*) > 500 order by count(*) desc",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/الگوهای پرکاربرد بدون محافظت',
+        'cols'    : [u'ردیف', u'الگو', u'تعداد تراگنجایش'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه فهرست الگوی دارای دست کم ۵۰۰ تراگنجایش را نشان می‌دهد که محافظت نشده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || {{formatnum:%s|NOSEP}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select page_title, (select count(*) from imagelinks where il_to = page_title) as imagelinks, (select count(*) from pagelinks where pl_namespace = 6 and pl_title = page_title) as links from page where page_namespace = 6 and page_is_redirect = 1 having imagelinks + links <= 1",
+        'out'     : 'ویکی‌پدیا:گزارش_دیتابیس/صفحه‌های بدون استفاده تغییرمسیر پرونده',
+        'cols'    : [u'ردیف', u'صفحه پرونده', u'تعداد تراگنجایش', u'تعداد پیوند ورودی'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
         'sign'    : True
         },
     ]
