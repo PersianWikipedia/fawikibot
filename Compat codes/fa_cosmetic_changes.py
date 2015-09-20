@@ -18,7 +18,7 @@ except:
 testpass=False
 wikipedia.config.put_throttle = 0    
 wikipedia.put_throttle.setDelay()
-cleaning_version=u'۹.۵'
+cleaning_version=u'۹.۷'
 msg=u'('+cleaning_version +u')'
 faSite = wikipedia.getSite('fa')    
     
@@ -183,7 +183,7 @@ def dictation(txt,msg_short,msg=msg):
     txt = re.sub(u'ویکی ?(?=سازی|فا |[مپ]دیا)', u'ویکی‌', txt)
     txt = re.sub(u'ویکی‌پدیا ?(?='+langs+u')', u'ویکی‌پدیای ', txt)
     txt = re.sub(u'علاقه?[‌ ]?مند', u'علاقه‌مند', txt)
-    txt = re.sub(u' باقی مانده ', u' باقی‌مانده ', txt)
+    #txt = re.sub(u' باقی مانده ', u' باقی‌مانده ', txt) کتاب باقی مانده است.
     txt = re.sub(u'مت[عاأ][سص]ّ?فانه', u'متأسفانه', txt)
 
     txt = re.sub(bLB+u' من[‌ ]را'+bLA, u' مرا', txt)
@@ -318,7 +318,7 @@ def cleaning(text,msg_short,msg=msg):
             text = text.replace(u'{{پانویس|اندازه=ریز}}',u'{{پانویس|۲|اندازه=ریز}}')
             text = text.replace(u'{{پانویس|گروه=پانویس}}',u'{{پانویس|۲|گروه=پانویس}}')
             text = text.replace(u'{{پانویس|چپ‌چین=بله}}',u'{{پانویس|۲|چپ‌چین=بله}}')
-    text = re.sub(ur'==<', u'==\n<', text)#واگردانی خطای کد
+    text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')#واگردانی خطای کد
 
     # Files
     text = re.sub(ur'\[\[ *[Ii]mage *: *', u'[[پرونده:', text)
@@ -359,7 +359,6 @@ def cleaning(text,msg_short,msg=msg):
     comment_list=[u'<small></small>',u'<sup></sup>',u'<sub></sub>',u'<code></code>',u'<pre></pre>',u'<math></math>',u'<nowiki></nowiki>',u"'''متن پررنگ'''",u"''متن مورب''",u'<!--توضیح-->',u'<!--- رده‌بندی --->',u'<!--- میان‌ویکی را وارد کنید مثل [[en:Article]] --->',u'<!--- [[ویکی‌پدیا:پانویس‌ها]] را بخوانید. در وسط مقاله از <ref>منبع</ref> به عنوان منبع استفاده کنید -->']
     for item in comment_list:
         text=text.replace(item,u'').replace(item+u'\n',u'').replace(item.replace(u'><',u'>\n<'),u'').replace(item.replace(u'><',u'>\n\n<'),u'')  
-    text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')
     #حذف رده انگلیسی    
     text = re.sub(ur'\[\[([Cc]ategory|رده):[\w\s\–\-\|]+?\]\]\r?\n?', u"",text).replace(u'[[رده:|]]',u'')     
    
@@ -383,6 +382,7 @@ def cleaning(text,msg_short,msg=msg):
             msg=u'تمیز+'+msg    
         else:
             msg=u'تمیزکاری + '+msg
+    text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')
     return text.strip(),msg
 def subs (text):
     subslinks = re.findall(ur'\{\{.*?\-خرد\}\}',text, re.S)
@@ -567,7 +567,10 @@ def reverting (text,old_text):
     for source in sources:
         text=text.replace(sources[count],old_sources[count])
         count+=1
+    text=text.replace(u'\r',u'')
+    text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')
     return text
+
 def finall_cleaning(txt):
     #---zwnj cleaning
     txt = re.sub(u'‌{2,}', u'‌', txt)
@@ -602,6 +605,7 @@ def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
             msg=u'+'+msg
         text=text.replace(u'[[اااااااا',u'[[\u200c').replace(u']]بببببببببب',u']]\u200c')
         text=text.replace(u'ججججججججججج[[',u'\u200c[[').replace(u'چچچچچچچچچچ]]',u'\u200c]]')
+        text=reverting(text,old_text)
         return text,cleaning_version,msg
    
 def run(preloadingGen,msg):
@@ -612,7 +616,6 @@ def run(preloadingGen,msg):
             text=fapage.get()
             old_text=text
             text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
-            text=reverting(text,old_text)
             if old_text!=text and text!=minor_edits(old_text):            
                 wikipedia.output(u'-------------------------------------------')
                 msg=u'ربات:زیباسازی'+msg.strip()+u' ('+cleaning_version +u')'
@@ -622,6 +625,7 @@ def run(preloadingGen,msg):
                 msg=u''
         #except:
             #continue
+
 def fa_replaceExcept(text, old, new, exceptions,marker='', site=None):
     if site is None:
         site = pywikibot.getSite()
