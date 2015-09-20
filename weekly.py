@@ -375,6 +375,24 @@ def main():
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
         'sign'    : True
         },
+        {
+        'sql'     : "select user_name, sum(img_size) as tot from image join user on img_user = user_id group by img_user order by tot desc limit 500",
+        'out'     : 'وپ:گزارش دیتابیس/کاربران برپایه مقدار حجم پرونده بارگذاری شده',
+        'cols'    : [u'ردیف', u'کاربر', u'حجم کل (بایت)'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست ۵۰۰ کاربر دارای بیشترین حجم بارگذاری در ویکی‌پدیای فارسی را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select u1.user_name blockee, u2.user_name blocker, replace(str_to_date(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime, replace(str_to_date(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend, ipb_reason from ipblocks join user u1 on ipb_user = u1.user_id join user u2 on ipb_by = u2.user_id where ipb_user <> 0 and ipb_expiry not in ('infinity', 'indefinite') and ipb_expiry > concat(date_format(now(), '%Y%m%d'), '000000')",
+        'out'     : 'وپ:گزارش دیتابیس/کاربران بسته شده',
+        'cols'    : [u'ردیف', u'کاربر هدف', u'مجری', u'شروع قطع دسترسی', u'پایان قطع دسترسی', u'دلیل'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که در زمان ثبت آمار دسترسی‌شان برای مدتی مشخص قطع شده بوده‌است. قطع دسترسی‌های آی‌پی و قطع دسترسی‌های بی‌پایان در این فهرست نشان داده نمی‌شوند.\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
+        'sign'    : True
+        },
     ]
 
     for t in tasks:

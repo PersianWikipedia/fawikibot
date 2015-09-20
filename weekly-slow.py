@@ -41,7 +41,26 @@ def main():
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| %d || [[الگو:%s]] || %s',
         'sign'    : True
-        }
+        },
+        {
+        'sql'     : "select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where ug_group is null group by rev_user order by cnt desc limit 500",
+        'out'     : 'وپ:گزارش دیتابیس/کاربران بر اساس تعداد ویرایش‌ها',
+        'cols'    : [u'ردیف', u'کاربر', u'تعداد ویرایش'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست ۵۰۰ کاربر دارای بیشترین ویرایش در ویکی‌پدیای فارسی را نشان می‌دهد (شامل ربات‌ها نمی‌شود).\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
+        'sign'    : True
+        },
+        {
+        'sql'     : "select user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 200",
+        'out'     : 'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها',
+        'cols'    : [u'ردیف', u'کاربر', u'مقاله جدید', u'الگوی جدید', u'راهنمای جدید', u'رده جدید', u'درگاه جدید', u'جمع کل'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+        'sign'    : True
+        },
+    ]
     ]
 
     for t in tasks:
