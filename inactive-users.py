@@ -128,7 +128,7 @@ def main(*args):
     summary = u'به روز کردن آمار'
     pref = '[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~\n\n'
     frmt = u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || %s'
-    bot = InactiveUsersBot(sql, out, cols, summary, pref, frmt, False)
+    bot = InactiveUsersBot(sql, out, cols, summary, pref, frmt, True)
     bot.run()
 
 if __name__ == "__main__":
