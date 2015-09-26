@@ -122,7 +122,7 @@ def main(*args):
     @type args: list of unicode
     """
     local_args = pywikibot.handle_args(args)
-    sql = "select /* SLOW OK */ user_name, max(rev_timestamp) latest, group_concat(distinct ug.ug_group) from user join user_groups ug on ug.ug_user = user_id join revision on rev_user = user_id left join user_groups ug2 on ug2.ug_user = user_id and ug2.ug_group in ('bot') where ug2.ug_group is null and ug.ug_group in ('rollbacker', 'patroller', 'eliminator', 'sysop', 'bureaucrat', 'Image-reviewer', 'templateeditor', 'oversight') group by user_name having latest < date_format(date_sub(now(), interval 6 month),'%Y%m%d%H%i%s')"
+    sql = "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') latest, group_concat(distinct ug.ug_group) from user join user_groups ug on ug.ug_user = user_id join revision on rev_user = user_id left join user_groups ug2 on ug2.ug_user = user_id and ug2.ug_group in ('bot') where ug2.ug_group is null and ug.ug_group in ('rollbacker', 'patroller', 'eliminator', 'sysop', 'bureaucrat', 'Image-reviewer', 'templateeditor', 'oversight') group by user_name having latest < date_format(date_sub(now(), interval 6 month),'%Y%m%d%H%i%s')"
     out = u'وپ:گزارش دیتابیس/کاربران غیر فعال در گروه‌های کاربری'
     cols = [u'ردیف', u'کاربر', u'آخرین ویرایش', u'گروه‌ها']
     summary = u'به روز کردن آمار'

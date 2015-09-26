@@ -250,11 +250,11 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select log_title, count(log_id) cnt, ifnull(thankback, 0) from logging left join (select user_name, count(log_id) thankback from logging join user on user_id = log_user where log_type = 'thanks' group by user_name) back on back.user_name = log_title where log_type = 'thanks' group by log_title order by cnt desc",
+        'sql'     : "select log_title, count(log_id) cnt, ifnull(thankback, 0) from logging left join (select user_name, count(log_id) thankback from logging join user on user_id = log_user where log_type = 'thanks' group by user_name) back on back.user_name = replace(log_title, '_', ' ') where log_type = 'thanks' group by log_title order by cnt desc",
         'out'     : 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد تشکر',
         'cols'    : [u'ردیف', u'کاربر', u'تشکرها از او', u'تشکرهای او از دیگران'],
         'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nکاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.\n\nآخرین به روز رسانی: ~~~~~',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
         'frmt'    : u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}}',
         'sign'    : True
         },
@@ -322,7 +322,7 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select page_title, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_namespace = 10 and tl_title in ('رده_خالی' , 'رده_بهتر') left join langlinks on page_id = ll_from where page_namespace = 14 and cl_to is null and tl_title is null group by page_title",
+        'sql'     : "select page_title, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_namespace = 10 and tl_title in ('رده_خالی' , 'رده_بهتر') left join langlinks on page_id = ll_from where page_namespace = 14 and page_is_redirect = 0 and cl_to is null and tl_title is null group by page_title",
         'out'     : 'وپ:گزارش دیتابیس/رده‌های خالی',
         'cols'    : [u'ردیف', u'رده', u'تعداد میان‌ویکی'],
         'summary' : u'به روز کردن آمار',
