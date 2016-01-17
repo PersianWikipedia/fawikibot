@@ -228,7 +228,7 @@ def main():
         'cols'    : [u'ردیف', u'مقاله', u'پرونده'],
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d}} || [[%s]] || [[:پرونده:%s]]',
+        'frmt'    : u'| %s || [[%s]] || [[:پرونده:%s]]',
         'sign'    : True
         },
         {
@@ -250,12 +250,12 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select log_title, count(log_id) cnt, ifnull(thankback, 0) from logging left join (select user_name, count(log_id) thankback from logging join user on user_id = log_user where log_type = 'thanks' group by user_name) back on back.user_name = replace(log_title, '_', ' ') where log_type = 'thanks' group by log_title order by cnt desc",
+        'sql'     : "select log_title, count(log_id), ifnull(thankback, 0), count(log_id) + ifnull(thankback, 0) as cnt from logging left join (select user_name, count(log_id) thankback from logging join user on user_id = log_user where log_type = 'thanks' group by user_name) back on back.user_name = replace(log_title, '_', ' ') where log_type = 'thanks' group by log_title order by cnt desc",
         'out'     : 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد تشکر',
-        'cols'    : [u'ردیف', u'کاربر', u'تشکرها از او', u'تشکرهای او از دیگران'],
+        'cols'    : [u'ردیف', u'کاربر', u'تشکرها از او', u'تشکرهای او از دیگران', u'جمع کل'],
         'summary' : u'به روز کردن آمار',
         'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}}',
+        'frmt'    : u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
         'sign'    : True
         },
         {
