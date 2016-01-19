@@ -780,10 +780,10 @@ def main():
         if linken:
             for workpage in linken:
                 workpage = workpage.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
-                pywikibot.input(u'>'+workpage)
+                pywikibot.output(u'>'+workpage)
                 workpage = englishdictionry(workpage, fa_site, en_site)
                 if workpage is not False:
-                    pywikibot.input(u'en >'+workpage)
+                    pywikibot.output(u'en >'+workpage)
                     encatfalist,encatlists=encatlist(workpage)
                     workpage=englishdictionry(workpage,fa_site,en_site)
                     if encatfalist:
