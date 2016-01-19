@@ -113,15 +113,13 @@ def namespacefinder(enlink, site):
         _cache[tuple([enlink, site, 'ns'])] = False
         return False
 
-def purgquery(falink,pagesite):
-    if _cache.get(tuple([falink, pagesite, 'purg'])):
-        return _cache[tuple([falink, pagesite, 'purg'])]
+def purgquery(mylink,pagesite):
+    if _cache.get(tuple([mylink, pagesite, 'purg'])):
+        return _cache[tuple([mylink, pagesite, 'purg'])]
     temps=[]
     if pagesite=='en':
-        mylink=englishdictionry(falink, 'fa','en')
         mysite=en_site
     else:
-        mylink=falink
         mysite=fa_site
     if mylink:
         mylink=mylink.replace(u' ',u'_')
@@ -150,8 +148,7 @@ def englishdictionry(enlink, firstsite, secondsite):
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
-    purgquery(enlink,'en')
-    purgquery(enlink,'fa')
+
     enlink = enlink.replace(u' ', u'_')
     params = {
         'action': 'query',
@@ -173,6 +170,8 @@ def englishdictionry(enlink, firstsite, secondsite):
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = result
+        purgquery(enlink,firstsite)
+        purgquery(result,secondsite)
         return result
     except:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
