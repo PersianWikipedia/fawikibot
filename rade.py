@@ -113,6 +113,29 @@ def namespacefinder(enlink, site):
         _cache[tuple([enlink, site, 'ns'])] = False
         return False
 
+def purgquery(falink,pagesite):
+    if _cache.get(tuple([falink, pagesite, 'purg'])):
+        return _cache[tuple([falink, pagesite, 'purg'])]
+    temps=[]
+    if pagesite=='en':
+        mylink=englishdictionry(falink 'fa','en')
+        mysite=en_site
+    else:
+        mylink=falink
+        mysite=fa_site
+    if mylink:
+        mylink=mylink.replace(u' ',u'_')
+        #https://en.wikipedia.org/w/api.php?action=purge&titles=Iran|Tehran|Greece|Germany&forcelinkupdate=1
+        params = {
+                'action': 'purge',
+                'titles': mylink,
+                'forcelinkupdate': 1
+        }
+        if params:
+            categoryname = pywikibot.data.api.Request(site=mysite, **params).submit()
+            for item in categoryname[u'purge']:
+                templateha=item[u'title']
+                break
 
 def englishdictionry(enlink, firstsite, secondsite):
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
@@ -326,7 +349,8 @@ def pagefafinder(encatTitle):
     cn.close()
     # -----------------end of sql--------------------------------------------
     for raw in results:
-        cats.append(raw)
+       raw=list(raw)
+       cats.append(raw[0],raw[1])
     if cats != []:
         return cats
     else:
@@ -620,8 +644,11 @@ def encatlist(encat):
         try:
             fapages = pagefafinder(enpageTitle)
             if fapages is not False:
-                for pages in fapages:
-                    pages = unicode(pages[0], 'UTF-8')
+                for pages,profix_fa in fapages:
+                    if  profix_fa=='14':
+                        pages = u'Category:'+unicode(pages[0], 'UTF-8')
+                    else:
+                        pages = unicode(pages[0], 'UTF-8')
                     pywikibot.output(u'\03{lightgreen}Adding ' + pages + u' to fapage lists\03{default}')
                     listenpageTitle.append(pages)
         except:
