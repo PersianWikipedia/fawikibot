@@ -150,6 +150,8 @@ def englishdictionry(enlink, firstsite, secondsite):
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
+    purgquery(enlink,'en')
+    purgquery(enlink,'fa')
     enlink = enlink.replace(u' ', u'_')
     params = {
         'action': 'query',
