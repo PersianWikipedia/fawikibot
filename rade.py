@@ -118,7 +118,7 @@ def purgquery(falink,pagesite):
         return _cache[tuple([falink, pagesite, 'purg'])]
     temps=[]
     if pagesite=='en':
-        mylink=englishdictionry(falink 'fa','en')
+        mylink=englishdictionry(falink, 'fa','en')
         mysite=en_site
     else:
         mylink=falink
