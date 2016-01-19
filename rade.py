@@ -166,8 +166,6 @@ def englishdictionry(enlink, firstsite, secondsite):
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = result
-        purgquery(enlink,firstsite)
-        purgquery(result,secondsite)
         return result
     except:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
@@ -337,8 +335,7 @@ def pagefafinder(encatTitle):
     except:
         item = str(encatTitle).replace('[[en:', '').replace(']]', '').replace(' ', '_').replace('Category:', '')
     # -----------------start sql---------------------------------------
-    queries = 'SELECT /* SLOW_OK */ ll_title,page_namespace  FROM page JOIN categorylinks JOIN langlinks WHERE cl_to = "' + item + \
-        '" AND cl_from=page_id AND (page_namespace=14 or page_namespace = 0) AND page_id =ll_from AND ll_lang = "fa" GROUP BY ll_title ;'
+    queries = 'SELECT /* SLOW_OK */ ll_title,page_namespace  FROM page JOIN categorylinks JOIN langlinks WHERE cl_to = "' + item + '" AND cl_from=page_id AND page_id =ll_from AND ll_lang = "fa" GROUP BY ll_title ;'
     cn = MySQLdb.connect("enwiki.labsdb", db=en_site.dbName()+ '_p', user=config.db_username, passwd=config.db_password)
     cur = cn.cursor()
     cur.execute(queries)
@@ -780,10 +777,9 @@ def main():
         if linken:
             for workpage in linken:
                 workpage = workpage.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
-                pywikibot.output(u'>'+workpage)
                 workpage = englishdictionry(workpage, fa_site, en_site)
+                pywikibot.output(workpage)
                 if workpage is not False:
-                    pywikibot.output(u'en >'+workpage)
                     encatfalist,encatlists=encatlist(workpage)
                     workpage=englishdictionry(workpage,fa_site,en_site)
                     if encatfalist:
