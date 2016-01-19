@@ -501,7 +501,7 @@ def run(gen):
             except:
                 pywikibot.output(u'\03{lightred}Could not open page\03{default}')
                 continue
-            namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103, 828, 829]
+            namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103,118,119,446,447, 828, 829]
             if page.namespace() in namespaceblacklist:
                 continue
             if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{الگو:رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1 or text.find(u'{{رده بهتر') != -1:
@@ -622,7 +622,17 @@ def encatlist(encat):
                 for pages,profix_fa in fapages:
                     if  profix_fa=='14':
                         pages = u'Category:'+unicode(pages, 'UTF-8')
-                    elif profix_fa in ['1', '2', '3', '5', '7', '8', '9', '11', '13', '15', '101', '103', '828', '829']:
+                    elif  profix_fa=='12':
+                        pages = u'Help:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='10':
+                        pages = u'Template:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='6':
+                        pages = u'File:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='4':
+                        pages = u'Wikipedia:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='100':
+                        pages = u'Portal:'+unicode(pages, 'UTF-8')
+                    elif profix_fa in ['1', '2', '3', '5', '7', '8', '9', '11', '13', '15', '101', '103','118','119','446','447', '828', '829']:
                         continue
                     else:
                         pages = unicode(pages, 'UTF-8')
