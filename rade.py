@@ -117,10 +117,6 @@ def purgquery(mylink,pagesite):
     if _cache.get(tuple([mylink, pagesite, 'purg'])):
         return _cache[tuple([mylink, pagesite, 'purg'])]
     temps=[]
-    if pagesite=='en':
-        mysite=en_site
-    else:
-        mysite=fa_site
     if mylink:
         mylink=mylink.replace(u' ',u'_')
         #https://en.wikipedia.org/w/api.php?action=purge&titles=Iran|Tehran|Greece|Germany&forcelinkupdate=1
@@ -130,7 +126,7 @@ def purgquery(mylink,pagesite):
                 'forcelinkupdate': 1
         }
         if params:
-            categoryname = pywikibot.data.api.Request(site=mysite, **params).submit()
+            categoryname = pywikibot.data.api.Request(site=pagesite, **params).submit()
             for item in categoryname[u'purge']:
                 templateha=item[u'title']
                 break
@@ -784,10 +780,12 @@ def main():
         if linken:
             for workpage in linken:
                 workpage = workpage.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
+                pywikibot.input(u'>'+workpage)
                 workpage = englishdictionry(workpage, fa_site, en_site)
                 if workpage is not False:
+                    pywikibot.input(u'en >'+workpage)
                     encatfalist,encatlists=encatlist(workpage)
-                    workpage=englishdictionry(workpage,'fa','en')
+                    workpage=englishdictionry(workpage,fa_site,en_site)
                     if encatfalist:
                         run(encatfalist)
         pywikibot.stopme()
