@@ -113,7 +113,6 @@ def namespacefinder(enlink, site):
         _cache[tuple([enlink, site, 'ns'])] = False
         return False
 
-
 def englishdictionry(enlink, firstsite, secondsite):
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
         return _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]
@@ -127,6 +126,7 @@ def englishdictionry(enlink, firstsite, secondsite):
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
+
     enlink = enlink.replace(u' ', u'_')
     params = {
         'action': 'query',
@@ -317,8 +317,7 @@ def pagefafinder(encatTitle):
     except:
         item = str(encatTitle).replace('[[en:', '').replace(']]', '').replace(' ', '_').replace('Category:', '')
     # -----------------start sql---------------------------------------
-    queries = 'SELECT /* SLOW_OK */ ll_title  FROM page JOIN categorylinks JOIN langlinks WHERE cl_to = "' + item + \
-        '" AND cl_from=page_id AND page_namespace = 0 AND page_id =ll_from AND ll_lang = "fa" AND page_namespace = 0 GROUP BY ll_title ;'
+    queries = 'SELECT /* SLOW_OK */ ll_title,page_namespace  FROM page JOIN categorylinks JOIN langlinks WHERE cl_to = "' + item + '" AND cl_from=page_id AND page_id =ll_from AND ll_lang = "fa" GROUP BY ll_title ;'
     cn = MySQLdb.connect("enwiki.labsdb", db=en_site.dbName()+ '_p', user=config.db_username, passwd=config.db_password)
     cur = cn.cursor()
     cur.execute(queries)
@@ -326,7 +325,8 @@ def pagefafinder(encatTitle):
     cn.close()
     # -----------------end of sql--------------------------------------------
     for raw in results:
-        cats.append(raw)
+       raw=list(raw)
+       cats.append([raw[0],raw[1]])
     if cats != []:
         return cats
     else:
@@ -490,7 +490,7 @@ def run(gen):
             continue
         if finallRadeh.replace('\n', '').strip() == '':
             continue
-        if finallRadeh:
+        try:
             link = pagework.replace(u'[[', u'').replace(u']]', u'').strip()
             page = pywikibot.Page(fa_site, link)
 
@@ -501,7 +501,7 @@ def run(gen):
             except:
                 pywikibot.output(u'\03{lightred}Could not open page\03{default}')
                 continue
-            namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103, 828, 829]
+            namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103,118,119,446,447, 828, 829]
             if page.namespace() in namespaceblacklist:
                 continue
             if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{الگو:رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1 or text.find(u'{{رده بهتر') != -1:
@@ -581,9 +581,9 @@ def run(gen):
             page.put(text_new.strip(), msg)
 
             pywikibot.output(u'\03{lightpurple} Done=' + pagework + u"\03{default}")
-        # except Exception as e:
-            # pywikibot.output(u'\03{lightred}Could not open page\03{default}')
-            # continue
+        except Exception as e:
+             pywikibot.output(u'\03{lightred}Could not open page\03{default}')
+             continue
 # -------------------------------encat part-----------------------------------
 
 
@@ -614,16 +614,31 @@ def encatlist(encat):
     encat = encat.replace(u'[[', u'').replace(u']]', u'').replace(u'Category:', u'').replace(u'category:', u'').strip()
     language = 'en'
     encat = pywikibot.Category(pywikibot.Site(language), encat)
-    # listacategory=categorydown(encat)
     listacategory = [encat]
     for enpageTitle in listacategory:
         try:
             fapages = pagefafinder(enpageTitle)
             if fapages is not False:
-                for pages in fapages:
-                    pages = unicode(pages[0], 'UTF-8')
+                for pages,profix_fa in fapages:
+                    if  profix_fa=='14':
+                        pages = u'Category:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='12':
+                        pages = u'Help:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='10':
+                        pages = u'Template:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='6':
+                        pages = u'File:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='4':
+                        pages = u'Wikipedia:'+unicode(pages, 'UTF-8')
+                    elif  profix_fa=='100':
+                        pages = u'Portal:'+unicode(pages, 'UTF-8')
+                    elif profix_fa in ['1', '2', '3', '5', '7', '8', '9', '11', '13', '15', '101', '103','118','119','446','447', '828', '829']:
+                        continue
+                    else:
+                        pages = unicode(pages, 'UTF-8')
                     pywikibot.output(u'\03{lightgreen}Adding ' + pages + u' to fapage lists\03{default}')
                     listenpageTitle.append(pages)
+
         except:
 
             try:
@@ -755,11 +770,12 @@ def main():
         linken = re.findall(ur'\[\[.*?\]\]', text, re.S)
         if linken:
             for workpage in linken:
+                pywikibot.output(u'\03{lightblue}Working on --- Link ' + workpage + u' at th newcatfile\03{default}')
                 workpage = workpage.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
                 workpage = englishdictionry(workpage, fa_site, en_site)
                 if workpage is not False:
                     encatfalist,encatlists=encatlist(workpage)
-                    workpage=englishdictionry(workpage,'fa','en')
+                    workpage=englishdictionry(workpage,fa_site,en_site)
                     if encatfalist:
                         run(encatfalist)
         pywikibot.stopme()
