@@ -223,12 +223,12 @@ def main():
         'sign'    : True
         },
         {
-        'sql'     : "select page_title, il_to from page join imagelinks on il_from = page_id where page_namespace = 0 and il_to not in (select page_title from page where page_namespace = 6) and il_to not in (select page_title from commonswiki_p.page where page_namespace = 6)",
+        'sql'     : "select page_title, il_to from page join imagelinks on il_from = page_id where page_namespace = 0 and il_to not in (select page_title from page where page_namespace = 6) and il_to not in (select page_title from commonswiki_p.page where page_namespace = 6) limit 10000",
         'out'     : 'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به پرونده ناموجود',
         'cols'    : [u'ردیف', u'مقاله', u'پرونده'],
         'summary' : u'به روز کردن آمار',
-        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-        'frmt'    : u'| %s || [[%s]] || [[:پرونده:%s]]',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست حداکثر ده‌هزارتا از مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d}} || [[%s]] || [[:پرونده:%s]]',
         'sign'    : True
         },
         {
