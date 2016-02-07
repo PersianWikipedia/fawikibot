@@ -393,6 +393,15 @@ def main():
         'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
         'sign'    : True
         },
+        {
+        'sql'     : "select cl_to, count(cl_from) cnt from categorylinks join logging on log_title = cl_to left join page on cl_to = page_title and page_namespace = 14 where log_action = 'delete' and page_id is null group by cl_to order by CNT desc",
+        'out'     : 'وپ:گزارش دیتابیس/رده‌های حذف شده مورد نیاز',
+        'cols'    : [u'ردیف', u'رده', u'تعداد کاربردها'],
+        'summary' : u'به روز کردن آمار',
+        'pref'    : u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
+        'frmt'    : u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s}}',
+        'sign'    : True
+        },
     ]
 
     for t in tasks:
