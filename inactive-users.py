@@ -74,7 +74,7 @@ class InactiveUsersBot:
             if self.frmt:
                 row = tuple(row)
                 if '%d' in self.frmt:
-                   row = (rowid + 1,) + row
+                    row = (rowid + 1,) + row
                 text += self.frmt % row
                 text += u'\n'
             else:
@@ -88,7 +88,7 @@ class InactiveUsersBot:
         if self.sign:
             if not self.save('~~~~~', sign, self.summary):
                 pywikibot.outout(u'Signature note saved in %s.' %
-                    sign.title(asLink=True))
+                                 sign.title(asLink=True))
 
     def save(self, text, page, comment=None, minorEdit=True,
              botflag=True):
