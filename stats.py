@@ -26,7 +26,7 @@ List of parameters
   -frmt     This optional parameter specifies the format of the output (rows of
             the table). If this is not specified, then a simple table will be
             generated where each row of the query result will be shown as a row
-            in the table; in this case, the only parsing that is done is by 
+            in the table; in this case, the only parsing that is done is by
             localizing the numeric cells. If this parameter is specified, then
             it will be used as a formatting string in the standard way that
             python handles string formatting (i.e. %s will be replaced with a
@@ -92,7 +92,7 @@ class StatsBot:
             if self.frmt:
                 row = tuple(row)
                 if '%d' in self.frmt:
-                   row = (rowid + 1,) + row
+                    row = (rowid + 1,) + row
                 text += self.frmt % row
                 text += u'\n'
             else:
@@ -106,7 +106,7 @@ class StatsBot:
         if self.sign:
             if not self.save('~~~~~', sign, self.summary):
                 pywikibot.outout(u'Signature note saved in %s.' %
-                    sign.title(asLink=True))
+                                 sign.title(asLink=True))
 
     def save(self, text, page, comment=None, minorEdit=True,
              botflag=True):
@@ -166,4 +166,3 @@ def main(*args):
 
 if __name__ == "__main__":
     main()
-
