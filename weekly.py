@@ -545,26 +545,14 @@ def main():
         },
         {
             "sql":
-            "SELECT  page_title,  pr_expiry FROM page_restrictions JOIN page ON page_id = pr_page WHERE page_namespace = 0 AND pr_type = 'edit' AND pr_level = 'sysop' AND pr_expiry != 'infinity';",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های دارای محافظت کامل  با زمان محدود‌',
+            "SELECT  page_title, replace(str_to_date(pr_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ')   FROM page_restrictions JOIN page ON page_id = pr_page WHERE page_namespace = 0 AND pr_type = 'edit' AND pr_level = 'sysop' AND pr_expiry != 'infinity';",
+            "out": 'وپ:گزارش دیتابیس/مقاله‌های دارای محافظت کامل با زمان محدود',
             "cols": [u'ردیف', u'مقاله',  u'تاریخ انقضا'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که محافظت کامل با زمان محدود (اما نه بی‌پایان) شده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
             u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
-            "sign": True
-        },
-        {
-            "sql":
-            "SELECT  page_namespace,  page_title,  COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;"
-            "out": 'وپ:گزارش دیتابیس/پر ویرایش‌ترین صفحات‌',
-            "cols": [u'ردیف', u'فضای نام',  u'صفحه',  u'تعداد ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد. برای اطلاع از شمارهٔ فضاهای نام [[وپ:فضای نام]] را مشاهده کنید.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} ||{{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
             "sign": True
         },
     ]
