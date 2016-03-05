@@ -66,7 +66,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 300",
+            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 300",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها',
             "cols": [u'ردیف', u'کاربر', u'مقاله جدید', u'الگوی جدید',
@@ -80,7 +80,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 200",
+            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 200",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها/ربات',
             "cols": [u'ردیف', u'کاربر', u'مقاله جدید', u'الگوی جدید',
@@ -94,7 +94,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
+            "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله',
             "cols": [u'ردیف', u'کاربر', u'اولین ایجاد مقاله', u'مقاله ۰ تا ۲ کیلوبایت',
@@ -108,7 +108,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
+            "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله/ربات',
             "cols": [u'ردیف', u'کاربر', u'اولین ایجاد مقاله', u'مقاله ۰ تا ۲ کیلوبایت',
@@ -122,7 +122,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
+            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام',
             "cols": [u'ردیف', u'کاربر', u'مقاله', u'بحث', u'کاربر', u'بحث کاربر', u'ویکی‌پدیا', u'بحث ویکی‌پیدا', u'پرونده', u'بحث پرونده', u'مدیاویکی',
@@ -136,7 +136,7 @@ def main():
         },
         {
             "sql":
-            "select user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id where rev_user > 0 and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
+            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id where rev_user > 0 and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
             "out":
             'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام/ربات',
             "cols": [u'ردیف', u'کاربر', u'مقاله', u'بحث', u'کاربر', u'بحث کاربر', u'ویکی‌پدیا', u'بحث ویکی‌پیدا', u'پرونده', u'بحث پرونده', u'مدیاویکی',
@@ -146,6 +146,18 @@ def main():
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
             u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sign": True
+        },
+        {
+            "sql":
+            "SELECT  /* SLOW OK */ page_namespace,  page_title,  COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
+            "out": 'وپ:گزارش دیتابیس/پر ویرایش‌ترین صفحات‌',
+            "cols": [u'ردیف', u'فضای نام',  u'صفحه',  u'تعداد ویرایش'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد. برای اطلاع از شمارهٔ فضاهای نام [[وپ:فضای نام]] را مشاهده کنید.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} ||{{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
             "sign": True
         },
     ]
