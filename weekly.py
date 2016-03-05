@@ -533,14 +533,14 @@ def main():
         },
         {
             "sql":
-            "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp, 8), '%Y%m%d'), str_to_date(left(ipb_expiry, 8), '%Y%m%d')/*, ipb_reason*/ from ipblocks where ipb_expiry > date_format(date_add(now(),interval 2 year),'%y%m%d%h%i%s') and ipb_expiry <> 'infinity' and ipb_user = 0",
+            "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp, 8), '%Y%m%d'), str_to_date(left(ipb_expiry, 8), '%Y%m%d'), ipb_reason from ipblocks where str_to_date(left(ipb_expiry, 8), '%Y%m%d') > date_add(str_to_date(left(ipb_timestamp, 8), '%Y%m%d'),interval 2 year) and ipb_expiry <> 'infinity' and ipb_user = 0",
             "out": 'وپ:گزارش دیتابیس/آی‌پی‌های بسته‌شده به مدت طولانی',
-            "cols": [u'ردیف', u'آی‌پی', u'مجری', u'تاریخ بستن', u'تاریخ انقضا'],
+            "cols": [u'ردیف', u'آی‌پی', u'مجری', u'تاریخ بستن', u'تاریخ انقضا', u'دلیل'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست آی‌پی‌هایی را نشان می‌دهد که بیش از دو سال بسته شده‌اند (اما نه بی‌پایان).\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
+            u'| {{formatnum:%d}} || [[کاربر:%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || <nowiki>%s</nowiki>',
             "sign": True
         },
         {
