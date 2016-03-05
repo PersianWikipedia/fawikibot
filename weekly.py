@@ -540,7 +540,7 @@ def main():
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست آی‌پی‌هایی را نشان می‌دهد که بیش از دو سال بسته شده‌اند (اما نه بی‌پایان).\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d}} || %s || %s || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
+            u'| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
             "sign": True
         },
     ]
