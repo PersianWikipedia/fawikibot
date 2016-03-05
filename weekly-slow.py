@@ -22,9 +22,10 @@ import sys
 from scripts import stats
 
 
-def main():
+def main(sqlnum):
     tasks = [
         {
+            "sqlnum":1,
             "sql":
             "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files from page join category on page_title = cat_title left join categorylinks on page_id = cl_from where page_namespace = 14 and cl_from is null",
             "out": 'وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده',
@@ -42,6 +43,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":2,
             "sql":
             "select /* SLOW_OK */ page_title, str_to_date(left(rev_timestamp,8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from where page_namespace = 10 and cl_to is null and page_is_redirect = 0",
             "out": 'وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده',
@@ -53,6 +55,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":3,
             "sql":
             "select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where ug_group is null group by rev_user order by cnt desc limit 500",
             "out": 'وپ:گزارش دیتابیس/کاربران بر اساس تعداد ویرایش‌ها',
@@ -65,6 +68,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":4,
             "sql":
             "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 300",
             "out":
@@ -79,6 +83,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":5,
             "sql":
             "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 200",
             "out":
@@ -93,6 +98,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":6,
             "sql":
             "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
             "out":
@@ -107,6 +113,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":7,
             "sql":
             "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
             "out":
@@ -121,6 +128,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":8,
             "sql":
             "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
             "out":
@@ -135,6 +143,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":9,
             "sql":
             "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id where rev_user > 0 and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
             "out":
@@ -149,6 +158,7 @@ def main():
             "sign": True
         },
         {
+            "sqlnum":10,
             "sql":
             "SELECT  /* SLOW OK */ page_namespace,  page_title,  COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
             "out": 'وپ:گزارش دیتابیس/پر ویرایش‌ترین صفحات‌',
@@ -163,6 +173,9 @@ def main():
     ]
 
     for t in tasks:
+        if sqlnum:
+            if sqlnum!=t["sqlnum"]:
+                continue
         bot = stats.StatsBot(
             t["sql"],
             t["out"],
@@ -177,5 +190,12 @@ def main():
             print sys.exc_info()[0]
 
 if __name__ == "__main__":
-    main()
+    #For testing specifice sql you can use it's sqlnum argument
+    # python pwb.py weekly-slow.py <sqlnum>
+    # python pwb.py weekly-slow.py 2
+    try:
+        sqlnum=int(sys.argv[1])
+    except:
+        sqlnum=0
+    main(sqlnum)
 
