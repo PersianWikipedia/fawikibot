@@ -19,7 +19,7 @@ from __future__ import unicode_literals
 
 import pywikibot
 import sys
-from scripts import stats
+import stats
 
 
 def main(sqlnum):
