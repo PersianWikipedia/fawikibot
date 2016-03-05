@@ -150,17 +150,6 @@ def main():
         },
         {
             "sql":
-            "select page_title from page join (select rev_page, count(distinct rev_user) as cnt from revision group by rev_page having cnt = 1) singleauth on page_id = rev_page left join pagelinks on pl_title = page_title and pl_namespace = 4 left join templatelinks on tl_title = page_title and tl_namespace = 4 where page_namespace = 4 and page_is_redirect = 0 and pl_title is null and tl_title is null",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده',
-            "cols": [u'ردیف', u'صفحه'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[{{ns:4}}:%s]]',
-            "sign": True
-        },
-        {
-            "sql":
             "select page_title from page join (select rev_page, count(distinct rev_user) as cnt from revision group by rev_page having cnt = 1) singleauth on page_id = rev_page left join pagelinks on pl_title = page_title and pl_namespace = 4 and pl_from <> 1171408 left join templatelinks on tl_title = page_title and tl_namespace = 4 where page_namespace = 4 and page_is_redirect = 0 and pl_title is null and tl_title is null",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده',
             "cols": [u'ردیف', u'صفحه'],
@@ -268,12 +257,12 @@ def main():
         },
         {
             "sql":
-            "select page_namespace, page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join (select rev_page, count(distinct rev_user) cnt from revision group by rev_page having cnt = 1) authors on page_id = rev_page where page_namespace not in (6, 14) and page_is_redirect = 0 and cl_to is null and page_len < 10 order by page_len",
+            "select page_namespace, page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join (select rev_page, count(distinct rev_user) cnt from revision group by rev_page having cnt = 1) authors on page_id = rev_page where page_namespace not in (6, 14) and page_is_redirect = 0 and page_namespace in (0, 4, 12) and cl_to is null and page_len < 10 order by page_len",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های کوتاه تک‌نویسنده',
-            "cols": [u'ردیف', u'مقاله', u'حجم'],
+            "cols": [u'ردیف', u'صفحه', u'حجم'],
             "summary": u'به روز کردن آمار',
             "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی در فضای نام مقاله، ویکی‌پدیا یا راهنما را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
             u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || {{formatnum:%s}}',
             "sign": True
@@ -540,6 +529,18 @@ def main():
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
             u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s}}',
+            "sign": True
+        },
+        {
+            "sql":
+            "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp, 8), '%Y%m%d'), str_to_date(left(ipb_expiry, 8), '%Y%m%d')/*, ipb_reason*/ from ipblocks where ipb_expiry > date_format(date_add(now(),interval 2 year),'%y%m%d%h%i%s') and ipb_expiry <> 'infinity' and ipb_user = 0",
+            "out": 'وپ:گزارش دیتابیس/آی‌پی‌های بسته‌شده به مدت طولانی',
+            "cols": [u'ردیف', u'آی‌پی', u'مجری', u'تاریخ بستن', u'تاریخ انقضا'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست آی‌پی‌هایی را نشان می‌دهد که بیش از دو سال بسته شده‌اند (اما نه بی‌پایان).\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || %s || %s || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
             "sign": True
         },
     ]
