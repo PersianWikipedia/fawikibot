@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """
-weekly.py - a wrapper for stats.py to be called every week.
+weekly-slow.py - a wrapper for stats.py to be called every week.
 
 usage:
-
-    python pwb.py weekly
+    <sqlnum>: For testing specifice sql you can use it's sqlnum argument. it is optional
+    python pwb.py weekly-slow <sqlnum>
+    Like:
+    python pwb.py weekly-slow.py 2
+    or
+    python pwb.py weekly-slow.py
 """
 #
 # (C) Pywikibot team, 2006-2014
@@ -190,9 +194,7 @@ def main(sqlnum):
             print sys.exc_info()[0]
 
 if __name__ == "__main__":
-    #For testing specifice sql you can use it's sqlnum argument
-    # python pwb.py weekly-slow.py <sqlnum>
-    # python pwb.py weekly-slow.py 2
+
     try:
         sqlnum=int(sys.argv[1])
     except:
