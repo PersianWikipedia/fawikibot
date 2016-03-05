@@ -776,7 +776,9 @@ def main():
                 if workpage is not False:
                     encatfalist,encatlists=encatlist(workpage)
                     workpage=englishdictionry(workpage,fa_site,en_site)
-                    if encatfalist:
+                    if encatlists:
+                        run(encatlists)
+                    if encatfalist is not False:
                         run(encatfalist)
         pywikibot.stopme()
         sys.exit()
