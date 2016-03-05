@@ -4,7 +4,11 @@
 weekly.py - a wrapper for stats.py to be called every week.
 
 usage:
-
+    <sqlnum>: For testing specifice sql you can use it's sqlnum argument. it is optional
+    python pwb.py weekly <sqlnum>
+    Like:
+    python pwb.py weekly 2
+    or
     python pwb.py weekly
 """
 #
