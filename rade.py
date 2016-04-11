@@ -691,8 +691,8 @@ def main():
         elif arg.startswith('-template:'):
             template = arg[10:]
         elif arg.startswith('-facat:'):
-            encat = arg[7:].replace(u'Category:', u'').replace(u'category:', u'').replace(u'رده:', u'')
-            encat = englishdictionry(u'رده:' + encat, fa_site, en_site).replace(u'Category:', u'').replace(u'category:', u'')
+            facat = arg.replace(u'Category:', u'').replace(u'category:', u'').replace(u'رده:', u'')
+            encat = englishdictionry(u'رده:' + facat[7:], fa_site, en_site).replace(u'Category:', u'').replace(u'category:', u'')
             break
         elif arg.startswith('-encat:'):
             encat = arg[7:].replace(u'Category:', u'').replace(u'category:', u'').replace(u'رده:', u'')
