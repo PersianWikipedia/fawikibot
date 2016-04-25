@@ -23,7 +23,7 @@ pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
 testpass=False
-cleaning_version=u'۱۰.۶ core'
+cleaning_version=u'۱۱ core'
 msg=u'('+cleaning_version +u')' 
 faSite=pywikibot.Site('fa',fam='wikipedia')
 _cache = {}
@@ -612,8 +612,8 @@ def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
             msg=u'+'+msg
         text=text.replace(u'[[اااااااا',u'[[\u200c').replace(u']]بببببببببب',u']]\u200c')
         text=text.replace(u'ججججججججججج[[',u'\u200c[[').replace(u'چچچچچچچچچچ]]',u'\u200c]]')
-        text=text.replace(u'ججججججججججج',u'').replace(u'بببببببببب',u'').replace(u'اااااااا',u'')
         text=reverting(text,old_text)
+        text=text.replace(u'چچچچچچچچچچ',u'').replace(u'ججججججججججج',u'').replace(u'بببببببببب',u'').replace(u'اااااااا',u'')
         return text,cleaning_version,msg
    
 def run(preloadingGen,msg):
