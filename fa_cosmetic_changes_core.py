@@ -1,4 +1,4 @@
-?#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8  -*-
 #
 # Z    (User:ZxxZxxZ) Base of the code + Word Dictionaries and some of Regexs
