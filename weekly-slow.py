@@ -184,7 +184,7 @@ def main(sqlnum):
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%d}}',
+            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
             "sign": True
         },
     ]
