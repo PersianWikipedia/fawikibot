@@ -178,7 +178,7 @@ def main(sqlnum):
             "sqlnum":11,
             "sql":
             "Select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrol'  group by rev_user order by cnt limit 1000;",
-            "out": 'وپ:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش‌',
+            "out": u'ویکی‌پدیا:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش'
             "cols": [u'ردیف', u'کاربر',  u'تعداد ویرایش'],
             "summary": u'به روز کردن آمار',
             "pref":
