@@ -174,6 +174,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} ||{{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
             "sign": True
         },
+        {
+            "sqlnum":11,
+            "sql":
+            "Select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrol'  group by rev_user order by cnt limit 1000;",
+            "out": 'وپ:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش‌',
+            "cols": [u'ردیف', u'کاربر',  u'تعداد ویرایش'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%d}}',
+            "sign": True
+        },
     ]
 
     for t in tasks:
