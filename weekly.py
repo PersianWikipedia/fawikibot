@@ -68,7 +68,7 @@ def main(sqlnum):
         {
             "sqlnum":4,
             "sql":
-            "select page_title, str_to_date(left(page_touched,8), '%Y%m%d') from page left join categorylinks on page_id = cl_from where page_namespace = 6 and cl_to is null",
+            "select page_title, str_to_date(left(page_touched,8), '%Y%m%d') from page left join categorylinks on page_id = cl_from where page_namespace = 6 and page_is_redirect = 0 and cl_to is null",
             "out": 'وپ:گزارش دیتابیس/پرونده‌های رده‌بندی نشده',
             "cols": [u'ردیف', u'پرونده', u'تاریخ بارگذاری'],
             "summary": u'به روز کردن آمار',
