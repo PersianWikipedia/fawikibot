@@ -49,7 +49,7 @@ def main(sqlnum):
         {
             "sqlnum":2,
             "sql":
-            "select /* SLOW_OK */ page_title, str_to_date(left(rev_timestamp,8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from where page_namespace = 10 and cl_to is null and page_is_redirect = 0",
+            "select /* SLOW_OK */ page_title, str_to_date(left(rev_timestamp,8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from where page_namespace = 10 and cl_to is null and page_is_redirect = 0 order by page_latest limit 5000",
             "out": 'وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده',
             "cols": [u'ردیف', u'الگو', u'آخرین ویرایش'],
             "summary": u'به روز کردن آمار',
