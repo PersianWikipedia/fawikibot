@@ -386,9 +386,11 @@ def pedar(catfa, radehi, link):
                         except:
                             radehi = radehi.replace(u'(', u' اااا ').replace(u')', u' بببب ')
                             hazfi = hazfi.replace(u'(', u' اااا ').replace(u')', u' بببب ')
-                            hazfi = re.search(u'\[\[ *(?:[Cc]ategory|رده) *:*%s*(?:\|.*?|)\]\]' % hazfi, radehi).group(0)
-                            radehi = radehi.replace(hazfi, '')
-                            radehi = radehi.replace(u' اااا ', u'(').replace(u' بببب ', u')')
+                            hazfi = re.search(u'\[\[ *(?:[Cc]ategory|رده) *:*%s*(?:\|.*?|)\]\]' % hazfi, radehi)
+                            if hazfi:
+                                hazfi= hazfi.group(0)
+                                radehi = radehi.replace(hazfi, '')
+                                radehi = radehi.replace(u' اااا ', u'(').replace(u' بببب ', u')')
                         radehi = radehi.replace('\n\n', '\n').strip()
                         break
     radehi = radehi.replace(',', '\n').strip()
