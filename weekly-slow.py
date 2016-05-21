@@ -177,14 +177,14 @@ def main(sqlnum):
         {
             "sqlnum":11,
             "sql":
-            "Select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrol'  group by rev_user order by cnt limit 1000;",
+            "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') as lastedit, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrol'  group by rev_user order by cnt limit 1000",
             "out": u'ویکی‌پدیا:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش',
-            "cols": [u'ردیف', u'کاربر',  u'تعداد ویرایش'],
+            "cols": [u'ردیف', u'کاربر', u'آخرین ویرایش', u'تعداد کل ویرایش‌ها'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
+            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s}}',
             "sign": True
         },
     ]
