@@ -402,193 +402,196 @@ def pedar(catfa, radehi, link):
 
 def run(gen):
     for pagework in gen:
-        radehf, catsfas, maghalehen, radeh, finallRadeh = ' ', ' ', ' ', ' ', ' '
         try:
-            pagework = unicode(str(pagework), 'UTF-8')
-        except:
-            pagework = pagework
+            radehf, catsfas, maghalehen, radeh, finallRadeh = ' ', ' ', ' ', ' ', ' '
+            try:
+                pagework = unicode(str(pagework), 'UTF-8')
+            except:
+                pagework = pagework
 
-        if pagework in page_list_run:
-            continue
-        else:
-            page_list_run.append(pagework)
+            if pagework in page_list_run:
+                continue
+            else:
+                page_list_run.append(pagework)
 
-        pywikibot.output(u'-----------------------------------------------')
-        pywikibot.output(u'opening....' + pagework)
-        catsfa = sitop(pagework, 'fa')
-        if catsfa is False:
-            continue
-        for tem in catsfa:
-            #if unicode(str(tem), 'UTF-8').find(u'رده:مقاله‌های ایجاد شده توسط ایجادگر') != -1:
-            #    continue
-            cat_queries_result=catquery(unicode(str(tem), 'UTF-8'), 'fa', True)
-            if cat_queries_result:
-                if u'رده:رده‌های پنهان' in cat_queries_result:
-                    pywikibot.output(u'>> Continueing the hidden category '+unicode(str(tem), 'UTF-8'))
-                    continue
-            catsfas += unicode(str(tem), 'UTF-8') + ','
-        maghalehen = englishdictionry(pagework, fa_site, en_site)
-        if not maghalehen:
-            continue
-        pageblacklist = [u'Sandbox']
-        passing = True
-        for item in pageblacklist:
-            if maghalehen.find(item.lower()) != -1:
-                passing = False
-                break
-        if not passing:
-            continue
-        if namespacefinder(maghalehen, en_site) != namespacefinder(pagework, fa_site):
-            pywikibot.output(u"\03{lightred}Interwikis have'nt the same namespace\03{default}")
-            continue
-        catsen = catquery(maghalehen, 'en', False)
-        if not catsen:
-            time.sleep(5)
+            pywikibot.output(u'-----------------------------------------------')
+            pywikibot.output(u'opening....' + pagework)
+            catsfa = sitop(pagework, 'fa')
+            if catsfa is False:
+                continue
+            for tem in catsfa:
+                #if unicode(str(tem), 'UTF-8').find(u'رده:مقاله‌های ایجاد شده توسط ایجادگر') != -1:
+                #    continue
+                cat_queries_result=catquery(unicode(str(tem), 'UTF-8'), 'fa', True)
+                if cat_queries_result:
+                    if u'رده:رده‌های پنهان' in cat_queries_result:
+                        pywikibot.output(u'>> Continueing the hidden category '+unicode(str(tem), 'UTF-8'))
+                        continue
+                catsfas += unicode(str(tem), 'UTF-8') + ','
+            maghalehen = englishdictionry(pagework, fa_site, en_site)
+            if not maghalehen:
+                continue
+            pageblacklist = [u'Sandbox']
+            passing = True
+            for item in pageblacklist:
+                if maghalehen.find(item.lower()) != -1:
+                    passing = False
+                    break
+            if not passing:
+                continue
+            if namespacefinder(maghalehen, en_site) != namespacefinder(pagework, fa_site):
+                pywikibot.output(u"\03{lightred}Interwikis have'nt the same namespace\03{default}")
+                continue
             catsen = catquery(maghalehen, 'en', False)
             if not catsen:
-                continue
-        templateblacklist = [u'Wikipedia category', u'sockpuppet', u'Empty category', u'tracking category',
-                             u'container category', u'hiddencat', u'backlog subcategories', u'Stub category']
-        nameblcklist = [u'Current events', u'Tracking', u'articles‎', u'Surnames', u'Loanword',
-                        u'Words and phrases', u'Given names', u'Human names', u'stubs‎', u'Nicknames']
-        for cat in catsen:
-            passport = True
-            temples = str(templatequery(cat, 'en')).replace(u'_', u' ').strip()
-            cat = cat.replace(u'_', u' ').strip()
-            if namespacefinder(pagework, fa_site) != 14:
-                for black in templateblacklist:
-                    if temples.lower().find(black.lower()) != -1:
+                time.sleep(5)
+                catsen = catquery(maghalehen, 'en', False)
+                if not catsen:
+                    continue
+            templateblacklist = [u'Wikipedia category', u'sockpuppet', u'Empty category', u'tracking category',
+                                 u'container category', u'hiddencat', u'backlog subcategories', u'Stub category']
+            nameblcklist = [u'Current events', u'Tracking', u'articles‎', u'Surnames', u'Loanword',
+                            u'Words and phrases', u'Given names', u'Human names', u'stubs‎', u'Nicknames']
+            for cat in catsen:
+                passport = True
+                temples = str(templatequery(cat, 'en')).replace(u'_', u' ').strip()
+                cat = cat.replace(u'_', u' ').strip()
+                if namespacefinder(pagework, fa_site) != 14:
+                    for black in templateblacklist:
+                        if temples.lower().find(black.lower()) != -1:
+                            passport = False
+                            break
+                for item in nameblcklist:
+                    if cat.lower().find(item.lower()) != -1:
                         passport = False
                         break
-            for item in nameblcklist:
-                if cat.lower().find(item.lower()) != -1:
-                    passport = False
-                    break
-            if not passport:
-                continue
-            interwikifarsibase = englishdictionry(cat, en_site, fa_site)
-            if interwikifarsibase:
-                if interwikifarsibase.find(u',') != -1:
-                    try:
-                        errorpage = pywikibot.Page(fa_site, u'user:Rezabot/CategoriesWithBadNames')
-                        texterror = errorpage.get()
-                        if texterror.find(interwikifarsibase) == -1:
-                            texterror += u'\n#[[:' + interwikifarsibase + u']]'
-                            errorpage.put(texterror, u'ربات:گزارش رده با نام اشتباه')
-                        continue
-                    except:
-                        continue
-                interwikifarsi = u'[[' + interwikifarsibase + u']]'
-                if cat == englishdictionry(interwikifarsibase, fa_site, en_site):
-                    radeh += interwikifarsi + u','
-        radehf = duplic(catsfas, radeh)
-        if radehf is False:
-            continue
-        radehf = radehf.replace('\n\n', '\n').replace('\n\n', '\n').replace('\n\n', '\n').replace('\n\n', '\n').strip()
-        if radehf == "":
-            continue
-        if catsfas.strip() != u'':
-            finallRadeh = pedar(catsfas, radehf, pagework)
-        else:
-            finallRadeh = radehf.replace(',', '\n')
-        if finallRadeh is False:
-            continue
-        if finallRadeh.replace('\n', '').strip() == '':
-            continue
-        try:
-            link = pagework.replace(u'[[', u'').replace(u']]', u'').strip()
-            page = pywikibot.Page(fa_site, link)
-
-            try:
-                text = page.get()
-            except pywikibot.IsRedirectPage:
-                continue
-            except:
-                pywikibot.output(u'\03{lightred}Could not open page\03{default}')
-                continue
-            namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103,118,119,446,447, 828, 829]
-            if page.namespace() in namespaceblacklist:
-                continue
-            if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{الگو:رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1 or text.find(u'{{رده بهتر') != -1:
-                pywikibot.output(u'\03{lightred}this page had {{رده همسنگ نه}} so it is skipped!\03{default}')
-                continue
-            #---------------------------------------remove repeative category-----------------
-            text = text.replace(u']]‌', u']]@12@').replace(u'‌[[', u'@34@[[')  # for solving ZWNJ+[[ or ]]+ZWNJ Bug
-            for item in finallRadeh.split(u'\n'):
-                item2 = item.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
-                radehbehtar = templatequery(item2, 'fa')
-                if radehbehtar:
-                    if (u'الگو:رده بهتر' in radehbehtar) or (u'الگو:delete' in radehbehtar) or (u'الگو:حذف سریع' in radehbehtar):
-                        pywikibot.output(
-                            u'\03{lightred}Category %s had {{رده بهتر}} or  {{delete}} so it is skipped! please edit en.wiki interwiki\03{default}' % item2)
-                        finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
-                        continue
-                textremove = text.replace(u'  |', u'|').replace(u' |', u'|').replace(
-                    u' |', u'|').replace(u'|  ', u'|').replace(u'| ', u'|')
-                if textremove.find(u'{{رده همسنگ میلادی نه}}') != -1 or textremove.find(u'{{الگو:رده همسنگ میلادی نه}}') != -1:
-                    if item.find(u'(میلادی)') != -1 or item.find(u'(پیش از میلاد)') != -1 or item.find(u'(قبل از میلاد)') != -1:
-                        finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
-                if textremove.find(u'رده:درگذشتگان') != -1:
-                    if item.find(u'افراد زنده') != -1 or item.find(u'افراد_زنده') != -1:
-                        finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
-                if item.find(u'حذف_سریع') != -1 or item.find(u'حذف سریع') != -1:
-                    finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
-                if textremove.find(item2 + u']]') != -1 or textremove.find(item2 + u'|') != -1:
-                    finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
-
-            if finallRadeh.replace(u'\r', u'').replace(u'\n', u'').strip() == u'':
-                continue
-            finallRadeh = finallRadeh.replace(u'\r', u'').replace(u'\n\n\n\n', u'\n').replace(u'\n\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(
-                u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n')  # ---------------------------------------------------------------------------------
-            if text.find(ur'رده:') != -1 and page.namespace() != 10:
-                num = text.find(u'[[رده:')
-                text = text[:num] + finallRadeh + '\n' + text[num:]
-            else:
-                m = re.search(ur'\[\[([a-z]{2,3}|[a-z]{2,3}\-[a-z\-]{2,}|simple):.*?\]\]', text)
-                if m:
-                    if m.group(0) == u'[[en:Article]]':
+                if not passport:
+                    continue
+                interwikifarsibase = englishdictionry(cat, en_site, fa_site)
+                if interwikifarsibase:
+                    if interwikifarsibase.find(u',') != -1:
                         try:
-                            if string.count(text, u'[[en:Article]] --->') == 1:
-                                finallRadeh = re.sub(ur'\n+?', '\n', finallRadeh.replace('\r', '')).strip()
-                                text = text.split(u'[[en:Article]] --->')[0] + \
-                                    u'[[en:Article]] --->\n' + finallRadeh + \
-                                    text.split(u'[[en:Article]] --->')[1]
-                            else:
+                            errorpage = pywikibot.Page(fa_site, u'user:Rezabot/CategoriesWithBadNames')
+                            texterror = errorpage.get()
+                            if texterror.find(interwikifarsibase) == -1:
+                                texterror += u'\n#[[:' + interwikifarsibase + u']]'
+                                errorpage.put(texterror, u'ربات:گزارش رده با نام اشتباه')
+                            continue
+                        except:
+                            continue
+                    interwikifarsi = u'[[' + interwikifarsibase + u']]'
+                    if cat == englishdictionry(interwikifarsibase, fa_site, en_site):
+                        radeh += interwikifarsi + u','
+            radehf = duplic(catsfas, radeh)
+            if radehf is False:
+                continue
+            radehf = radehf.replace('\n\n', '\n').replace('\n\n', '\n').replace('\n\n', '\n').replace('\n\n', '\n').strip()
+            if radehf == "":
+                continue
+            if catsfas.strip() != u'':
+                finallRadeh = pedar(catsfas, radehf, pagework)
+            else:
+                finallRadeh = radehf.replace(',', '\n')
+            if finallRadeh is False:
+                continue
+            if finallRadeh.replace('\n', '').strip() == '':
+                continue
+            try:
+                link = pagework.replace(u'[[', u'').replace(u']]', u'').strip()
+                page = pywikibot.Page(fa_site, link)
+
+                try:
+                    text = page.get()
+                except pywikibot.IsRedirectPage:
+                    continue
+                except:
+                    pywikibot.output(u'\03{lightred}Could not open page\03{default}')
+                    continue
+                namespaceblacklist = [1, 2, 3, 5, 7, 8, 9, 11, 13, 15, 101, 103,118,119,446,447, 828, 829]
+                if page.namespace() in namespaceblacklist:
+                    continue
+                if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{الگو:رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1 or text.find(u'{{رده بهتر') != -1:
+                    pywikibot.output(u'\03{lightred}this page had {{رده همسنگ نه}} so it is skipped!\03{default}')
+                    continue
+                #---------------------------------------remove repeative category-----------------
+                text = text.replace(u']]‌', u']]@12@').replace(u'‌[[', u'@34@[[')  # for solving ZWNJ+[[ or ]]+ZWNJ Bug
+                for item in finallRadeh.split(u'\n'):
+                    item2 = item.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
+                    radehbehtar = templatequery(item2, 'fa')
+                    if radehbehtar:
+                        if (u'الگو:رده بهتر' in radehbehtar) or (u'الگو:delete' in radehbehtar) or (u'الگو:حذف سریع' in radehbehtar):
+                            pywikibot.output(
+                                u'\03{lightred}Category %s had {{رده بهتر}} or  {{delete}} so it is skipped! please edit en.wiki interwiki\03{default}' % item2)
+                            finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
+                            continue
+                    textremove = text.replace(u'  |', u'|').replace(u' |', u'|').replace(
+                        u' |', u'|').replace(u'|  ', u'|').replace(u'| ', u'|')
+                    if textremove.find(u'{{رده همسنگ میلادی نه}}') != -1 or textremove.find(u'{{الگو:رده همسنگ میلادی نه}}') != -1:
+                        if item.find(u'(میلادی)') != -1 or item.find(u'(پیش از میلاد)') != -1 or item.find(u'(قبل از میلاد)') != -1:
+                            finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
+                    if textremove.find(u'رده:درگذشتگان') != -1:
+                        if item.find(u'افراد زنده') != -1 or item.find(u'افراد_زنده') != -1:
+                            finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
+                    if item.find(u'حذف_سریع') != -1 or item.find(u'حذف سریع') != -1:
+                        finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
+                    if textremove.find(item2 + u']]') != -1 or textremove.find(item2 + u'|') != -1:
+                        finallRadeh = finallRadeh.replace(item, u'').replace(u'\n\n', u'\n')
+
+                if finallRadeh.replace(u'\r', u'').replace(u'\n', u'').strip() == u'':
+                    continue
+                finallRadeh = finallRadeh.replace(u'\r', u'').replace(u'\n\n\n\n', u'\n').replace(u'\n\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(
+                    u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n').replace(u'\n\n', u'\n')  # ---------------------------------------------------------------------------------
+                if text.find(ur'رده:') != -1 and page.namespace() != 10:
+                    num = text.find(u'[[رده:')
+                    text = text[:num] + finallRadeh + '\n' + text[num:]
+                else:
+                    m = re.search(ur'\[\[([a-z]{2,3}|[a-z]{2,3}\-[a-z\-]{2,}|simple):.*?\]\]', text)
+                    if m:
+                        if m.group(0) == u'[[en:Article]]':
+                            try:
+                                if string.count(text, u'[[en:Article]] --->') == 1:
+                                    finallRadeh = re.sub(ur'\n+?', '\n', finallRadeh.replace('\r', '')).strip()
+                                    text = text.split(u'[[en:Article]] --->')[0] + \
+                                        u'[[en:Article]] --->\n' + finallRadeh + \
+                                        text.split(u'[[en:Article]] --->')[1]
+                                else:
+                                    if page.namespace() == 10:
+                                        continue
+                                    text += '\n' + finallRadeh
+                            except:
                                 if page.namespace() == 10:
                                     continue
                                 text += '\n' + finallRadeh
-                        except:
-                            if page.namespace() == 10:
-                                continue
-                            text += '\n' + finallRadeh
+                        else:
+                            num = text.find(m.group(0))
+                            text = text[:num] + finallRadeh + '\n' + text[num:]
                     else:
-                        num = text.find(m.group(0))
-                        text = text[:num] + finallRadeh + '\n' + text[num:]
+                        if page.namespace() == 10:
+                            continue
+                        text += '\n' + finallRadeh
+                pywikibot.output(u'\03{lightpurple} Added==' + finallRadeh + u"\03{default}")
+                radehfmsg = finallRadeh.strip().replace(u'\n', u'+')
+                if len(radehfmsg.split(u'+')) > 4:
+                    numadd = str(len(radehfmsg.split(u'+'))).replace(u'0', u'۰').replace(u'1', u'۱').replace(u'2', u'۲').replace(u'3', u'۳').replace(
+                        u'4', u'۴').replace(u'5', u'۵').replace(u'6', u'۶').replace(u'7', u'۷').replace(u'8', u'۸').replace(u'9', u'۹')
+                    radehfmsg = u' %s رده' % numadd
+                msg = u'ربات [[وپ:رده همسنگ#' + version + u'|ردهٔ همسنگ (' + version + u')]] %s: + %s'
+                text_new = text
+                if page.namespace() == 0:  # ----------------cleaning
+                    text_new, cleaning_version, msg_clean = fa_cosmetic_changes_core.fa_cosmetic_changes(text, page)
                 else:
-                    if page.namespace() == 10:
-                        continue
-                    text += '\n' + finallRadeh
-            pywikibot.output(u'\03{lightpurple} Added==' + finallRadeh + u"\03{default}")
-            radehfmsg = finallRadeh.strip().replace(u'\n', u'+')
-            if len(radehfmsg.split(u'+')) > 4:
-                numadd = str(len(radehfmsg.split(u'+'))).replace(u'0', u'۰').replace(u'1', u'۱').replace(u'2', u'۲').replace(u'3', u'۳').replace(
-                    u'4', u'۴').replace(u'5', u'۵').replace(u'6', u'۶').replace(u'7', u'۷').replace(u'8', u'۸').replace(u'9', u'۹')
-                radehfmsg = u' %s رده' % numadd
-            msg = u'ربات [[وپ:رده همسنگ#' + version + u'|ردهٔ همسنگ (' + version + u')]] %s: + %s'
-            text_new = text
-            if page.namespace() == 0:  # ----------------cleaning
-                text_new, cleaning_version, msg_clean = fa_cosmetic_changes_core.fa_cosmetic_changes(text, page)
-            else:
-                msg_clean = u' '
-            msg = msg % (msg_clean, radehfmsg)
-            msg = msg.replace(u'  ', u' ').strip()
-            text_new = text_new.replace(u']]@12@', u']]‌').replace(u'@34@[[', u'‌[[')
-            page.put(text_new.strip(), msg)
+                    msg_clean = u' '
+                msg = msg % (msg_clean, radehfmsg)
+                msg = msg.replace(u'  ', u' ').strip()
+                text_new = text_new.replace(u']]@12@', u']]‌').replace(u'@34@[[', u'‌[[')
+                page.put(text_new.strip(), msg)
 
-            pywikibot.output(u'\03{lightpurple} Done=' + pagework + u"\03{default}")
-        except Exception as e:
-             pywikibot.output(u'\03{lightred}Could not open page\03{default}')
-             continue
+                pywikibot.output(u'\03{lightpurple} Done=' + pagework + u"\03{default}")
+            except Exception as e:
+                 pywikibot.output(u'\03{lightred}Could not open page\03{default}')
+                 continue
+        except:
+            continue
 # -------------------------------encat part-----------------------------------
 
 
