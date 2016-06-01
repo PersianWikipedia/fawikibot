@@ -614,6 +614,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
             "sign": True
         },
+        {
+            "sqlnum":45,
+            "sql":
+            "select page.page_title,GROUP_CONCAT(CONCAT ('[[الگو:',tem.page_title,']]') SEPARATOR '، '), count(tem.page_title) as cnt from page join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title JOIN (select * from page where page_namespace = 10 and page_is_redirect = 0) as tem WHERE tem.page_id=pl_from and pl_namespace = 0 AND pl_from_namespace=10  and NOT tem.page_title LIKE '%_/_%' and page.page_namespace = 0 group by page.page_title order by 3 desc limit 1000;",
+            "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی استفاده شده در الگو',
+            "cols": [u'ردیف', u'مقاله', u''الگوهای استفاده شده, u'تعداد پیوندها'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌های ابهام‌زدایی که در الگو به کار رفته‌اند را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[%s]] ||%s|| {{formatnum:%s|NOSEP}}',
+            "sign": True
+        },
     ]
 
     for t in tasks:
