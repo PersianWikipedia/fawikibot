@@ -601,6 +601,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
             "sign": True
         },
+        {
+            "sqlnum":44,
+            "sql":
+            "select page_title, count(pl_from) as cnt from page join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title and pl_namespace = 0 where page_namespace = 0 group by pl_title order by 2 desc limit 1000;",
+            "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی پرکاربرد',
+            "cols": [u'ردیف', u'مقاله',  u'تعداد پیوندها'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌های ابهام‌زدایی را نشان می‌دهد که بیشترین پیوند به آن‌ها داده شده‌است.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
+            "sign": True
+        },
     ]
 
     for t in tasks:
