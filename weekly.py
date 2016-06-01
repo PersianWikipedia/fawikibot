@@ -250,7 +250,7 @@ def main(sqlnum):
         {
             "sqlnum":19,
             "sql":
-            "select page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to in ('همه_صفحه‌های_ابهام‌زدایی', 'نام‌های_کوچک','نام‌های_خانوادگی') where page_namespace = 0 and page_is_redirect = 0 and cl_to is null and page_len < 500 order by page_len",
+            "select page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to in ('همه_صفحه‌های_ابهام‌زدایی', 'نام‌های_کوچک','نام‌های_خانوادگی', 'همه_مقاله‌های_مجموعه‌نمایه') where page_namespace = 0 and page_is_redirect = 0 and cl_to is null and page_len < 500 order by page_len",
             "out": 'وپ:گزارش دیتابیس/مقاله‌های کم‌حجم',
             "cols": [u'ردیف', u'مقاله', u'حجم'],
             "summary": u'به روز کردن آمار',
