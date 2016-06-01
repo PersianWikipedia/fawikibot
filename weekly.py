@@ -604,7 +604,7 @@ def main(sqlnum):
         {
             "sqlnum":44,
             "sql":
-            "select page_title, count(pl_from) as cnt from page join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title and pl_namespace = 0 where page_namespace = 0 group by pl_title order by 2 desc limit 1000;",
+            "select p1.page_title, count(pl_from) as cnt from page p1 join categorylinks on p1.page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title and pl_namespace = 0 join page p2 on pl_from = p2.page_id and p2.page_namespace = 0 where p1.page_namespace = 0 group by pl_title order by 2 desc limit 1000;",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی پرکاربرد',
             "cols": [u'ردیف', u'مقاله',  u'تعداد پیوندها'],
             "summary": u'به روز کردن آمار',
