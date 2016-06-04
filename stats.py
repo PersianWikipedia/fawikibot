@@ -49,7 +49,19 @@ import pywikibot
 import sys
 import re
 import MySQLdb as mysqldb
-
+page_namespace={u'0':u'',u'1':u'بحث',
+                u'2':u'کاربر',u'3':u'بحث کاربر',
+                u'4':u'ویکی‌پدیا',u'5':u'بحث ویکی‌پدیا',
+                u'6':u':پرونده',u'7':u'بحث پرونده',#Should has : at the first of NS 6
+                u'8':u'مدیاویکی',u'9':u'بحث مدیاویکی',
+                u'10':u'الگو',u'11':u'بحث الگو',
+                u'12':u'راهنما',u'13':u'بحث راهنما',
+                u'14':u':رده',u'15':u'بحث رده',#Should has : at the first of NS 14
+                u'100':u'درگاه',u'101':u'بحث درگاه',
+                u'102':u'کتاب',u'103':u'بحث کتاب',
+                u'118':u'پیش‌نویس',u'119':u'بحث پیش‌نویس',
+                u'828':u'پودمان',u'829':u'بحث پودمان'
+}
 
 class StatsBot:
 
@@ -82,7 +94,7 @@ class StatsBot:
         cursor.execute(self.sql)
         results = cursor.fetchall()
         print len(results), ' rows will be processed'
-
+        
         for rowid in range(len(results)):
             row = results[rowid]
             text += u'|-\n'
@@ -99,7 +111,9 @@ class StatsBot:
                 for item in row:
                     text += u'| ' + item + u'\n'
         text += u'|}'
-
+        #Conevrt Namespace number to text for queries like weekly-slow.py #12 and #13
+        for ns in page_namespace:
+            text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns]+u':')
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
 
