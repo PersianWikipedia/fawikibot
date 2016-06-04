@@ -187,6 +187,32 @@ def main(sqlnum):
             u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s}}',
             "sign": True
         },
+        {
+            "sqlnum":12,
+            "sql":
+            "SELECT /* SLOW OK */ pl_title, COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ')  FROM pagelinks LEFT JOIN page AS p1 ON p1.page_namespace = pl_namespace AND p1.page_title = pl_title JOIN logging ON pl_namespace = log_namespace AND pl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON pl_from = p2.page_id WHERE p1.page_id IS NULL AND pl_namespace = 0 GROUP BY pl_title ORDER BY 2 DESC LIMIT 1000;",
+            "out": u'ویکی‌پدیا:گزارش دیتابیس/پیوند به مقاله‌های حذف شده',
+            "cols": [u'ردیف', u'مقاله', u'تعداد پیوند به', u'صفحات به کار رفته'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}}||%s',
+            "sign": True
+        },
+        {
+            "sqlnum":13,
+            "sql":
+            "SELECT /* SLOW_OK */ tl_title, COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ') FROM templatelinks LEFT JOIN page AS p1 ON p1.page_namespace = tl_namespace AND p1.page_title = tl_title JOIN logging ON tl_namespace = log_namespace AND tl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON tl_from = p2.page_id WHERE p1.page_id IS NULL AND tl_namespace = 10 GROUP BY tl_title ORDER BY COUNT(*) DESC LIMIT 1000;",
+            "out": u'ویکی‌پدیا:گزارش دیتابیس/پیوند به الگوهای حذف شده',
+            "cols": [u'ردیف', u'الگو', u'تعداد پیوند به', u'صفحات به کار رفته'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}}||%s',
+            "sign": True
+        },
     ]
 
     for t in tasks:
@@ -213,4 +239,4 @@ if __name__ == "__main__":
     except:
         sqlnum=0
     main(sqlnum)
-
+    
