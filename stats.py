@@ -112,8 +112,8 @@ class StatsBot:
                     text += u'| ' + item + u'\n'
         text += u'|}'
         #Conevrt Namespace number to text for queries like weekly-slow.py #12 and #13
-        for ns in page_namespace:
-            text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns]+u':')
+        #for ns in page_namespace:
+        #    text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns]+u':')
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
 
