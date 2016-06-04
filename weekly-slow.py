@@ -203,7 +203,7 @@ def main(sqlnum):
         {
             "sqlnum":13,
             "sql":
-            "SELECT /* SLOW_OK */ tl_title, COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ') FROM templatelinks LEFT JOIN page AS p1 ON p1.page_namespace = tl_namespace AND p1.page_title = tl_title JOIN logging ON tl_namespace = log_namespace AND tl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON tl_from = p2.page_id WHERE p1.page_id IS NULL AND tl_namespace = 10 GROUP BY tl_title ORDER BY COUNT(*) DESC LIMIT 1000;",
+            "SELECT /* SLOW_OK */ CONCAT ('الگو:',tl_title), COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ') FROM templatelinks LEFT JOIN page AS p1 ON p1.page_namespace = tl_namespace AND p1.page_title = tl_title JOIN logging ON tl_namespace = log_namespace AND tl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON tl_from = p2.page_id WHERE p1.page_id IS NULL AND tl_namespace = 10 GROUP BY tl_title ORDER BY COUNT(*) DESC LIMIT 1000;",
             "out": u'ویکی‌پدیا:گزارش دیتابیس/پیوند به الگوهای حذف شده',
             "cols": [u'ردیف', u'الگو', u'تعداد پیوند به', u'صفحات به کار رفته'],
             "summary": u'به روز کردن آمار',
@@ -227,10 +227,11 @@ def main(sqlnum):
             t["pref"],
             t["frmt"],
             t["sign"])
-        try:
-            bot.run()
-        except:
-            print sys.exc_info()[0]
+        #try:
+        #    bot.run()
+        #except:
+        #    print sys.exc_info()[0]
+        bot.run()
 
 if __name__ == "__main__":
 
@@ -239,4 +240,4 @@ if __name__ == "__main__":
     except:
         sqlnum=0
     main(sqlnum)
-    
+
