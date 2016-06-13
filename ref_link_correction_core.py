@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8  -*-
 # Reza(User:reza1615), 2014
 # Distributed under the terms of MIT License (MIT)
@@ -145,7 +145,7 @@ def run (text,sum,text2):
     yes=False
     text_refs=[]
     text2=text2.replace(u'< ref',u'<ref').replace(u'< /ref',u'</ref').replace(u'</ ref',u'</ref').replace(u'ref >',u'ref>')
-    test_text=text2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@')
+    test_text=text2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@').replace(u'<ref group=',u'@')
     text_refs=test_text.split(u'<ref')
     backage=u'</ref>'
     if text_refs[0]==test_text:
@@ -156,28 +156,29 @@ def run (text,sum,text2):
         count+=1
         if count==1:
            continue
-        my_ref=refs.split(backage)[0]
-        should_english=check_ref_title_is_english(my_ref)
-        if should_english:
-            #pywikibot.output(u'\03{lightblue}-------ref--------\03{default}'+str(count))
-            #pywikibot.output(my_ref)
-            #pywikibot.output(u'>>>>>\03{lightred}Title is english so the links should be english\03{default}')
-            RE=re.compile(ur'\[\[.*?\]\]')
-            fa_links=RE.findall(my_ref)
-            if fa_links:
-                #pywikibot.output(u'----links----')
-                for fa_link in fa_links:
-                    fa_link_r,num=Check_link(fa_link)
-                    if fa_link_r:
-                        new_link=Solve_linke_translation(fa_link_r,num)
-                        new_refs=refs.replace(u'[['+fa_link_r+u']]',new_link)
-                        old_text=old_text.replace(refs,new_refs)
-                        old_text2=old_text2.replace(refs,new_refs)
-                        refs=new_refs
+        if backage in refs:
+            my_ref=refs.split(backage)[0]
+            should_english=check_ref_title_is_english(my_ref)
+            if should_english:
+                #pywikibot.output(u'\03{lightblue}-------ref--------\03{default}'+str(count))
+                #pywikibot.output(my_ref)
+                #pywikibot.output(u'>>>>>\03{lightred}Title is english so the links should be english\03{default}')
+                RE=re.compile(ur'\[\[.*?\]\]')
+                fa_links=RE.findall(my_ref)
+                if fa_links:
+                    #pywikibot.output(u'----links----')
+                    for fa_link in fa_links:
+                        fa_link_r,num=Check_link(fa_link)
+                        if fa_link_r:
+                            new_link=Solve_linke_translation(fa_link_r,num)
+                            new_refs=refs.replace(u'[['+fa_link_r+u']]',new_link)
+                            old_text=old_text.replace(refs,new_refs)
+                            old_text2=old_text2.replace(refs,new_refs)
+                            refs=new_refs
 
-            else:
-                #pywikibot.output(u'It doesnt have any wiki link!')
-                continue
+                else:
+                    #pywikibot.output(u'It doesnt have any wiki link!')
+                    continue
     if old_text2!=text2:
         return old_text,sum+u'+'+u'اصلاح ارجاع لاتین'
     else:
@@ -188,7 +189,7 @@ def main(text,sum):
     new_text,sum=run(text,sum,text)
     #The second time
     new_text_2=new_text.replace(u'< ref',u'<ref').replace(u'< /ref',u'</ref').replace(u'</ ref',u'</ref').replace(u'ref >',u'ref>')
-    new_text_2=new_text_2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@')
+    new_text_2=new_text_2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@').replace(u'<ref group=',u'@')
     text_refs_2=new_text_2.split(u'<ref')
     for i in text_refs_2:
         i=i.split(u'</ref>')[0]
