@@ -156,8 +156,8 @@ def run (text,sum,text2):
         count+=1
         if count==1:
            continue
-        if backage in refs:
-            my_ref=refs.split(backage)[0]
+        my_ref=refs.split(backage)[0]
+        if my_ref!=refs:
             should_english=check_ref_title_is_english(my_ref)
             if should_english:
                 #pywikibot.output(u'\03{lightblue}-------ref--------\03{default}'+str(count))
@@ -176,9 +176,9 @@ def run (text,sum,text2):
                             old_text2=old_text2.replace(refs,new_refs)
                             refs=new_refs
 
-                else:
-                    #pywikibot.output(u'It doesnt have any wiki link!')
-                    continue
+                    else:
+                        #pywikibot.output(u'It doesnt have any wiki link!')
+                        continue
     if old_text2!=text2:
         return old_text,sum+u'+'+u'اصلاح ارجاع لاتین'
     else:
