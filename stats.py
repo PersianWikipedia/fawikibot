@@ -49,6 +49,7 @@ import pywikibot
 import sys
 import re
 import MySQLdb as mysqldb
+import timeit
 page_namespace={u'0':u'',u'1':u'بحث:',
                 u'2':u'کاربر:',u'3':u'بحث کاربر:',
                 u'4':u'ویکی‌پدیا:',u'5':u'بحث ویکی‌پدیا:',
@@ -86,13 +87,16 @@ class StatsBot:
         text += u'{| class="wikitable sortable"\n'
         for col in self.cols:
             text += u'!' + col + u'\n'
-
+        query_start = timeit.timeit()
         conn = mysqldb.connect("fawiki.labsdb", db="fawiki_p",
                                read_default_file="~/replica.my.cnf")
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
         cursor.execute(self.sql)
         results = cursor.fetchall()
+        query_end = timeit.timeit()
+        timer = '<!-- Execution time: %f ms -->\n' % (1000.0 * abs(query_start - query_end))
+        text = timer + text
         print len(results), ' rows will be processed'
         
         for rowid in range(len(results)):
