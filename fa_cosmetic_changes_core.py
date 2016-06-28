@@ -249,7 +249,7 @@ def cleaning(text,msg_short,msg=msg):
     
     #تمیزکاری عنوان 
     #----cleaning for subsections -----
-    text=re.sub(ur'(\< *\/ *br *\>|\< *br *\\ *\>|\< *br *\. *\>)','<br/>',text)
+    text=re.sub(ur'(\< *\/ *br *\>|\< *br *\\ *\>|\< *br *\. *\>)',u'<br/>',text)
     text=text.replace(u'<br/>',u'{{سخ}}').replace(u'{{سر خط}}',u'{{سخ}}').replace(u'{{سرخط}}',u'{{سخ}}').replace(u'<br />',u'{{سخ}}')
     text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'[\s_](\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
     text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
@@ -365,13 +365,13 @@ def cleaning(text,msg_short,msg=msg):
 
     #اصلاح نشانی اینترنتی
     text=re.sub(ur'(\<ref.*?\>) *(\[|)\www\.',u'\1\2http://www.',text)
-    text=re.sub(ur'\[\[ *(https?\:\/\/.*?) *\]\]','[\1]',text)
-    text=re.sub(ur'\[\[ *(\/\/.*?) *\]\]','[\1]',text)
-    text=re.sub(ur'(https?:\/?\/?){2,}','\1',text)
-    text=re.sub(ur'(^ +(\=+.*?\=+)','\1',text)
-    text=re.sub(ur'\[\[\|','[[',text)
-    text=re.sub(ur'\[\[(.*?)\{\{\!\}\}(.*?)\]\]','[[\1|\2]]',text)
-    text=re.sub(ur'\[{2}([^\|]+)\|\1\]{2}','[[\1]]',text)
+    text=re.sub(ur'\[\[ *(https?\:\/\/.*?) *\]\]',u'[\1]',text)
+    text=re.sub(ur'\[\[ *(\/\/.*?) *\]\]',u'[\1]',text)
+    text=re.sub(ur'(https?:\/?\/?){2,}',u'\1',text)
+    text=re.sub(ur'(^ +(\=+.*?\=+)',u'\1',text)
+    text=re.sub(ur'\[\[\|',u'[[',text)
+    text=re.sub(ur'\[\[(.*?)\{\{\!\}\}(.*?)\]\]',u'[[\1|\2]]',text)
+    text=re.sub(ur'\[{2}([^\|]+)\|\1\]{2}',u'[[\1]]',text)
 
     #حذف رده انگلیسی    
     text = re.sub(ur'\[\[([Cc]ategory|رده):[\w\s\–\-\|]+?\]\]\r?\n?', u"",text).replace(u'[[رده:|]]',u'')     
@@ -640,6 +640,7 @@ def run(preloadingGen,msg):
             try:
                text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
             except:
+                pywikibot.output(u'//////////////////////////errrrrrorrrrrrrrrr')
                 continue
             if old_text!=text and text!=minor_edits(old_text):            
                 pywikibot.output(u'-------------------------------------------')
