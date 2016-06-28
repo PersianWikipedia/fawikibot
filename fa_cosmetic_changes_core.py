@@ -475,6 +475,7 @@ def catsorting(text,page,msg_short,msg=msg):
             new_text=new_text+u"\n"+i
         ccToolkit = cosmetic_changes.CosmeticChangesToolkit(page.site, redirect=page.isRedirectPage(), namespace = page.namespace(), pageTitle=page.title())
         new_text = ccToolkit.change(new_text)
+
         if msg_short:
             msg=u'مرتب+'+msg    
         else:
@@ -637,11 +638,7 @@ def run(preloadingGen,msg):
                 pywikibot.output(u'Page '+fapage.title()+u' had problem!')
                 continue
             old_text=text
-            try:
-               text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
-            except:
-                pywikibot.output(u'//////////////////////////errrrrrorrrrrrrrrr')
-                continue
+            text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
             if old_text!=text and text!=minor_edits(old_text):            
                 pywikibot.output(u'-------------------------------------------')
                 msg=u'ربات:زیباسازی'+msg.strip()+u' ('+cleaning_version +u')'
