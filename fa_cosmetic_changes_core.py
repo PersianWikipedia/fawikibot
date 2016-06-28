@@ -628,7 +628,7 @@ def run(preloadingGen,msg):
     msg_o=msg
     for fapage in preloadingGen:
         
-        try:
+        #try:
             pywikibot.output(u'------fa_cosmetic_changes starting on '+fapage.title()+u' .....------------')
             msg=msg_o
             try:
@@ -637,7 +637,10 @@ def run(preloadingGen,msg):
                 pywikibot.output(u'Page '+fapage.title()+u' had problem!')
                 continue
             old_text=text
-            text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
+            try:
+               text,cleaning_version,msg=fa_cosmetic_changes(text,fapage,msg=msg,msg_short=True)
+            except:
+                continue
             if old_text!=text and text!=minor_edits(old_text):            
                 pywikibot.output(u'-------------------------------------------')
                 msg=u'ربات:زیباسازی'+msg.strip()+u' ('+cleaning_version +u')'
@@ -645,8 +648,8 @@ def run(preloadingGen,msg):
                 fapage.put(text,msg)
                 msg_short=u''                
                 msg=u''
-        except:
-            continue
+        #except:
+        #    continue
 
 def fa_replaceExcept(text, old, new, exceptions,marker='', site=None):
     if site is None:
