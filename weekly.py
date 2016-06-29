@@ -404,7 +404,7 @@ def main(sqlnum):
         {
             "sqlnum":30,
             "sql":
-            "select distinct page_title from page join iwlinks on page_id = iwl_from left join langlinks on page_id = ll_from where page_namespace = 0 and ll_from is null and iwl_prefix not in ('b', 'n', 'q', 's', 'm', 'commons')",
+            "select distinct page_title from page join iwlinks on page_id = iwl_from left join langlinks on page_id = ll_from where page_namespace = 0 and ll_from is null and iwl_prefix not in ('b', 'n', 'q', 's', 'm', 'wikt', 'commons')",
             "out":
             'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به ویکی که میان‌ویکی ندارند',
             "cols": [u'ردیف', u'الگو'],
