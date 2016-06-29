@@ -554,7 +554,7 @@ def UnicodeURL(text,msg=msg):
         for URL in fa_Urls:
             try:
                 URL=URL.split('<')[0]
-                new_URL=urllib.unquote(URL.encode('utf8')).decode('utf8').replace(u' ',u'%20').replace(u'{',u'%7B').replace(u'|',u'%7C').replace(u'}',u'%7D')
+                new_URL=urllib.unquote(URL.encode('utf8')).decode('utf8').replace(u' ',u'%20').replace(u'{',u'%7B').replace(u'|',u'%7C').replace(u'}',u'%7D').replace(u'[',u'%5B').replace(u']',u'%5D')
                 new_URL = re.sub('[\r\n\t]', "",new_URL)
                 text=text.replace(URL,new_URL)
             except:
