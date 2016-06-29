@@ -390,7 +390,30 @@ def cleaning(text,msg_short,msg=msg):
     text=text.replace(u'\n\n{{-}}\n\n',u'\n{{-}}\n').replace(u' [[پرونده:]] ',u'').replace(u'<!---->\n',u'').replace(u'<!---->',u'')
     text = re.sub('[\r\n]{3,}', "\n\n",text)
     text=text.replace(u"\n''''''\n",u"\n")
-    
+
+    #تمیزکاری شابک
+    text=re.sub(ur"(ISBN *\-10:|ISBN *\-13\:|ISBN *\-10|ISBN *\-13|ISBN\:)",u"ISBN",text)
+    text=re.sub(ur"ISBN(\d)",u"ISBN \1",text)
+    text=re.sub(ur"\[* *ISBN\]*\:*[ \t]+([0-9X\-]+)",u"ISBN \1",text)
+    text=re.sub(ur"ISBN +([\d-]{1,9}) (\d+|X\W)",u"ISBN \1-\2",text)
+    text=re.sub(ur"\[\[ISBN\|(ISBN\s*[^\]]*)\]\]",u"\1",text)
+    text=re.sub(ur"\[*ISBN\]*\:* *\[\[Special\:Booksources\/\d*\|([\dxX\- ]+)\]\]",u"ISBN \1",text)
+    text=re.sub(ur"\[isbn\]\:* *(\d)",u"ISBN \1",text)
+    text=re.sub(ur"ISBN (\d{10,10}) - *(\d)",u"ISBN \1 ,\2",text)
+    for i in range (0,9):
+        text=re.sub(ur"ISBN (\d{1,9})[\s](\d|x)",u"ISBN \1\2",text)
+    text=re.sub(ur"ISBN (\d{1,9})(x)",u"ISBN \1X",text)
+    text=re.sub(ur"ISBN (\d\d\d\d\d\d\d\d\d(\d|x)) +(\d)",u"ISBN \1, \3",text)
+    text=re.sub(ur"\[\[(ISBN [\d\-x]{10,13})\]\]",u"\1",text)
+    text=re.sub(ur"ISBN ([\d-]{12,12}) (\d|x)",u"ISBN \1-\2",text)
+
+
+    #ISSN
+    text=re.sub(ur"ISSN\s*(\d)",u"ISSN \1",text)
+    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)[\.\: ~\=]*(\d)(\d)(\d)([\dx])",u"ISSN \1\2\3\4-\5\6\7\8 ",text)
+    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x",u"ISSN \1\2\3\4-\5\6\7X",text)
+    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x",u"ISSN \1\2\3\4-\5\6\7X",text)
+
     if old_text!=text:
         if msg_short:
             msg=u'تمیز+'+msg    
