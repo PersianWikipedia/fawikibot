@@ -79,6 +79,9 @@ class StatsBot:
         self.sign = sign
 
     def run(self):
+        print "Stats bot started ..."
+        bot_start = timeit.timeit()
+
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
         sign = pywikibot.Page(site, self.out + u'/امضا')
@@ -95,7 +98,8 @@ class StatsBot:
         cursor.execute(self.sql)
         results = cursor.fetchall()
         query_end = timeit.timeit()
-        timer = '<!-- Execution time: %f ms -->\n' % (1000.0 * abs(query_start - query_end))
+        print "Query time: %f" % (1000.0 * abs(query_start - query_end))
+        timer = '<!-- Query time: %f-->\n' % (1000.0 * abs(query_start - query_end))
         text = timer + text
         print len(results), ' rows will be processed'
         
@@ -134,6 +138,9 @@ class StatsBot:
             if not self.save('~~~~~', sign, self.summary):
                 pywikibot.outout(u'Signature note saved in %s.' %
                                  sign.title(asLink=True))
+        bot_end = timeit.timeit()
+        print "Total time: %f: " % (1000.0 * abs(bot_start - bot_end))
+        print "Stats bot out ..."
 
     def save(self, text, page, comment=None, minorEdit=True,
              botflag=True):

@@ -627,6 +627,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] ||%s|| {{formatnum:%s|NOSEP}}',
             "sign": True
         },
+        {
+            "sqlnum":46,
+            "sql":
+            "SELECT fap.page_title, enp.page_title , limagelist.il_to FROM fawiki_p.page as fap INNER JOIN fawiki_p.langlinks as fal ON fap.page_id = fal.ll_from inner join enwiki_p.page as enp on fal.ll_title=enp.page_title join (SELECT * FROM enwiki_p.imagelinks as eni) as limagelist WHERE fap.page_namespace = 0 and fal.ll_lang = 'en' AND fap.page_is_redirect = 0 and fap.page_id not in (SELECT fai.il_from FROM fawiki_p.imagelinks as fai) and enp.page_id=limagelist.il_from and not limagelist.il_to like 'Flag_of_%' and not limagelist.il_to like 'Ambox_%' and not limagelist.il_to like 'Wiktionary%' and not limagelist.il_to like 'Wikibooks%' and not limagelist.il_to like 'Wikivoyage%' and not limagelist.il_to like 'Incubator%' and not limagelist.il_to like 'Searchtool%' and not limagelist.il_to like 'Speech_balloon%' and not limagelist.il_to like 'Crystal_Clear%' and not limagelist.il_to like 'Speakerlink%' and not limagelist.il_to like 'Loudspeaker%' and not limagelist.il_to like 'Padlock%' and not limagelist.il_to like 'Nuvola_apps_%' and not limagelist.il_to like 'Wikiquote%' and not limagelist.il_to like 'Wikisource%' and not limagelist.il_to like 'Wikinews%' and not limagelist.il_to like 'Wikiversity%' and not limagelist.il_to like 'Question_book%' and not limagelist.il_to like 'Folder_Hexagonal%' and not limagelist.il_to like 'Portal-puzzle%' and not limagelist.il_to like 'Edit-clear%' and not limagelist.il_to like 'Text_document_with_red_question_mark%' and not limagelist.il_to like '%_stub%' and not limagelist.il_to like 'Rod_of_Asclepius%' and not limagelist.il_to like 'Merge-arrows%' and not limagelist.il_to like '%_icon%' and not limagelist.il_to like '%Balloon%' and not limagelist.il_to like 'Mergefrom%' and not limagelist.il_to like 'WikiProject%' and not limagelist.il_to like 'Yes_check%' and not limagelist.il_to like 'X_mark%' and not limagelist.il_to like 'Blank%' and not limagelist.il_to like '%_Icon%' and not limagelist.il_to like 'Symbol_book_class%' and not limagelist.il_to like 'Free_and_open-source_software_logo%' and not limagelist.il_to like 'Red_pog%' and not limagelist.il_to like 'Symbol_list_class%' and not limagelist.il_to like 'Allah-green%' and not limagelist.il_to like 'Symbol_support_vote%' and not limagelist.il_to like 'A_coloured_voting_box%' and not limagelist.il_to like 'Wiki_letter_w_cropped%' and not limagelist.il_to like 'Commons%' limit 1000;",
+            "out": 'وپ:گزارش دیتابیس/مقاله‌های نیازمند پرونده همسنگ',
+            "cols": [u'ردیف', u'مقالهٔ ویکی‌پدیای فارسی', u'مقالهٔ ویکی‌پدیای انگلیسی', u'پروندهٔ به کار رفته در ویکی‌پدیای انگلیسی'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی در ویکی‌پدیای فارسی را نشان می‌دهد که صفحهٔ نظیرشان در ویکی‌پدیای انگلیسی یک تصویر شاخص دارد.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[%s]] || [[:en:%s]] || [[File:%s|60px]]',
+            "sign": True
+        },
     ]
 
     for t in tasks:
