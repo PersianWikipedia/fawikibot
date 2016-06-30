@@ -139,7 +139,7 @@ class StatsBot:
                 pywikibot.outout(u'Signature note saved in %s.' %
                                  sign.title(asLink=True))
         bot_end = timeit.timeit()
-        print "Total time: %f: " % (1000.0 * abs(bot_start - bot_end))
+        print "Total time: %f" % (1000.0 * abs(bot_start - bot_end))
         print "Stats bot out ..."
 
     def save(self, text, page, comment=None, minorEdit=True,
