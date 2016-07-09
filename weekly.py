@@ -308,7 +308,7 @@ def main(sqlnum):
             "sql":
             "select user_name, count(log_id) from user join logging on log_user = user_id where log_type ='patrol' and log_action='patrol' group by log_user, log_action order by 2 desc;",
             "out": 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد گشت‌زنی‌ها',
-            "cols": [u'ردیف', u'کاربر', u'گشت‌زنی],
+            "cols": [u'ردیف', u'کاربر', u'گشت‌زنی'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nکاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.\n\nآخرین به روز رسانی: ~~~~~',
