@@ -306,14 +306,14 @@ def main(sqlnum):
         {
             "sqlnum":23,
             "sql":
-            "select user_name, ifnull(auto.cnt, 0) auto, ifnull(notauto.cnt, 0) noauto, count(log_id) tot from logging join user on user_id = log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'patrol' and log_params like '%auto\";i:1%' or log_params like '%1' group by log_user) auto on logging.log_user = auto.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'patrol' and log_params like '%auto\";i:0%' or log_params like '%0' group by log_user) notauto on logging.log_user = notauto.log_user left join user_groups on user_id = ug_user and ug_group = 'bot' where log_type = 'patrol' and ug_group is null group by logging.log_user order by tot desc, user_id asc",
+            "select user_name, count(log_id) from user join logging on log_user = user_id where log_type ='patrol' and log_action='patrol' group by log_user, log_action order by 2 desc;",
             "out": 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد گشت‌زنی‌ها',
-            "cols": [u'ردیف', u'کاربر', u'گشت خودکار', u'گشت', u'جمع کل'],
+            "cols": [u'ردیف', u'کاربر', u'گشت‌زنی],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nکاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} ',
             "sign": True
         },
         {
