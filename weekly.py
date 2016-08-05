@@ -477,7 +477,7 @@ def main(sqlnum):
             "sql":
             "select page_title, il_to from page join imagelinks on page_id = il_from where (not exists (select 1 from image where img_name = il_to)) and (not exists (select 1 from commonswiki_p.page where page_title = il_to and page_namespace = 6)) and (not exists (select 1 from page where page_title = il_to and page_namespace = 6)) and page_namespace = 10",
             "out":
-            'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای پیوند به پروندهای ناموجود',
+            'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای پیوند به پرونده‌های ناموجود',
             "cols": [u'ردیف', u'الگو', u'پرونده'],
             "summary": u'به روز کردن آمار',
             "pref":
