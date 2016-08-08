@@ -19,6 +19,7 @@ import re
 from pywikibot import cosmetic_changes
 import urllib
 import ref_link_correction_core
+import signal
 pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
@@ -45,7 +46,13 @@ site_category=ur'رده'
 #--------------------------------------fa_replaceExcept---------------------
 TEMP_REGEX = re.compile(
     '{{(?:msg:)?(?P<name>[^{\|]+?)(?:\|(?P<params>[^{]+?(?:{[^{]+?}[^{]*?)?))?}}')
-    
+
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException
+
 def autoEdISBN(txt,msg):
     txt2=txt
     persianDigits=u'۰۱۲۳۴۵۶۷۸۹'
@@ -130,7 +137,7 @@ def arabic_to_farsi(text):
     return text
 
     
-def dictation(txt,msg_short,msg=msg):
+def Dictation(txt,msg_short,msg=msg):
     old_txt=txt
     #s: شبه‌ساده‌ها  ####### مشارٌ‌اليه، مضاف‌ٌاليه، منقولٌ‌عنه، مختلفٌ‌فيه، متفق‌ٌعليه، بعبارةٍاُخرى، اباًعن‌جدٍ، اىّ‌نحوٍكان.
     #txt = re.sub(bLB+u'من ?(باب|جمله)'+bLA, ur'من‌\1', txt)
@@ -434,31 +441,7 @@ def cleaning(text,msg_short,msg=msg):
     text=text.replace(u'\n\n{{-}}\n\n',u'\n{{-}}\n').replace(u' [[پرونده:]] ',u'').replace(u'<!---->\n',u'').replace(u'<!---->',u'')
     text = re.sub('[\r\n]{3,}', "\n\n",text)
     text=text.replace(u"\n''''''\n",u"\n")
-    '''
-    #تمیزکاری شابک
-    text=re.sub(ur"(ISBN *\-10:|ISBN *\-13\:|ISBN *\-10|ISBN *\-13|ISBN\:)",u"ISBN",text)
-    
-    text=re.sub(ur"ISBN(\d)",u"ISBN \1",text)
-    text=re.sub(ur"\[* *ISBN\]*\:*[ \t]+([0-9X\-]+)",u"ISBN \1",text)
-    text=re.sub(ur"ISBN +([\d-]{1,9}) (\d+|X\W)",u"ISBN \1-\2",text)
-    text=re.sub(ur"\[\[ISBN\|(ISBN\s*[^\]]*)\]\]",u"\1",text)
-    text=re.sub(ur"\[*ISBN\]*\:* *\[\[Special\:Booksources\/\d*\|([\dxX\- ]+)\]\]",u"ISBN \1",text)
-    text=re.sub(ur"\[isbn\]\:* *(\d)",u"ISBN \1",text)
-    text=re.sub(ur"ISBN (\d{10,10}) - *(\d)",u"ISBN \1 ,\2",text)
-    for i in range (0,9):
-        text=re.sub(ur"ISBN (\d{1,9})[\s](\d|x)",u"ISBN \1\2",text)
-    text=re.sub(ur"ISBN (\d{1,9})(x)",u"ISBN \1X",text)
-    text=re.sub(ur"ISBN (\d\d\d\d\d\d\d\d\d(\d|x)) +(\d)",u"ISBN \1, \3",text)
-    text=re.sub(ur"\[\[(ISBN [\d\-x]{10,13})\]\]",u"\1",text)
-    text=re.sub(ur"ISBN ([\d-]{12,12}) (\d|x)",u"ISBN \1-\2",text)
 
-    
-    #ISSN
-    text=re.sub(ur"ISSN\s*(\d)",u"ISSN \1",text)
-    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)[\.\: ~\=]*(\d)(\d)(\d)([\dx])",u"ISSN \1\2\3\4-\5\6\7\8 ",text)
-    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x",u"ISSN \1\2\3\4-\5\6\7X",text)
-    text=re.sub(ur"ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x",u"ISSN \1\2\3\4-\5\6\7X",text)
-    '''
     if old_text!=text:
         if msg_short:
             msg=u'تمیز+'+msg    
@@ -524,7 +507,7 @@ def persian_sort(categorylist):
         finallradeh.append(radeh)
     return finallradeh
     
-def catsorting(text,page,msg_short,msg=msg):
+def CatSorting(text,page,msg_short,msg=msg):
         new_text=text
         RE=re.compile(u"(\[\[رده\:(?:.+?)\]\])")
         cats=RE.findall(text)
@@ -541,9 +524,15 @@ def catsorting(text,page,msg_short,msg=msg):
             return text,msg
         for i in cats:
             new_text=new_text+u"\n"+i
-        ccToolkit = cosmetic_changes.CosmeticChangesToolkit(page.site, redirect=page.isRedirectPage(), namespace = page.namespace(), pageTitle=page.title())
-        new_text = ccToolkit.change(new_text)
-
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(300) #if cosmetic_changes takes more than 300 sec it will aborted
+        try:
+            ccToolkit = cosmetic_changes.CosmeticChangesToolkit(page.site, redirect=page.isRedirectPage(), namespace = page.namespace(), pageTitle=page.title())
+            new_text = ccToolkit.change(new_text)
+        except TimeoutException:
+            pywikibot.output(u'-----Time out--')
+            pass
+        signal.alarm(0)
         if msg_short:
             msg=u'مرتب+'+msg    
         else:
@@ -664,6 +653,7 @@ def finall_cleaning(txt):
     return txt
 
 def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
+
     old_text=text    
     old_msg=msg
     if page.namespace()==0 or testpass:#-------These functions are designed for namespace=0.
@@ -676,8 +666,8 @@ def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
             msg=old_msg      
         text_new=tem_cleaner(text,page)
         text_new,msg=autoEdISBN(text_new,msg)
-        text_new,msg=catsorting(text_new,page,msg_short,msg)
-        text_new,msg=dictation(text_new,msg_short,msg)
+        text_new,msg=CatSorting(text_new,page,msg_short,msg)
+        text_new,msg=Dictation(text_new,msg_short,msg)
         text_new,msg=UnicodeURL(text_new,msg)
         text_new,msg=Citation(text_new,msg)
         text_new,msg=Citation_links(text_new,msg)
