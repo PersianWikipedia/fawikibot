@@ -45,6 +45,50 @@ site_category=ur'رده'
 #--------------------------------------fa_replaceExcept---------------------
 TEMP_REGEX = re.compile(
     '{{(?:msg:)?(?P<name>[^{\|]+?)(?:\|(?P<params>[^{]+?(?:{[^{]+?}[^{]*?)?))?}}')
+    
+def autoEdISBN(txt,msg):
+    txt2=txt
+    persianDigits=u'۰۱۲۳۴۵۶۷۸۹'
+    #ISBN, ISSN and PMID's numbers should in english
+    txt_old=re.sub(ur'\/\/.*?(?=[\s\n\|\}\]<]|$)',u'',txt)
+    AllISBN=  re.findall(ur'(\b(ISBN|ISSN|PMID|PubMed) *:? *([۱۲۳۴۵۶۷۸۹۰0-9–—−ـ_\-]+)([^۱۲۳۴۵۶۷۸۹۰0-9–—−ـ_\-]|$))',txt_old, re.S)
+    if AllISBN:
+        for item in AllISBN:
+            item=item[0]
+            item_old=item
+            for i in range(0,10):
+                item=item.replace(persianDigits[i], str(i))
+                item=item.replace(u'–',u'-')
+                item=re.sub(ur'[–—−ـ_\-]+',u'-',item)
+                item=item.replace(ur'\b(ISBN|ISSN|PMID|PubMed) *:? *([۱۲۳۴۵۶۷۸۹۰\-0-9]+)([^۱۲۳۴۵۶۷۸۹۰\-0-9]|$)',ur'\1 \2\3')
+                item=item.replace(u'PubMed',u'PMID')
+            txt=txt.replace(item_old,item)
+    #Allows WikiMagic to work with ISBNs
+    txt = txt.replace(ur'ISBN *\-10:|ISBN *\-13:|ISBN *\-10|ISBN *\-13|ISBN:',u"ISBN")
+    #ISSN regexs from [[:en:Wikipedia:AutoWikiBrowser/Settings/ISSN]]
+    txt = txt.replace(ur'ISSN\s*(\d)',u"ISSN \1")
+    txt = txt.replace(ur'ISSN (\d)(\d)(\d)(\d)[\.\: ~\=]*(\d)(\d)(\d)([\dx])',u"ISSN \1\2\3\4-\5\6\7\8 ")
+    txt = txt.replace(ur'ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x',u"ISSN \1\2\3\4-\5\6\7X")
+    txt = txt.replace(ur'ISSN (\d)(\d)(\d)(\d)\-(\d)(\d)(\d)x',u"ISSN \1\2\3\4-\5\6\7X")
+    #ISBN regexs from [[:Wikipedia:AutoWikiBrowser/Settings/ISBN-hyph]]
+    txt = txt.replace(ur'ISBN(\d)',u"ISBN \1")
+    txt = txt.replace(ur'\[\[ *(ISBN [\d\-x]{10,13}) *\]\]',u"\1")
+    txt = txt.replace(ur'\[\[ISBN\|(ISBN\s*[^\]]*)\]\]',u"\1")
+    txt = txt.replace(ur'\[*ISBN\]*\:*[ \t]+([0-9X\-]+)',u"ISBN \1")
+    txt = txt.replace(ur'ISBN +([\d-]{1,9}) (\d+|X\W)',u"ISBN \1\2")
+    txt = txt.replace(ur'\[*ISBN\]*\:* *\[\[Special\:Booksources\/\d*\|([\dxX\- ]+)\]\]',u"ISBN \1")
+    txt = txt.replace(ur'\[isbn\]\:* *(\d)',u"ISBN \1")
+    txt = txt.replace(ur'ISBN (\d{10,10}) - *(\d)',u"ISBN \1 ,\2")
+    loopcount = 0
+    while (loopcount<10):
+        txt = txt.replace(ur'ISBN (\d{1,9}) (\d|x)',u"ISBN \1\2")
+        loopcount+=1
+    txt = txt.replace(ur'ISBN (\d{1,9})(x)',u"ISBN \1X")
+    txt = txt.replace(ur'ISBN (\d\d\d\d\d\d\d\d\d(\d|x)) +(\d)',u"ISBN \1, \3")
+    txt = txt.replace(ur'ISBN ([\d-]{12,12}) (\d|x)',u"ISBN \1-\2")
+    if txt2!=txt:
+        msg=u'شابک+'+msg
+    return txt,msg
 
 def findmarker(text, startwith=u'@@', append=None):
     # find a string which is not part of text
@@ -631,6 +675,7 @@ def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
             text=old_text
             msg=old_msg      
         text_new=tem_cleaner(text,page)
+        text_new,msg=autoEdISBN(text_new,msg)
         text_new,msg=catsorting(text_new,page,msg_short,msg)
         text_new,msg=dictation(text_new,msg_short,msg)
         text_new,msg=UnicodeURL(text_new,msg)
