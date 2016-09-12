@@ -639,6 +639,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] || [[:en:%s]] || [[File:%s|60px]]|| %s',
             "sign": True
         },
+        {
+            "sqlnum":47,
+            "sql":
+            "select rev_user_text, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d') from revision where rev_user <> 0 and rev_timestamp > concat(year(curdate()), LPAD(month(curdate()), 2, 0), '01000000') and rev_user not in ( select rev_user from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()), LPAD(month(curdate()), 2, 0), '01000000') and rev_timestamp > concat(year(curdate()) - 3, LPAD(month(curdate()), 2, 0), '01000000') ) and rev_user in ( select rev_user from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) - 3, LPAD(month(curdate()), 2, 0), '01000000') ) group by rev_user_text;",
+            "out": 'وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده',
+            "cols": [u'ردیف', u'کاربر', u'اولین ویرایش در ماه جاری'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که از اول ماه جاری میلادی ویرایشی داشته‌اند، در سه سال منتهی به ماه جاری میلادی هیچ ویرایشی نداشته‌اند، و در زمان پیش از آن دورهٔ سه‌ساله دست کم یک ویرایش کرده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}}',
+            "sign": True
+        },
     ]
 
     for t in tasks:
