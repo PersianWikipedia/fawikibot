@@ -31,7 +31,7 @@ def main(sqlnum):
         {
             "sqlnum":1,
             "sql":
-            "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files from page join category on page_title = cat_title left join categorylinks on page_id = cl_from where page_namespace = 14 and cl_from is null",
+            "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files from page join category on page_title = cat_title left join categorylinks on page_id = cl_from where page_namespace = 14 and page_is_redirect = 0 and cl_from is null",
             "out": 'وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده',
             "cols":
             [u'ردیف',
