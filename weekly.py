@@ -416,7 +416,7 @@ def main(sqlnum):
         {
             "sqlnum":31,
             "sql":
-            "select cl_to from categorylinks join page on cl_from = page_id where page_title = cl_to and page_namespace = 14",
+            "select cl_to from categorylinks join page on cl_from = page_id where page_title = cl_to and page_title <> 'صفحه‌های_نمایه‌نشده' and page_namespace = 14",
             "out": 'وپ:گزارش دیتابیس/رده‌های حلقوی',
             "cols": [u'ردیف', u'رده'],
             "summary": u'به روز کردن آمار',
