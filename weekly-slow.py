@@ -31,19 +31,20 @@ def main(sqlnum):
         {
             "sqlnum":1,
             "sql":
-            "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files from page join category on page_title = cat_title left join categorylinks on page_id = cl_from where page_namespace = 14 and page_is_redirect = 0 and cl_from is null",
+            "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_id = cl_from left join langlinks on page_id = ll_from where page_namespace = 14 and page_is_redirect = 0 and cl_from is null group by page_title, cat_pages, cat_subcats, cat_files limit 5000;",
             "out": 'وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده',
             "cols":
             [u'ردیف',
              u'رده',
              u'تعداد صفحه‌ها',
              u'تعداد زیررده‌ها',
-             u'تعداد پرونده‌ها'],
+             u'تعداد پرونده‌ها',
+             u'تعداد میان‌ویکی'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || %s || %s || %s',
+            u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || %s || %s || %s || %s',
             "sign": True
         },
         {
