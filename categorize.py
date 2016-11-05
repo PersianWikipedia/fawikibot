@@ -85,7 +85,6 @@ class CategorizeBot(
             'titles': self.current_page.title(),
             'redirects': 1,
             'cllimit': 500,
-            'clshow': '!hidden'
         }
 
         try:
