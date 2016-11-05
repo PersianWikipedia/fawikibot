@@ -52,7 +52,7 @@ class CategorizeBot(
         self.generator = generator
         
         # define the edit summary
-        self.summary = u'افزودن رده‌های همسنگ'
+        self.summary = u'[[ویکی‌پدیا:رده‌دهی مقالات همسنگ|ربات]]: افزودن رده‌های همسنگ'
         
         # allowed namespaces
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
