@@ -58,27 +58,31 @@ class CategorizeBot(
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
 
     def treat_page(self):
+        # check if the bot should even run (this bot cannot be run in EN WP)
         if self.current_page.site.code == 'en':
             pywikibot.output(u'\03{lightred}Cannot accept EN WP page as input!\03{default}')
             return False
-        
-        text = self.current_page.text
-        lang = self.current_page.site.code
         
         if self.current_page.namespace() not in self.allowednamespaces:
             pywikibot.output(u'\03{lightred}Namespace not allowed!\03{default}')
             return False
 
-        if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1:
-            pywikibot.output(u'\03{lightred}Skipped!\03{default}')
-            return False
-            
+        # let's define some basic variables
+        text = self.current_page.text
+        lang = self.current_page.site.code
         current_categories = []
         remote_site = pywikibot.Site('en')
         remote_title = ''
         remote_categories = []
         new_categories = []
         
+        # don't run the bot if it contains the template that bans this bot
+        # TODO: make this step FA WP agnostic
+        if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1:
+            pywikibot.output(u'\03{lightred}Skipped!\03{default}')
+            return False
+        
+        # fetch the list of categories the page is currently in
         params = {
             'action': 'query',
             'prop': 'categories',
@@ -95,7 +99,8 @@ class CategorizeBot(
         except:
             pywikibot.output(u'\03{lightred}Unable to fetch local categories!\03{default}')
             return False
-            
+        
+        # find the EN WP counterpart page, if one exists
         params = {
             'action': 'query',
             'prop': 'langlinks',
@@ -113,7 +118,8 @@ class CategorizeBot(
         except:
             pywikibot.output(u'\03{lightred}Unable to fetch interwiki links!\03{default}')
             return False
-
+        
+        # fetch the list of categories its EN WP counterpart is in  
         params = {
             'action': 'query',
             'prop': 'categories',
@@ -129,15 +135,21 @@ class CategorizeBot(
         except:
             pywikibot.output(u'\03{lightred}Unable to fetch remote categories!\03{default}')
             return False
-
+        
+        # if the category is new, add the page to that category
         for rc in remote_categories:
             remote_category = pywikibot.Page(remote_site, rc[u'title'])
+            # find the matching local category
             for ll in remote_category.langlinks():
                 if ll.site.code == lang:
                     # TODO: Get the local namespace name
                     if u'رده:' + ll.title not in current_categories:
-                        text += u'\n[[رده:' + ll.title + ']]'
+                        # don't add stub categories
+                        # TODO: export this into a function that is more generic
+                        if ll.title.find(u' خرد ') < 0:
+                            text += u'\n[[رده:' + ll.title + ']]'
 
+        # save the page
         self.put_current(text, summary=self.summary)
 
 
