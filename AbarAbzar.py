@@ -1,11 +1,14 @@
 #!/usr/bin/env python2.7
 
 # Distributed under the terms of MIT License (MIT)
-#This tool edits Persian texts and solve some of the wrong dictation, typo and ZWNJ problems
+
 # Based on fa.wikipedia's AbarAbzar tool
 ##https://fa.wikipedia.org/wiki/Mediawiki:Gadget-Extra-Editbuttons-persianwikitools.js
 ##https://fa.wikipedia.org/wiki/Mediawiki:Gadget-Extra-Editbuttons-persiantools.js
 ##https://fa.wikipedia.org/wiki/Mediawiki:Gadget-Extra-Editbuttons-dictionary.js
+
+# This tool edits Persian texts and solve some of the wrong dictation, typo and ZWNJ problems
+# It is not suitable for Mediawiki's syntax for editing in Mediawiki environment use fa_cosmetic_changes_core.py
 
 import re
 
@@ -1396,5 +1399,3 @@ test (31,u'متن '+ u'ك عربی'+u' متن',u'متن '+ u'ک عربی'+u' م�
 test (32,u'متن '+ u'ي عربی'+u' متن',u'متن '+ u'ی عربی'+u' متن')
 test (33,u'متن '+ u'ۀ غیر استاندارد'+u' متن',u'متن '+ u'هٔ غیر استاندارد'+u' متن')
 test (34,u'متن '+ u'متن . نقطه'+u' متن',u'متن '+ u'متن. نقطه'+u' متن')
-
-
