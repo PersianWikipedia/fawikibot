@@ -12,7 +12,7 @@ usage:
 """
 #
 # (C) Pywikibot team, 2006-2014
-# (C) w:fa:User:Huji, 2015
+# (C) w:fa:User:Huji, 2015-2016
 #
 #
 from __future__ import unicode_literals
@@ -305,7 +305,7 @@ def main(sqlnum):
         {
             "sqlnum":23,
             "sql":
-            "select user_name, count(log_id) from user join logging on log_user = user_id where log_type ='patrol' and log_action='patrol' group by log_user, log_action order by 2 desc;",
+            "select user_name, count(log_id) from user join logging on log_user = user_id left join user_groups on log_user = ug_user and ug_group = 'bot' where log_type ='patrol' and log_action='patrol' and ug_group is null group by log_user, log_action order by 2 desc;",
             "out": 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد گشت‌زنی‌ها',
             "cols": [u'ردیف', u'کاربر', u'گشت‌زنی'],
             "summary": u'به روز کردن آمار',
