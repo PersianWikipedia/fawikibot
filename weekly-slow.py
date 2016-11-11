@@ -165,20 +165,20 @@ def main(sqlnum):
         {
             "sqlnum":10,
             "sql":
-            "SELECT  /* SLOW OK */ page_namespace,  page_title,  COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
-            "out": 'وپ:گزارش دیتابیس/پر ویرایش‌ترین صفحات‌',
+            "SELECT /* SLOW OK */ CONCAT(':{{ns:', page_namespace, '}}:', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
+            "out": 'وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها',
             "cols": [u'ردیف', u'فضای نام',  u'صفحه',  u'تعداد ویرایش'],
             "summary": u'به روز کردن آمار',
             "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد. برای اطلاع از شمارهٔ فضاهای نام [[وپ:فضای نام]] را مشاهده کنید.\n\nآخرین به روز رسانی: ~~~~~',
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d}} ||{{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
+            u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
             "sign": True
         },
         {
             "sqlnum":11,
             "sql":
-            "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') as lastedit, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrol'  group by rev_user order by cnt limit 1000",
+            "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') as lastedit, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrolled'  group by rev_user order by cnt limit 1000",
             "out": u'ویکی‌پدیا:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش',
             "cols": [u'ردیف', u'کاربر', u'آخرین ویرایش', u'تعداد کل ویرایش‌ها'],
             "summary": u'به روز کردن آمار',
