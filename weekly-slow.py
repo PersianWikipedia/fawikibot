@@ -167,7 +167,7 @@ def main(sqlnum):
             "sql":
             "SELECT /* SLOW OK */ CONCAT(':{{ns:', page_namespace, '}}:', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
             "out": 'وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها',
-            "cols": [u'ردیف', u'فضای نام',  u'صفحه',  u'تعداد ویرایش'],
+            "cols": [u'ردیف',  u'صفحه',  u'تعداد ویرایش'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
