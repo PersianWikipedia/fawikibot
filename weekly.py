@@ -640,6 +640,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
             "sign": True
         },
+        {
+            "sqlnum":48,
+            "sql":
+            "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl_from, cl_to from categorylinks join page on cl_to = page_title and page_namespace = 14 where page_is_redirect = 1 limit 5000) redir join page on cl_from = page_id;",
+            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ تغییرمسیر',
+            "cols": [u'ردیف', u'صفحه', u'رده'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن رده‌ها خود تغییر مسیر هستند.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
+            "sign": True
+        },
     ]
 
     for t in tasks:
