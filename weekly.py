@@ -653,6 +653,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
             "sign": True
         },
+        {
+            "sqlnum":49,
+            "sql":
+            "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl1.cl_from, cl1.cl_to from categorylinks cl1 join page on cl1.cl_to = page_title and page_namespace = 14 join categorylinks cl2 on page_id = cl2.cl_from and cl2.cl_to = 'رده‌های_منتقل‌شده' limit 5000) redir join page on cl_from = page_id;",
+            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ منتقل‌شده',
+            "cols": [u'ردیف', u'صفحه', u'رده'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن رده‌ها خود تغییر مسیر هستند.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
+            "sign": True
+        },
     ]
 
     for t in tasks:
