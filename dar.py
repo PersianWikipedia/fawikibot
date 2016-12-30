@@ -81,7 +81,7 @@ class CatMoveBot:
                     '{{' + self.redirTemplate + '|' + destTitle + '}}',
                     self.summary % (user, user, origin, destinatino))
             except:
-                # Failed to fetch page contents. Gracefuly ignore!
+                # Failed to fetch page contents. Gracefully ignore!
                 pass
 
         if destinationPage:
@@ -89,7 +89,7 @@ class CatMoveBot:
                 originPageText = originPage.get()
                 # TODO: Remove old {{Category redirect}}
             except:
-                # Failed to fetch page contents. Gracefuly ignore!
+                # Failed to fetch page contents. Gracefully ignore!
                 pass
 
         self.move(origin, destination, user)
