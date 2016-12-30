@@ -1,161 +1,272 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
-# Reza (User:reza1615)
+"""
+dar.py - a script to move categories by request
+
+useage:
+
+    python pwb.py dar [OPTIONS]
+
+"""
+#
+# (C) Reza (w:fa:User:Reza1615), 2015
+# (C) Amir (w:fa:User:Ladsgroup), 2015
+# (C) Huji (w:fa:User:Huji), 2016
+#
 # Distributed under the terms of MIT License (MIT)
+#
+from __future__ import absolute_import, unicode_literals
+
+#
+
 import pywikibot
 from pywikibot import pagegenerators
 import sys
 import json
 import codecs
+import re
 from scripts import category
-from pywikibot import config
-resultdata = u'\n'
-faSite = pywikibot.Site('fa')
-f = codecs.open("/data/project/dexbot/cache_dar.txt", "r", "utf-8")
-cache = json.loads(f.read())
-f.close()
 
 
-def check_user(username):
-    username = username.replace(u' ', u'_')
-    if cache.get(username):
-        return True
-    params = {
-        'action': 'query',
-        'list': 'users',
-        'ususers': username,
-        'usprop': 'editcount'
-    }
-    try:
-        req = pywikibot.data.api.Request(site=faSite, **params)
-        usernamequery = req.submit()
-        if usernamequery[u'query'][u'users'][0][u'editcount'] > 3000:
-            cache[username] = True
-            f = codecs.open("/data/project/dexbot/cache_dar.txt", "w", "utf-8")
-            f.write(json.dumps(cache))
-            f.close()
-            return True
+class CatMoveBot:
+
+    def __init__(self, logPage=None):
+        if logPage is None:
+            raise ValueError('Log page must be specified')
+        self.logPage = logPage
+        self.site = pywikibot.Site('fa')
+        self.redirTemplate = u'رده بهتر'
+        self.summary = u'[[وپ:دار|ربات: انتقال رده]] به درخواست [[User:' + \
+            '%s|%s]] از [[:%s]] به [[:%s]]'
+
+    """
+    Actually moves pages from one category to the other.
+
+    @param origin: name of the origin category
+    @param destination: name of the destination category
+    @param user: Name of the user on whose behalf the category move is done
+    """
+    def move(self, origin, destination, user):
+        comment = self.summary % (user, user, origin, destination)
+        cat = category.CategoryMoveRobot(
+            origin, destination, batch=True,
+            comment=comment, inplace=False, move_oldcat=True,
+            delete_oldcat=True, title_regex=None, history=False)
+        cat.run()
+
+    """
+    Plans moving pages from one category to the other, and updates the category
+    pages to reflect this move.
+
+    @param task: A list with two elements; the first element is the name of the
+        origin category, and the second is the name of the destination category
+    @param user: Name of the user on whose behalf the category move is done
+    """
+    def run(self, task, user):
+        origin = task[0]
+        destination = task[1]
+        # Title of the destination page, without prefix
+        destTitle = re.sub('^(رده|[Cc]ategory)\:', '', destination)
+
+        originPage = pywikibot.Page(self.site, origin)
+        destinationPage = pywikibot.Page(self.site, destination)
+        originPageText = ''
+        destinationPageText = ''
+
+        if originPage:
+            try:
+                originPageText = originPage.get()
+                # Replace contents with the {{Category redirect}} template
+                originPage.put(
+                    '{{' + self.redirTemplate + '|' + destTitle + '}}',
+                    self.summary % (user, user, origin, destinatino))
+            except:
+                # Failed to fetch page contents. Gracefuly ignore!
+                pass
+
+        if destinationPage:
+            try:
+                originPageText = originPage.get()
+                # TODO: Remove old {{Category redirect}}
+            except:
+                # Failed to fetch page contents. Gracefuly ignore!
+                pass
+
+        self.move(origin, destination, user)
+
+
+class CatMoveInput:
+
+    """
+    @param cacheFile: path to the local cache of previously validated users
+    """
+    def __init__(self, cacheFile=None):
+        if cacheFile is None:
+            raise ValueError('Cache file location must be specified')
         else:
+            self.cacheFile = cacheFile
+        self.cache = self.loadCache()
+        self.site = pywikibot.Site('fa')
+        self.tasksPageDefault = u'{{/بالا}}'
+        self.moverBots = [u'Dexbot', u'HujiBot']
+        self.threshold = 3000
+        self.successSummary = u'ربات: انتقال رده انجام شد!'
+
+    def loadCache(self):
+        f = codecs.open(self.cacheFile, 'r', 'utf-8')
+        txt = f.read().strip()
+        f.close()
+        if txt == '':
+            # Brand new cache file, will fail json.loads()
+            # Return an empty dictionary instead
+            cache = {}
+        else:
+            cache = json.loads(txt)
+        return cache
+
+    """
+    @param cache: Validated users cache in JSON format
+    """
+    def updateCache(self, cache):
+        fh = codecs.open(self.cacheFile, 'w', 'utf-8')
+        fh.write(json.dumps(cache))
+        fh.close()
+
+    """
+    Verifies that the user's edit count is greater than self.threshold
+
+    @param username
+    """
+    def verifyUser(self, username):
+        username = username.replace(u' ', u'_')
+
+        # If we have already established that this user qualifies
+        # then don't verify the user again
+        if self.cache.get(username):
+            return True
+
+        # Only users whose edit count is larger than self.threshold
+        # can request category moves
+        params = {
+            'action': 'query',
+            'list': 'users',
+            'ususers': username,
+            'usprop': 'editcount'
+        }
+
+        try:
+            req = pywikibot.data.api.Request(site=self.site, **params)
+            query = req.submit()
+            if query[u'query'][u'users'][0][u'editcount'] > self.threshold:
+                self.cache[username] = True
+                self.updateCache(self.cache)
+                return True
+            else:
+                return False
+        except:
             return False
-    except:
-        return False
 
+    """
+    Looks for a list of category move requests on the given page.
 
-def move(oldCatTitle, newCatTitle, Last_user):
-    comment = u'[[وپ:دار|ربات:انتقال رده]] > [[:رده:%s]] به [[:رده:%s]] به درخواست %s' % (oldCatTitle, newCatTitle, Last_user)
-    if Last_user == 'Leyth':
-        comment += u'-- با عذرخواهی از ایشان'
-    cat = category.CategoryMoveRobot(
-        u'رده:' + oldCatTitle, u'رده:' + newCatTitle, batch=True,
-        comment=comment, inplace=False, move_oldcat=True,
-        delete_oldcat=True, title_regex=None, history=False)
-    cat.run()
-    #res = {"page_content": "Done"}
-    # print json.dumps(res)
+    Each task must be defined in a separate line using either of the following
+    three formats:
 
+    * Category:Origin > Category:Destination
+    * [[:Category:Origin]] > [[:Category:Destination]]
+    * Origin @ Destination
 
-def runn(text, Last_user):
-    errors = u'\n'
-    text = text.replace(u'\r', u'').replace(u']]', u'').replace(u'[[', u'').replace(u'*', u'').replace(u'==>', u'@').replace(u'=>', u'@').replace(u'-->', u'@').replace(
-        u'->', u'@').replace(u'>>', u'@').replace(u'>', u'@').replace(u'رده:', u'').replace(u'category:', u'').replace(u'Category:', u'').replace(u'#', u'').strip()
-    lines = text.split(u'\n')
-    secondsecList = []
-    for line in lines:
-        if line.strip():
-            # print line
-            if line.find(u'@') != -1 and line.find(u'کاربر:') == -1 and line.find(u'}}') == -1 and line.find(u'{{') == -1:
-                firstsec = line.split(u'@')[0].strip().lstrip(":")
-                secondsec = line.split(u'@')[1].strip().lstrip(":")
-                # pywikibot.output(u'-----------------------------------')
-                #pywikibot.output(u'\03{lightred}'+firstsec+u' > '+secondsec+u'\03{default}')
-                facat = pywikibot.Page(faSite, u'رده:' + firstsec)
-                if facat:
-                    try:
-                        facat_text = facat.get()
-                    except:
-                        continue
-                    facat_text = facat_text.replace(u'{{الگو:', u'{{').strip()
-                    if facat_text.find(u'{{رده بهتر|') == -1:
-                        pass
-                        #facat.put(u'{{رده بهتر|'+secondsec+u'}}\n'+facat_text,u'ربات:برچسب رده بهتر برای جلوگیری از کار ربات‌های دیگر به درخواست  %s' % Last_user)
-                    secondsec_cat = u"رده:" + secondsec
-                    secondsecList.append(secondsec_cat)
-                    firstsec_page = pywikibot.Page(faSite, u'رده:' + firstsec)
-                    move(firstsec, secondsec, Last_user)
+    Spaces are optional around `>` and `@` characters, and after the `*`.
 
-                    facat2 = pywikibot.Page(faSite, secondsec_cat)
-                    facat2_text = facat2.get()
-                    facat2_text = facat2_text.replace(
-                        u'{{الگو:', u'{{').strip()
-                    if facat2_text.find(u'{{رده بهتر|') != -1:
-                        pass
-                        #facat2.put(facat2_text.replace(u'{{رده بهتر|'+facat2_text.split(u'{{رده بهتر|')[1].split(u'}}')[0]+u'}}\n',u''),u'ربات:برداشتن برچسب رده بهتر')
+    If such a list is found, it will return a dictionary object containing a
+    list of category move tasks and name of the user on whose behalf categories
+    are moved.
 
-                    facat = pywikibot.Page(faSite, u'رده:' + firstsec)
-                    try:
-                        pass
-                        # facat_text=facat.get()
-                        # facat_text=facat_text.replace(u'{{الگو:',u'{{').replace(u'{{template:',u'{{').strip()
-                        #facat.put(u"{{حذف سریع|{{قلم رنگ|قرمز تیره|ربات:انتقال‌یافته به [[:رده:"+secondsec+u"]] . '''مدیر محترم:'''}}اگر این رده تغییرمسیر نامناسب است، رده را حذف نمائید. در غیراین صورت برچسب حذف را بردارید تا {{الگو|رده بهتر}} بماند.}}\n{{رده بهتر|"+secondsec+u"}}",u"ربات:افزودن برچسب حذف سریع به ردهٔ انتقال‌یافته. به درخواست  %s" % Last_user)
-                        #pywikibot.output(u'\03{lightgreen}...delete tage added to رده:'+firstsec+u' !\03{default}')
-                    except:
-                        continue
-                # except:
-                #    errors+=u'*'+firstsec+u'@'+secondsec+u'\n'
-    for cat in secondsecList:
-        cat_page = pywikibot.Page(faSite, cat)
-        text = cat_page.get()
-        text = text.replace(u' |', u'|').replace(
-            u'| ', u'|').replace(u'{ ', u'{').replace(u' }', u'}')
-        text = text.replace(u' |', u'|').replace(
-            u'| ', u'|').replace(u'{ ', u'{').replace(u' }', u'}')
-        title = cat_page.title()
-        res = {}
-        title2 = title.replace(u'رده:', u'').replace(
-            u'category:', u'').replace(u'Category:', u'')
-        if text.find(title2) != -1:
-            new_text = text.replace(
-                u'{{رده بهتر|' + title + u'}}', u'').replace(u'{{رده بهتر|' + title2 + u'}}', u'')
-            if new_text != text:
-                cat_page.put(new_text, u'ربات:حذف رده بهتر نادرست')
-                #res["page_content"] = "Done"
-                # print json.dumps(res)
-                #pywikibot.output(u'Bot:removing incorrect template')
-    if errors.strip():
-        fapage = pywikibot.Page(faSite, u'ویکی‌پدیا:درخواست انتقال رده')
-        text = fapage.get()
-        fapage.put(text + errors, u'ربات:افزودن موارد انجام نشده!')
+    @param tasksPageName: Wiki page on which category move requests are listed
+    """
+    def processInput(self, tasksPageName):
+        tasksPage = pywikibot.Page(self.site, tasksPageName)
+
+        try:
+            pageText = tasksPage.get()
+            pageHistory = tasksPage.getVersionHistory()
+            lastUser = pageHistory[0][2]
+        except pywikibot.IsRedirectPage:
+            tasksPage = tasksPage.getRedirectTarget()
+            try:
+                pageText = tasksPage.get()
+                pageHistory = tasksPage.getVersionHistory()
+                lastUser = pageHistory[0][2]
+            except:
+                raise ValueError('Task list page not found!')
+        except:
+            raise ValueError('Task list page not found!')
+
+        if lastUser in self.moverBots:
+            print json.dumps({
+                'result': 'Last edit was by a mover bot. Request ignored.'
+            })
+            return False
+        elif self.verifyUser(lastUser):
+            print json.dumps({
+                'result': 'User verified. Processing task list.'
+            })
+            tasks = self.getTaskList(pageText)
+            tasksPage.put(self.tasksPageDefault, self.successSummary)
+            return {'tasks': tasks, 'user': lastUser}
+        else:
+            print json.dumps({
+                'result': 'Last editor was not qualified. Request ignored.'
+            })
+            return False
+
+    """
+    Returns a list of lists, where each inner lists describe one category move
+    request (i.e. [origin, destination]).
+
+    @param taskText: wikicode of the page containing category move requests
+    """
+    def getTaskList(self, taskText):
+        taskList = []
+        for line in taskText.strip('\r').split('\n'):
+            if line[0] == '*':
+                # Remove the * and any immediately following spaces
+                line = re.sub('^\* *', '', line)
+                # Unlink category links
+                if '[[' in line:
+                    line = re.sub('\[\[\:(رده|[Cc]ategory)\:([^\]]+)\]\]',
+                                  '\\1:\\2', line)
+                # Split by '>' or '@' (optionally surrounded by spaces)
+                if '>' in line or '@' in line:
+                    pieces = re.split(' *[>@] *', line)
+                    # Clean up category mentions
+                    for i in range(0, len(pieces)):
+                        # Make edit summaries more beautiful!
+                        pieces[i] = pieces[i].replace(u'_', u' ')
+                        # Add missing `Category` prefix
+                        if (
+                            re.search('^[Cc]ategory\:', pieces[i]) is None and
+                            re.search('^رده\:', pieces[i]) is None
+                        ):
+                            pieces[i] = u'رده:' + pieces[i]
+                    # Add the pair to our task list
+                    taskList.append(pieces)
+                else:
+                    # Skip the line
+                    pass
+        return taskList
 
 
 def main():
-    fapage = pywikibot.Page(faSite, u'ویکی‌پدیا:درخواست انتقال رده')
-    try:
-        text = fapage.get()
-        page_history = fapage.getVersionHistory()
-        Last_user = page_history[0][2]
-    except pywikibot.IsRedirectPage:
-        fapage = fapage.getRedirectTarget()
-        try:
-            text = fapage.get()
-            page_history = fapage.getVersionHistory()
-            Last_user = page_history[0][2]
-        except:
-            #pywikibot.output(u"requested page didn't find!")
-            pywikibot.stopme()
-            sys.exit()
-    except:
-        #pywikibot.output(u"requested page didn't find!")
-        pywikibot.stopme()
-        sys.exit()
-    if Last_user != u'Dexbot' and check_user(Last_user):
-        fapage.put(u'{{/بالا}}', u'ربات:انتقال رده انجام شد!')
-        runn(text, Last_user)
-        res = {'result': 'Finished'}
-        print json.dumps(res)
-    else:
-        res = {
-            'result': 'Not done. User is not allowed, less than 3000 edits are made by last editing user'}
-        print json.dumps(res)
-if __name__ == "__main__":
+    cacheFile = '/data/project/dexbot/cache_dar.txt'
+
+    vBot = CatMoveInput(cacheFile)
+    req = vBot.processInput(u'ویکی‌پدیا:درخواست انتقال رده')
+
+    for task in req['tasks']:
+        mBot = CatMoveBot(u'ویکی‌پدیا:درخواست انتقال رده')
+        mBot.run(task, req['user'])
+
+if __name__ == '__main__':
     main()
 
