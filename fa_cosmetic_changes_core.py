@@ -421,8 +421,8 @@ def cleaning(text,msg_short,msg=msg):
     text=re.sub(ur'(https?:\/?\/?){2,}',u'\1',text)
     text=re.sub(ur'^ +(\=+[^\=]+\=+)',u'\1',text, re.MULTILINE)
     text=re.sub(ur'\[\[\|',u'[[',text)
-    text=re.sub(ur'\[\[([^\]]+)\{\{\!\}\}([^\]]+)\]\]',u'[[\1|\2]]',text)
-    text=re.sub(ur'\[{2}([^\|]+)\|\1\]{2}',u'[[\1]]',text)
+    text=re.sub(ur'\[\[([^\]]+)\{\{\!\}\}([^\]]+)\]\]',ur'[[\1|\2]]',text)
+    text=re.sub(ur'\[{2}([^\|]+)\|\1\]{2}',ur'[[\1]]',text)
 
     #حذف رده انگلیسی    
     text = re.sub(ur'\[\[([Cc]ategory|رده):[\w\s\–\-\|]+?\]\]\r?\n?', u"",text).replace(u'[[رده:|]]',u'')     
