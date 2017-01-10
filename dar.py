@@ -108,7 +108,7 @@ class CatMoveInput:
         self.cache = self.loadCache()
         self.site = pywikibot.Site('fa')
         self.tasksPageDefault = u'{{/بالا}}'
-        self.moverBots = [u'Dexbot', u'HujiBot']
+        self.moverBots = [u'Dexbot', u'HujiBot', u'rezabot']
         self.threshold = 3000
         self.successSummary = u'ربات: انتقال رده انجام شد!'
 
