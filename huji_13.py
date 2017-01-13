@@ -85,7 +85,7 @@ class QanatBot:
 | پیوند بایگانی =http://www.webcitation.org/68eh0vxzx
 | تاریخ بایگانی = ۴ تیر ۱۳۹۱
 }}
-        '''
+'''
         listText += u'[[رده:%s]]' % self.category
         pywikibot.output('Saving list page ...')
         listPage.put(listText)
