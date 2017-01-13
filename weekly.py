@@ -178,7 +178,7 @@ def main(sqlnum):
             "sql":
             "select i1.img_name, i2.img_name from image i1 join image i2 on i1.img_sha1 = i2.img_sha1 and i1.img_name > i2.img_name",
             "out": 'وپ:گزارش دیتابیس/پرونده‌های تکراری',
-            "cols": [u'پرونده اول', u'پرونده دوم'],
+            "cols": [u'ردیف', u'پرونده اول', u'پرونده دوم'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
