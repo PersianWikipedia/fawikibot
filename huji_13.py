@@ -10,8 +10,8 @@ It takes one parameter, which is the name of a category for the Qanats of a
 certian county.
 """
 #
-# (C) Pywikibot team, 2006-2016
-# (C) Huji, 2016
+# (C) Pywikibot team, 2006-2017
+# (C) Huji, 2017
 #
 # Distributed under the terms of the MIT license.
 #
