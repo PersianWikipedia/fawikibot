@@ -103,6 +103,8 @@ class QanatBot:
             out = pieces[0] + '\n' + pieces[1]
             pattern = '<ref[^.]*>[^,]*</ref>'
             out = re.sub(pattern, '', out)
+            out = out.replace(u'نفر می‌باشد', u'نفر هستند') \
+                     .replace(u'هکتار]] می‌باشد', u'هکتار]] است')
             out += '\n{{-}}'
             return out
 
