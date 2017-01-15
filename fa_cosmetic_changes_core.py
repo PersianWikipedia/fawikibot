@@ -24,7 +24,7 @@ pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
 testpass=False
-cleaning_version=u'۱۲.۵ core'
+cleaning_version=u'۱۴.۵ core'
 msg=u'('+cleaning_version +u')' 
 faSite=pywikibot.Site('fa',fam='wikipedia')
 _cache = {}
@@ -43,6 +43,7 @@ spcAftr = u'({[«《“，·。一ｰ٫・、：（）「」〜？！'
 bLA = u'(?!['+faChrs+u'])'
 bLB = u'(?<!['+faChrs+u'])'
 site_category=ur'رده'
+boxes=[u'infobox',u'Geobox',u'Taxobo', u'جعبه']
 #--------------------------------------fa_replaceExcept---------------------
 TEMP_REGEX = re.compile(
     '{{(?:msg:)?(?P<name>[^{\|]+?)(?:\|(?P<params>[^{]+?(?:{[^{]+?}[^{]*?)?))?}}')
@@ -400,6 +401,12 @@ def cleaning(text,msg_short,msg=msg):
     text = re.sub(u'{{(?:منا?بع بیشتر|منبع بهتر|بهبود منا?بع|به)}}', u'{{بهبود منبع}}', text)
     text = re.sub(u'{{وی[کك]ی[‌ ]?(?:سازی)}}', u'{{ویکی‌سازی}}', text)
     text = re.sub(u'{{(?=(?:'+langs+ur')\|)', ur'{{به ', text)
+    #جعبه اطلاعات
+    # خط اضافی بعد از جعبه اطلاعات
+    text_box=Get_box (text).strip()
+    if text_box.strip():
+        text=text.replace(text_box+u'\n\n',text_box+u'\n')
+
     #تمیزکاری سرخط
     for i in range(0,2):    
         text=text.replace(u'{{سخ}} ',u'{{سخ}}').replace(u'{{سخ}} ',u'{{سخ}}').replace(u' {{سخ}}',u'{{سخ}}').replace(u' {{سخ}}',u'{{سخ}}').replace(u'{{سخ}}\n==',u'\n==').replace(u'==\n{{سخ}}',u'==\n').replace(u'=={{سخ}}',u'==').replace(u'{{سخ}}==',u'==')
@@ -621,6 +628,85 @@ def UnicodeURL(text,msg=msg):
         if old_text!=text:
             msg=u'نشانی+'+msg 
     return text,msg
+
+def boxfind(text_en):
+    text_en=text_en.replace(u'{{ ',u'{{').replace(u'{{ ',u'{{').replace(u'{{template:',u'{{').replace(u'{{Template:',u'{{').replace(u'\r',u'')
+    start=False    
+    box=u'\n'
+    diff=1
+    linebaz,linebasteh=0,0
+    for our_box in boxes:
+        our_box=our_box.strip()
+        up_our_box=our_box[0].upper()+our_box[1:]
+        lower_our_box=our_box[0].lower()+our_box[1:]
+        regex_result=re.findall(u'(\{\|([\n\s]+|)\{\{([\s]+|)'+our_box+u')',text_en, re.IGNORECASE)
+        if regex_result:
+            if regex_result[0][0].strip():
+                pre_template=u'{|'
+                post_tempate=u'|}'
+                text_en=text_en.replace(u'{| ',u'{|').replace(u'{| ',u'{|').replace(u'{|\n',u'{|').replace(u'{|\n',u'{|')
+                text_en=text_en.replace(u' |}',u'|}').replace(u' |}',u'|}').replace(u'\n|}',u'|}').replace(u'\n|}',u'|}')
+        else:
+            pre_template,post_tempate=u'',u''
+        lines=text_en.split('\n')
+        for line in lines:
+            if line==u'':
+                continue
+            if line.find(pre_template+u'{{'+lower_our_box)!=-1 :# lower case    
+                start=True
+                linebaz,linebasteh=0,0
+                box+=pre_template+u'{{'+lower_our_box+line.split(pre_template+u'{{'+lower_our_box)[1]+'\n'
+                linebaz += string.count( line,pre_template+"{{" )
+                linebasteh += string.count( line,"}}"+post_tempate )    
+                diff=linebaz-linebasteh
+                continue
+            if line.find(pre_template+u'{{'+up_our_box)!=-1 :# upper case
+                start=True
+                linebaz,linebasteh=0,0
+                box+=pre_template+u'{{'+up_our_box+line.split(pre_template+u'{{'+up_our_box)[1]+'\n'
+                linebaz += string.count( line,pre_template+"{{" )
+                linebasteh += string.count( line,"}}" +post_tempate)
+                diff=linebaz-linebasteh
+                continue
+            if start==True and diff!=0:
+                linebaz += string.count( line,pre_template+"{{" )
+                linebasteh += string.count( line,"}}"+post_tempate )
+                diff=linebaz-linebasteh
+                box+=line+'\n'
+            if diff==0 and start==True:
+                break
+        if box.strip():
+            break
+    return box.replace(u'}}|}',u'}}\n|}')
+
+def Get_box (txt):
+    my_box=boxfind(txt)
+    if my_box.strip():
+        return my_box
+    txt=txt.replace(u'\r',u'')
+    lines=txt.split('\n')
+    matn=' '
+    for line in lines:
+        linebaz=string.count(line,'{{')
+        linebaste=string.count(line,'}}')
+        diff=linebaz-linebaste
+        if diff==0:
+            line=line.replace('{{','$AAAA$').replace('}}','!BBBB!')
+        linebaz=0
+        linebaste=0
+        matn+=line+u'\n'
+    my_box=''
+    for our_box in boxes:
+        our_box=our_box.strip()
+        try:
+            my_box= re.search(ur'(\{\{\s*['+our_box[0].lower()+our_box[0].upper()+ur']'+our_box[1:]+ur'[_\s](?:\{\{.*?\}\}|[^\}])*\}\})',matn, re.S).group(1)# if Template box has other name please chang this regex
+            my_box=my_box.replace(u'$AAAA$',u'{{').replace(u'!BBBB!',u'}}')
+            break
+        except:
+            continue
+    if not my_box.strip():
+        return False
+    return my_box
 
 def reverting (text,old_text):
     #واگردانی بابت رفع باگ کد زیباسازی پای‌ویکی‌پدیا
