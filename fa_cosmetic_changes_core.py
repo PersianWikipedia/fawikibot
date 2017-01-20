@@ -403,9 +403,11 @@ def cleaning(text,msg_short,msg=msg):
     text = re.sub(u'{{(?=(?:'+langs+ur')\|)', ur'{{به ', text)
     #جعبه اطلاعات
     # خط اضافی بعد از جعبه اطلاعات
-    text_box=Get_box (text).strip()
-    if text_box.strip():
-        text=text.replace(text_box+u'\n\n',text_box+u'\n')
+    text_box=Get_box (text)
+    if text_box:
+        text_box=text_box.strip()
+        if text_box.strip():
+            text=text.replace(text_box+u'\n\n',text_box+u'\n')
 
     #تمیزکاری سرخط
     for i in range(0,2):    
