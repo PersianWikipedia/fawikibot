@@ -132,6 +132,7 @@ def arabic_to_farsi(text):
         text = fa_replaceExcept(text, ur'[كﮑﮐﮏﮎﻜﻛﻚﻙ]', ur'ک', exceptions)
         text = fa_replaceExcept(text, ur'[ىىىﻴﻳﻲﻱﻰىىﻯي]', ur'ی', exceptions)
         text = fa_replaceExcept(text, ur'[ہەھ]', ur'ه', exceptions)
+        text = fa_replaceExcept(text,ur'[ۀﮤ]',ur'هٔ', exceptions)
         if text==text2:
            break
         text2=text
