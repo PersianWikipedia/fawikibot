@@ -97,7 +97,7 @@ def Compairing(s1,s2):
     return same/float(len(s1c)+len(s2c))
 
 def is_equal (s1,s2):
-    if s1.lower() in s2 or s2.lower() in s1:
+    if s1.lower() in s2.lower() or s2.lower() in s1.lower():
       return True 
     elif Compairing(clean_word(s1),clean_word(s2))> 0.7:
       return True
