@@ -17,15 +17,6 @@ import MySQLdb as mysqldb
 BotVersion=u'۹.۱ core'
 _cache={}
 
-def login_fa():    
-    try:
-        password_fa = open("/data/project/rezabot/pycore/passfile2", 'r')
-    except:
-        password_fa = open("/home/reza/pycore2/passfile2", 'r')
-    password_fa=password_fa.read().replace('"','').strip().split('(')[1].split(',')[1].split(')')[0].strip()
-    botlog=pywikibot.data.api.LoginManager(password=password_fa, sysop=False, site=pywikibot.Site('fa'),username='Fatranslator')
-    botlog.login()
-
 def Check_Page_Exists(page_link):
     page_link=page_link.replace(u' ',u'_')
     if _cache.get(tuple([page_link, 'Check_Page_Exists'])):
@@ -363,7 +354,6 @@ def run(results, NotArticle):
 
     del results,enlink
 
-login_fa()
 #At the first it should do replacing at none article
 run(get_query(),True)
 #Now do replacing at the articles
