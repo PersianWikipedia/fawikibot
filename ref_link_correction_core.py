@@ -1,12 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
+#
 # Reza(User:reza1615), 2014
-# Distributed under the terms of MIT License (MIT)
+#
+# Distributed under the terms of the CC-BY-SA 3.0 .
+# -*- coding: utf-8 -*-
 import pywikibot,re,codecs
 from pywikibot.compat import query
 pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
-bot_version=u'۲.۰'
+bot_version=u'۳.۰'
 _cache={}
 def translation(firstsite,secondsite,enlink):
     if _cache.get(tuple([enlink, firstsite,enlink, 'translation_en'])):
@@ -116,85 +119,48 @@ def check_ref_title_is_english(my_ref):
                 #pywikibot.output(u'!!!!!\03{lightblue}Title is persian so the links should be persian\03{default}')
                 return False
     return True
-def get_cite_template(backage,test_text,text_refs):
-        test_text=test_text.replace(u'{{ Cit',u'{{Cit').replace(u'{{ cit',u'{{cit').replace(u'{{ یادکرد',u'{{یادکرد')
-        if  u'{{Cit' in test_text:
-            text_refs_2=test_text.split(u'{{Cit')
-            for i in  text_refs_2:
-               i=u'{{Cit'+i.split(u'}}')[0]
-               text_refs.append(i)
-            backage=u'}}'
 
-        if  u'{{cit' in test_text:
-            text_refs_2=test_text.split(u'{{cit')
-            for i in  text_refs_2:
-               i=u'{{cit'+i.split(u'}}')[0]
-               text_refs.append(i)
-            backage=u'}}'
-
-        if  u'{{یادکرد' in test_text:
-            text_refs_2=test_text.split(u'{{یادکرد')
-            for i in  text_refs_2:
-               i=u'{{یادکرد'+i.split(u'}}')[0]
-               text_refs.append(i)
-            backage=u'}}'
-        return backage,text_refs
-def run (text,sum,text2):
+def run (text,sum):
     old_text=text
-    old_text2=text2
-    yes=False
-    text_refs=[]
-    text2=text2.replace(u'< ref',u'<ref').replace(u'< /ref',u'</ref').replace(u'</ ref',u'</ref').replace(u'ref >',u'ref>')
-    test_text=text2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@').replace(u'<ref group=',u'@')
-    text_refs=test_text.split(u'<ref')
-    backage=u'</ref>'
-    if text_refs[0]==test_text:
-        backage,text_refs=get_cite_template(backage,test_text,text_refs)
-
-    count=0
-    for refs in text_refs:
-        count+=1
-        if count==1:
-           continue
-        my_ref=refs.split(backage)[0]
-        if my_ref!=refs:
-            should_english=check_ref_title_is_english(my_ref)
-            if should_english:
-                #pywikibot.output(u'\03{lightblue}-------ref--------\03{default}'+str(count))
-                #pywikibot.output(my_ref)
-                #pywikibot.output(u'>>>>>\03{lightred}Title is english so the links should be english\03{default}')
-                RE=re.compile(ur'\[\[.*?\]\]')
-                fa_links=RE.findall(my_ref)
-                if fa_links:
-                    #pywikibot.output(u'----links----')
-                    for fa_link in fa_links:
-                        fa_link_r,num=Check_link(fa_link)
-                        if fa_link_r:
-                            new_link=Solve_linke_translation(fa_link_r,num)
-                            new_refs=refs.replace(u'[['+fa_link_r+u']]',new_link)
-                            old_text=old_text.replace(refs,new_refs)
-                            old_text2=old_text2.replace(refs,new_refs)
-                            refs=new_refs
-
-                    else:
-                        #pywikibot.output(u'It doesnt have any wiki link!')
-                        continue
-    if old_text2!=text2:
+    RE=re.compile(r'<[\s]*ref[^>]*>([^<]*)<[\s]*\/[\s]*ref[\s]*>')
+    all_refs=RE.findall(text.replace(u'\n',u'').replace(u'\r',u''))
+    RE2=re.compile(ur'{{\s*(?:[Cc]ite|یادکرد)[\-_\s](?:{{.*?}}|[^}])*}}')
+    all_refs2=RE2.findall(text.replace(u'\n',u'').replace(u'\r',u''))
+    our_ref=[]
+    if all_refs:
+        our_ref=all_refs
+    if all_refs2:
+        our_ref+=all_refs2
+    if not our_ref:
+        return text,sum
+    our_ref = list(set(our_ref))
+    for refs in our_ref:
+        if u'[[رده:' in refs:
+            continue
+        should_english=check_ref_title_is_english(refs)
+        if should_english:
+            RE=re.compile(ur'\[\[.*?\]\]')
+            fa_links=RE.findall(refs)
+            if fa_links:
+                #pywikibot.output(u'----links----')
+                for fa_link in fa_links:
+                    fa_link_r,num=Check_link(fa_link)
+                    if fa_link_r:
+                        new_link=Solve_linke_translation(fa_link_r,num)
+                        new_refs=refs.replace(u'[['+fa_link_r+u']]',new_link)
+                        old_text=old_text.replace(refs,new_refs)
+                        refs=new_refs
+            else:
+                #pywikibot.output(u'It doesnt have any wiki link!')
+                continue
+    if old_text!=text:
         return old_text,sum+u'+'+u'اصلاح ارجاع لاتین'
     else:
         return text,sum
 
 def main(text,sum):
-    #The first time
-    new_text,sum=run(text,sum,text)
-    #The second time
-    new_text_2=new_text.replace(u'< ref',u'<ref').replace(u'< /ref',u'</ref').replace(u'</ ref',u'</ref').replace(u'ref >',u'ref>')
-    new_text_2=new_text_2.replace(u'<ref name=',u'@').replace(u'<references group=',u'@').replace(u'<ref group=',u'@')
-    text_refs_2=new_text_2.split(u'<ref')
-    for i in text_refs_2:
-        i=i.split(u'</ref>')[0]
-        new_text_2=new_text_2.replace(i,u'').replace('<ref',u'').replace('</ref',u'')
-    new_text,sum2=run(new_text,sum,new_text_2)
+    sum2=u'اصلاح ارجاع لاتین'
+    new_text,sum=run(text,sum)
     if sum:
        sum2=sum
     return new_text,sum2
