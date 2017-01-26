@@ -269,7 +269,7 @@ def remove_wikify (enlink,Status):
             text=re.sub(ur'\[\[( *'+enlink+ur' *)\|([^\]\|]+ *)\]\]',ur' \2 ',text)
             if Status=='R':
                 text=re.sub(ur'\[\[ *('+enlink+ur') *\]\]',ur' \1 ',text)
-            if page:
+            
             try:
                 page.put(text,u'ربات :برداشتن ویکی‌سازی [['+enlink+u']] ('+BotVersion+')')
                 pywikibot.output(u'\03{lightblue}the page '+page.title()+u' remove wikifay [['+enlink+u']]\03{default}')
