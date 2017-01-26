@@ -74,6 +74,47 @@ def namespacefinder( enlink ,firstsite):
         _cache[tuple([enlink,firstsite, 'namespacefinder'])]=False
         return False
 
+def clean_word (word):
+  word=word.lower()
+  word=word.replace(u"'",u"").replace(u'"',u"").replace(u'_',u" ")
+  word=re.sub(ur'[\-\.\:,;@#\$\*\+\!\?%\^\/\\\<\>ʻ”“‘’‚’”\(\)\}\{–—−ـ_]',u'',word)
+  word=re.sub(ur'\s{2,}',u'',word)
+  return word
+
+def Compairing(s1,s2):
+    s1=s1.lower()
+    s2=s2.lower()
+    # Make sorted arrays of string chars
+    s1c = [x for x in s1]
+    s1c.sort()
+    s2c = [x for x in s2]
+    s2c.sort()
+    i1 = 0
+    i2 = 0
+    same = 0
+    # "merge" strings, counting matches
+    while ( i1<len(s1c) and i2<len(s2c) ):
+        if s1c[i1]==s2c[i2]:
+            same += 2
+            i1 += 1
+            i2 += 1
+        elif s1c[i1] < s2c[i2]:
+            i1 += 1
+        else:
+            i2 += 1
+    # Return ratio of # of matching chars to total chars
+    return same/float(len(s1c)+len(s2c))
+
+def is_equal (s1,s2):
+    if s1.lower() in s2 or s2.lower() in s1:
+      return True 
+    elif Compairing(clean_word(s1),clean_word(s2))> 0.7:
+      return True
+    elif Compairing(s1,s2) > 0.7:
+      return True
+    else:
+      return False
+
 def redirect_find( page_link):
     page_link=page_link.replace(u' ',u'_')
     if _cache.get(tuple([page_link, 'redirect_find'])):
@@ -86,7 +127,7 @@ def redirect_find( page_link):
     query_page =pywikibot.data.api.Request(site=pywikibot.Site('en'), **params).submit()
     try:
         redirect_link=query_page[u'query'][u'redirects'][0]['to']
-        if  page_link.lower() in redirect_link.lower() or redirect_link.lower() in page_link.lower():
+        if is_equal (page_link,redirect_link):
             #It is redirect but it seems ok to replace
             _cache[tuple([page_link, 'redirect_find'])]=True
             return True
@@ -309,7 +350,6 @@ def run(results, NotArticle):
                     continue
 
                 falink=englishdictionry(enlink ,'en','fa')
-                print falink
                 if falink:
                     if namespacefinder(enlink ,'en')!=namespacefinder(falink ,'fa'):
                         continue    
@@ -322,6 +362,7 @@ def run(results, NotArticle):
                         remove_wikify (enlink,'#')
 
     del results,enlink
+
 login_fa()
 #At the first it should do replacing at none article
 run(get_query(),True)
