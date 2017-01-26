@@ -276,7 +276,7 @@ def getlinks(enlink,falink,NotArticle):
                         if msg:
                            msg=u'+'+msg
                         try:
-                            page.put(text2,u'ربات :جایگزینی پیوند قرمز [['+enlink+u']] > [['+falink+u']] ('+BotVersion+')'+msg)
+                            page.put(text2,u'ربات :[[وپ:پقا|جایگزینی پیوند قرمز]] [['+enlink+u']] > [['+falink+u']] ('+BotVersion+')'+msg)
                             pywikibot.output(u'\03{lightgreen}the page '+page.title()+u' had replcae item [['+enlink+u']] > [['+falink+u']]\03{default}')
                         except:
                             pywikibot.output(u'\03{lightred}the page '+page.title()+u' could not replaced so it passed\03{default}')
@@ -302,7 +302,10 @@ def remove_wikify (enlink,Status):
                 text=re.sub(ur'\[\[ *('+enlink+ur') *\]\]',ur' \1 ',text)
             
             try:
-                page.put(text,u'ربات :برداشتن ویکی‌سازی [['+enlink+u']] ('+BotVersion+')')
+                if Status=='R':
+                    page.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']] > تغییرمسیر نامشابه است ('+BotVersion+')')
+                else:
+                    page.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']]> بخشی از یک مقاله است (در ویکی‌انگلیسی# دارد) ('+BotVersion+')')
                 pywikibot.output(u'\03{lightblue}the page '+page.title()+u' remove wikifay [['+enlink+u']]\03{default}')
             except:
                 pywikibot.output(u'\03{lightred}the page '+page.title()+u' could not replaced so it passed\03{default}')
