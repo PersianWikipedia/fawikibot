@@ -9,7 +9,7 @@
 from pywikibot.compat import query
 import re
 import pywikibot
-import zz_ref_link_correction_core
+import ref_link_correction_core
 import codecs
 from pywikibot import config
 import time
@@ -241,7 +241,7 @@ def getlinks(enlink,falink,NotArticle):
                     text2=revert(text2,text)
                     msg=u''
                     if text!=text2:
-                        text2,msg=zz_ref_link_correction_core.main(text2,u'')
+                        text2,msg=ref_link_correction_core.main(text2,u'')
                         if msg:
                            msg=u'+'+msg
                         try:
