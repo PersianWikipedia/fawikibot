@@ -13,7 +13,6 @@ import ref_link_correction_core
 import codecs
 from pywikibot import config
 import time
-import login
 import MySQLdb as mysqldb
 BotVersion=u'۹.۱ core'
 _cache={}
