@@ -4,6 +4,7 @@
 # Reza(User:reza1615), 2011
 #
 # Distributed under the terms of MIT License (MIT)
+# for more information see https://fa.wikipedia.org/wiki/کاربر:Fatranslator/ترجمه_همسنگ
 #
 from pywikibot.compat import query
 import re
