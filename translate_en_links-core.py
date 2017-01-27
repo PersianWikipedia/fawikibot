@@ -68,6 +68,38 @@ def namespacefinder( enlink ,firstsite):
         _cache[tuple([enlink,firstsite, 'namespacefinder'])]=False
         return False
 
+def is_equal_entxt (enlink):
+    try:
+        page = pywikibot.Page(ensite, enlink)
+        entxt= page.get()
+    except pywikibot.IsRedirectPage:
+        newpage = page.getRedirectTarget()
+        target_title=newpage.title()
+        entxt= newpage.get()
+    except:
+        entxt= ''
+    entxt_lid=entxt.split(u'==')[0]
+    title_list = re.findall(ur"\'\'\'(.*?)\'\'\'",entxt_lid, re.DOTALL| re.IGNORECASE)
+    if title_list:
+        for bold_title in title_list:
+            is_equal_result,Comp=is_equal (bold_title,enlink)
+            if is_equal_result:
+                pywikibot.output(u'link '+enlink+u' is equal with \03{lightgreen} bold list\03{default}')
+                return True, Comp
+        pywikibot.output(u'link '+enlink+u' is not equal with \03{lightblue} bold list\03{default}')
+    else:
+        pywikibot.output(u'link '+enlink+u' is not in\03{lightblue} bold list\03{default}')
+
+    if re.sub(ur'(^|[\s\.\(\)\[\],:;\=\-_"\'\*\|])'+enlink+ur'([\s\.\(\)\[\],:;\=\-_"\'\|]|$)',ur'',entxt_lid, re.DOTALL| re.IGNORECASE)!=entxt_lid:
+        pywikibot.output(u'link '+enlink+u' is \03{lightgreen} in text\03{default}')
+        return True, '0.00'
+    if re.sub(ur'(^|[\s\.\(\)\[\],:;\=\-_"\'\*\|])'+enlink.replace(u'_',u' ')+ur'([\s\.\)\(\]\[,:;\=\-_"\'\|]|$)',ur'',entxt_lid, re.DOTALL| re.IGNORECASE)!=entxt_lid :
+        pywikibot.output(u'link '+enlink+u' is \03{lightgreen} in text\03{default}')
+        return True, '0.00'
+    else:
+        pywikibot.output(u'link '+enlink+u' is not\03{lightblue} in text\03{default}')
+    return False,'0.0'
+
 def clean_word (word):
   word=word.lower()
   word=word.replace(u"'",u"").replace(u'"',u"").replace(u'_',u" ")
@@ -123,9 +155,12 @@ def redirect_find( page_link):
         'titles': page_link
     }
     query_page =pywikibot.data.api.Request(site=pywikibot.Site('en'), **params).submit()
+    if params:
     try:
         redirect_link=query_page[u'query'][u'redirects'][0]['to']
         is_equal_result,Comp=is_equal (page_link,redirect_link)
+        if not is_equal_result:
+            is_equal_result,Comp= is_equal_entxt (page_link)
         if is_equal_result:
             #It is redirect but it seems ok to replace
             _cache[tuple([page_link, 'redirect_find'])]=True
@@ -140,7 +175,6 @@ def redirect_find( page_link):
         else:
             _cache[tuple([page_link, 'redirect_find'])]=True
             return True, 0
-
 
 def link_translator(batch, ensite, fasite):
     params = {
@@ -202,7 +236,6 @@ def link_translator(batch, ensite, fasite):
         
     return res
 
-
 def englishdictionry( enlink ,firstsite,secondsite):
     try:
         enlink=unicode(str(enlink),'UTF-8').replace(u'[[',u'').replace(u']]',u'').replace(u'en:',u'').replace(unicode('fa','UTF-8')+u':',u'')
@@ -225,7 +258,6 @@ def englishdictionry( enlink ,firstsite,secondsite):
     else:
         _cache[tuple([enlink,firstsite, 'englishdictionry'])]=False
         return False 
-
 
 def switchnamespace(namespace):
     if namespace==0:
@@ -339,32 +371,36 @@ def getlinks(enlink,falink,NotArticle):
         
 def remove_wikify (enlink,Status,Comp):
     try:
-        page = pywikibot.Page(pywikibot.Site('fa'),enlink)
-        linktos=page.getReferences()
-        for page in linktos:
-            namespacefa=page.namespace()
+        pagelinken = pywikibot.Page(pywikibot.Site('fa'),enlink)
+        linktos=pagelinken.getReferences()
+        for refpage in linktos:
+            namespacefa=refpage.namespace()
             if namespacefa != 0:
                 continue
             try:
-                text=page.get()
+                text=refpage.get()
             except:
                 continue
+            old_text=text
             text=re.sub(ur'\[\[( *'+enlink+ur' *)\|([^\]\|]+ *)\]\]',ur' \2 ',text)
             if Status=='R':
                 text=re.sub(ur'\[\[ *('+enlink+ur') *\]\]',ur' \1 ',text)
-            
-            try:
-                if Status=='R':
-                    page.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']] > تغییرمسیر نامشابه است ('+BotVersion+') '+str(Comp))
-                else:
-                    page.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']]> بخشی از یک مقاله است (در ویکی‌انگلیسی# دارد) ('+BotVersion+') '+str(Comp))
-                pywikibot.output(u'\03{lightblue}the page '+page.title()+u' remove wikifay [['+enlink+u']]\03{default}')
-            except:
-                pywikibot.output(u'\03{lightred}the page '+page.title()+u' could not replaced so it passed\03{default}')
-                continue
+            if old_text!=text:
+                try:
+                    if Status=='R':
+                        refpage.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']] > تغییرمسیر نامشابه است ('+BotVersion+') '+str(Comp))
+                    else:
+                        refpage.put(text,u'[[وپ:پقا|برداشتن ویکی‌سازی]] [['+enlink+u']]> بخشی از یک مقاله است (در ویکی‌انگلیسی# دارد) ('+BotVersion+') '+str(Comp))
+
+                    pywikibot.output(u'\03{lightblue}the page '+refpage.title()+u' remove wikifay [['+enlink+u']]\03{default}')
+                except:
+                    pywikibot.output(u'\03{lightred}the page '+refpage.title()+u' could not replaced so it passed\03{default}')
+                    continue
+            else:
+                pywikibot.output(u'\03{lightred}there is a problem bot could not remove'+enlink+u' from [['+refpage.title()+u']]\03{default}')
     except:
         return
-        
+
 def get_query():
     querys='SELECT /* SLOW_OK */ DISTINCT pl_title,pl_namespace FROM pagelinks INNER JOIN page ON pl_from = page_id WHERE pl_title NOT IN(SELECT page_title FROM page WHERE page_namespace = 0) AND pl_namespace = 0 AND page_namespace = 0;'
     pywikibot.output(querys)
@@ -379,6 +415,7 @@ def get_query():
     
 def run(results, NotArticle):
     for enlink in results:
+        pywikibot.output(u'========== Check link: \03{lightblue}'+enlink[0]+u'\03{default} ==============')
         if switchnamespace(enlink[1]):# if the link is from permited namespaces 
             enlink=switchnamespace(enlink[1])+unicode(enlink[0],'UTF-8').strip()
             enlink=enlink.replace(u'_',u' ').strip()
@@ -395,7 +432,6 @@ def run(results, NotArticle):
                     remove_wikify (enlink,'R',Comp)
                     continue
                 falink=englishdictionry(enlink ,'en','fa')
-                pywikibot.output(falink)
                 if falink:
                     if namespacefinder(enlink ,'en')!=namespacefinder(falink ,'fa'):
                         continue    
@@ -406,7 +442,8 @@ def run(results, NotArticle):
                     #unwikify the # links
                     if u'#' in enlink:
                         remove_wikify (enlink,'#',Comp)
-
+                    else:
+                        pywikibot.output(u'\03{lightred}enlink [['+enlink+u']] with «'+str(Comp)+u'» similarity doesnt have any page in fawiki\03{default}\03{lightgreen} so skip it!\03{default}')
     del results,enlink
 
 #At the first it should do replacing at none article
@@ -415,7 +452,7 @@ run(get_query(),True)
 run(get_query(),False)
 '''
 # for test
-results=[['100 Mile House, British Columbia',0]]
-run(results,True)
+results=[['25 kV AC',0]]
+#run(results,True)
 run(results,False)
 '''
