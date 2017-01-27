@@ -19,8 +19,8 @@ import MySQLdb
 _cache = {}
 page_list_run = []
 #-----------------------------------------------version-----------------------------------------
-fa_site = pywikibot.Site('fa')
-en_site = pywikibot.Site('en')
+fa_site = pywikibot.Site('fa', 'wikipedia')
+en_site = pywikibot.Site('en', 'wikipedia')
 versionpage = pywikibot.Page(fa_site, u'کاربر:Rezabot/رده‌دهی مقالات همسنگ/نسخه')
 lastversion = versionpage.get().strip()
 version = u'۳۰'
@@ -58,6 +58,7 @@ def namespacefinder(enlink, site):
         return False
 
 def englishdictionry(enlink, firstsite, secondsite):
+    enlink=enlink.replace(u' ',u'_')
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
         return _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]
     try:
@@ -70,11 +71,9 @@ def englishdictionry(enlink, firstsite, secondsite):
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
-
-    englishdictionry_result=link_translator([enlink])
-
-    if englishdictionry_result:
-        result=englishdictionry_result[enlink]
+    result=link_translator(enlink,firstsite,secondsite)
+    #print result
+    if result:
         if result.find('#') != -1:
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
@@ -84,21 +83,24 @@ def englishdictionry(enlink, firstsite, secondsite):
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]=False
         return False 
 
-def link_translator(batch):
-    ensite = pywikibot.Site('en', 'wikipedia')
-    fasite = pywikibot.Site('fa', 'wikipedia')
+def link_translator(title,ensite,fasite):
+
     params = {
         'action': 'query',
         'redirects': '',
-        'titles': '|'.join(batch)
+        'titles': title
     }
     query_res = pywikibot.data.api.Request(site=ensite, **params).submit()
-    redirects = {i['from']: i['to'] for i in query_res['query'].get('redirects', [])}
-    normalizeds = {i['from']: i['to'] for i in query_res['query'].get('normalized', [])}
-    
-    # resolve normalized redirects and merge normalizeds dict into redirects at the same time
-    for k, v in normalizeds.items():
-        redirects[k] = redirects.get(v, v)
+
+
+    normalizeds = query_res['query'].get('normalized', [])
+    if len(normalizeds):
+        title = normalizeds[0]['to']
+        
+    redirects = query_res['query'].get('redirects', [])
+    if len(redirects):
+        title = redirects[0]['to']
+
 
     wikidata = pywikibot.Site('wikidata', 'wikidata')
     
@@ -107,44 +109,29 @@ def link_translator(batch):
     params = {
         'action': 'wbgetentities',
         'sites': endbName,
-        'titles': '|'.join([redirects.get(i, i) for i in batch]),
+        'titles': title,
         'props': 'sitelinks'
     }
 
     try:
         query_res = pywikibot.data.api.Request(site=wikidata, **params).submit()
     except:
-        return {}
-    
+        return ''
+
     matches_titles = {}
     entities = query_res.get('entities', {})
     for qid, entity in entities.items():
         if fadbName in entity.get('sitelinks', {}):
-            en_title = entity['sitelinks'][endbName]
             fa_title = entity['sitelinks'][fadbName]
 
             # for not updated since addition of badges on Wikidata items
-            if not isinstance(en_title, str):
-                en_title = en_title['title']
+            if not isinstance(title, str):
                 fa_title = fa_title['title']
 
-            matches_titles[en_title] = fa_title
-        
-    res = {}
-    for i in batch:
-        p = redirects[i] if (i in redirects) else i
-        if p in matches_titles:
-            res[i] = matches_titles[p]
+            return fa_title
 
-    for k, v in redirects.items():
-        if k in res:
-            res[v] = res[k]
+    return ''
 
-    for k, v in normalizeds.items():
-        if k in res:
-            res[v] = res[k]
-        
-    return res
 
 def catquery(enlink, firstsite, hidden):
     if _cache.get(tuple([enlink, firstsite, hidden, 'cat_query'])):
@@ -386,6 +373,7 @@ def pedar(catfa, radehi, link):
 
 def run(gen):
     for pagework in gen:
+            
         try:
             radehf, catsfas, maghalehen, radeh, finallRadeh = ' ', ' ', ' ', ' ', ' '
             try:
@@ -575,6 +563,7 @@ def run(gen):
                  pywikibot.output(u'\03{lightred}Could not open page\03{default}')
                  continue
         except:
+             pywikibot.output(u'\03{lightred}Bot has error\03{default}')
             continue
 # -------------------------------encat part-----------------------------------
 
