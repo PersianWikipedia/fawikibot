@@ -563,7 +563,7 @@ def run(gen):
                  pywikibot.output(u'\03{lightred}Could not open page\03{default}')
                  continue
         except:
-             pywikibot.output(u'\03{lightred}Bot has error\03{default}')
+            pywikibot.output(u'\03{lightred}Bot has error\03{default}')
             continue
 # -------------------------------encat part-----------------------------------
 
