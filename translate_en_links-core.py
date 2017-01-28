@@ -417,7 +417,7 @@ def get_query():
 def run(results, NotArticle):
     for enlink in results:
         Comp=0
-        pywikibot.output(u'========== Check link: \03{lightblue}'+enlink[0]+u'\03{default} ==============')
+        pywikibot.output(u'========== Check link: \03{lightblue}'+unicode(enlink[0],'UTF-8')+u'\03{default} ==============')
         if switchnamespace(enlink[1]):# if the link is from permited namespaces 
             enlink=switchnamespace(enlink[1])+unicode(enlink[0],'UTF-8').strip()
             enlink=enlink.replace(u'_',u' ').strip()
