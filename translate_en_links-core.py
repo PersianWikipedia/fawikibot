@@ -349,6 +349,8 @@ def getlinks(enlink,falink,NotArticle):
                                 else:
                                     if replace_link[2]==re.sub(u'[ابضصثقفغعهخحجچشسیلتنمکگظطزرذدپو]',u'',replace_link[2]):
                                         text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+u']]')
+                                    elif re.sub(u'[0-9۰۱۲۳۴۵۶۷۸۹ \)\(\]\[]+',u'',replace_link[2])==u''
+                                        text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+u']]')
                                     else:
                                         text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+ur'|'+replace_link[2]+u']]') 
 
@@ -420,28 +422,29 @@ def run(results, NotArticle):
             enlink=switchnamespace(enlink[1])+unicode(enlink[0],'UTF-8').strip()
             enlink=enlink.replace(u'_',u' ').strip()
             enlink2=re.sub(u'[ابضصثقفغعهخحجچشسیلتنمکگظطزرذدپو]',ur'', enlink)
-            if enlink2==enlink:
+            if enlink2==enlink:#None Persian links
                 count=-1
-                for i in u'۰۱۲۳۴۵۶۷۸۹':
+                enlink_old=enlink
+                for i in u'۰۱۲۳۴۵۶۷۸۹':#Links with english numbers
                     count+=1
                     enlink=enlink.replace(i,str(count))
-                #unwikify the redirect links
-                redirect_find_result, Comp =redirect_find(enlink)
-                if not redirect_find_result:
-                    pywikibot.output(u'It was redirect so lets remove the wikify!')
-                    remove_wikify (enlink,'R',Comp)
-                    continue
                 falink=englishdictionry(enlink ,'en','fa')
                 if falink:
+                    redirect_find_result, Comp =redirect_find(enlink)
+                    if not redirect_find_result:
+                        #unwikify the redirect links
+                        pywikibot.output(u'It was redirect so lets remove the wikify!')
+                        remove_wikify (enlink_old,'R',Comp)
+                        continue
                     if namespacefinder(enlink ,'en')!=namespacefinder(falink ,'fa'):
                         continue    
                     pywikibot.output(u'---------------------------------------------')
-                    pywikibot.output(enlink+u' > '+falink)
+                    pywikibot.output(enlink_old+u' > '+falink)
                     a=getlinks(enlink,falink,NotArticle)
                 else:
                     #unwikify the # links
                     if u'#' in enlink:
-                        remove_wikify (enlink,'#',Comp)
+                        remove_wikify (enlink_old,'#',Comp)
                     else:
                         pywikibot.output(u'\03{lightred}enlink [['+enlink+u']] with «'+str(Comp)+u'» similarity doesnt have any page in fawiki\03{default}\03{lightgreen} so skip it!\03{default}')
     del results,enlink
