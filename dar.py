@@ -2,8 +2,11 @@
 # -*- coding: utf-8  -*-
 """
 dar.py - a script to move categories by request
+
 useage:
+
     python pwb.py dar [OPTIONS]
+
 """
 #
 # (C) Reza (w:fa:User:Reza1615), 2015
@@ -38,6 +41,7 @@ class CatMoveBot:
 
     """
     Actually moves pages from one category to the other.
+
     @param origin: name of the origin category
     @param destination: name of the destination category
     @param user: Name of the user on whose behalf the category move is done
@@ -53,6 +57,7 @@ class CatMoveBot:
     """
     Plans moving pages from one category to the other, and updates the category
     pages to reflect this move.
+
     @param task: A list with two elements; the first element is the name of the
         origin category, and the second is the name of the destination category
     @param user: Name of the user on whose behalf the category move is done
@@ -129,6 +134,7 @@ class CatMoveInput:
 
     """
     Verifies that the user's edit count is greater than self.threshold
+
     @param username
     """
     def verifyUser(self, username):
@@ -162,15 +168,20 @@ class CatMoveInput:
 
     """
     Looks for a list of category move requests on the given page.
+
     Each task must be defined in a separate line using either of the following
     three formats:
+
     * Category:Origin > Category:Destination
     * [[:Category:Origin]] > [[:Category:Destination]]
     * Origin @ Destination
+
     Spaces are optional around `>` and `@` characters, and after the `*`.
+
     If such a list is found, it will return a dictionary object containing a
     list of category move tasks and name of the user on whose behalf categories
     are moved.
+
     @param tasksPageName: Wiki page on which category move requests are listed
     """
     def processInput(self, tasksPageName):
@@ -212,6 +223,7 @@ class CatMoveInput:
     """
     Returns a list of lists, where each inner lists describe one category move
     request (i.e. [origin, destination]).
+
     @param taskText: wikicode of the page containing category move requests
     """
     def getTaskList(self, taskText):
@@ -257,3 +269,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
