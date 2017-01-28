@@ -155,7 +155,6 @@ def redirect_find( page_link):
         'titles': page_link
     }
     query_page =pywikibot.data.api.Request(site=pywikibot.Site('en'), **params).submit()
-    if params:
     try:
         redirect_link=query_page[u'query'][u'redirects'][0]['to']
         is_equal_result,Comp=is_equal (page_link,redirect_link)
