@@ -58,13 +58,12 @@ def namespacefinder(enlink, site):
         return False
 
 def englishdictionry(enlink, firstsite, secondsite):
-    enlink=enlink.replace(u' ',u'_')
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
         return _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]
     try:
-        enlink = unicode(str(enlink), 'UTF-8').replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'')
+        enlink = unicode(str(enlink), 'UTF-8').replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
     except:
-        enlink = enlink.replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'')
+        enlink = enlink.replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
     if enlink.find('#') != -1:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
