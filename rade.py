@@ -3,44 +3,8 @@
 #
 # Reza(User:reza1615), 2011
 # Distributed under the terms of MIT License (MIT)
-"""
--file        - Work on all pages given in a local text file.
-               Will read any [[wiki link]] and use these articles.
-               Argument can also be given as "-file:filename".
--cat         - Work on all pages which are in a specific category.
-               Argument can also be given as "-cat:categoryname".
--encat       - Finding the pages that uses the category in en.wikipedia and add categories to pages that they have interwiki in en wiki to home wiki
--recentcat   - Useful for automatic bots and it should add with -namespace:14 -recenchanges:N (N=Number of categories that you want to work on)
--newcat      - Adding article to new categories -newcat:N (N=Number of categories that you want to work on)
--page        - Only edit a specific page.
-               Argument can also be given as "-page:pagetitle". You can give this
-               parameter multiple times to edit multiple pages.
--ref         - Work on all pages that link to a certain page.
-               Argument can also be given as "-ref:referredpagetitle".
--filelinks   - Works on all pages that link to a certain image.
-               Argument can also be given as "-filelinks:ImageName".
--links       - Work on all pages that are linked to from a certain page.
-               Argument can also be given as "-links:linkingpagetitle".
--start       - Work on all pages in the wiki, starting at a given page. Choose
-               "-start:!" to start at the beginning.
-               NOTE: You are advised to use -xml instead of this option; this is
-               meant for cases where there is no recent XML dump.
--except:XYZ  - Ignore pages which contain XYZ. If the -regex argument is given,
-               XYZ will be regarded as a regular expression.
--summary:XYZ - Set the summary message text for the edit to XYZ, bypassing the
-               predefined message texts with original and replacements inserted.
--template:XYZ-
--blog:       -checking for blog sources. if it is in page it will sent page link to defined address
--source      - checking the articles sources . if it doesn't have . it will send page link to defined address
--namespace:n - Number of namespace to process. The parameter can be used
-               multiple times. It works in combination with all other
-               parameters, except for the -start parameter. If you e.g. want to
-               iterate over all user pages starting at User:M, use
-               -start:User:M.
--always      - Don't prompt you for each replacement
-other:       -
-
-"""
+#
+# for more information see [[fa:ویکی‌پدیا:درخواست‌های ربات/رده همسنگ]] and [[fa:ویکی‌پدیا:رده‌دهی مقالات همسنگ]]
 
 from pywikibot import config
 from pywikibot import pagegenerators
@@ -51,41 +15,21 @@ import pywikibot
 import codecs
 import string
 import time
+import MySQLdb
 _cache = {}
 page_list_run = []
 #-----------------------------------------------version-----------------------------------------
-try:
-    import MySQLdb
-except:
-    pywikibot.output(u'\03{lightred}you should use this code only on toolserver\03{default}')
-    pywikibot.stopme()
-    sys.exit()
-
-fa_site = pywikibot.Site('fa')
-en_site = pywikibot.Site('en')
+fa_site = pywikibot.Site('fa', 'wikipedia')
+en_site = pywikibot.Site('en', 'wikipedia')
 versionpage = pywikibot.Page(fa_site, u'کاربر:Rezabot/رده‌دهی مقالات همسنگ/نسخه')
 lastversion = versionpage.get().strip()
-version = u'۲۶'
+version = u'۳۰'
 new_edition = u'۱'
 if lastversion != version:
     pywikibot.output(u"\03{lightred}Your bot dosen't use the last verion please update me!\03{default}")
     pywikibot.stopme()
     sys.exit()
-
 #-----------------------------------------------------------------------------------------------
-
-def login_fa():    
-    try:
-        password_fa = open("/data/project/rezabot/pycore/passfile", 'r')
-    except:
-        password_fa = open("/home/reza/pycore/passfile", 'r')
-
-    password_fa=password_fa.read().replace('"','').strip()
-    passwords=password_fa.split('(')[1].split(',')[1].split(')')[0].strip()
-    usernames=password_fa.split('(')[1].split(',')[0].split(')')[0].strip()
-    #-------------------------------------------
-    botlog=pywikibot.data.api.LoginManager(password=passwords, sysop=False, site=fa_site, user=usernames)
-    botlog.login()
 
 def namespacefinder(enlink, site):
     if _cache.get(tuple([enlink, site, 'ns'])):
@@ -117,41 +61,75 @@ def englishdictionry(enlink, firstsite, secondsite):
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
         return _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]
     try:
-        enlink = unicode(str(enlink), 'UTF-8').replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'')
+        enlink = unicode(str(enlink), 'UTF-8').replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
     except:
-        enlink = enlink.replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'')
+        enlink = enlink.replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
     if enlink.find('#') != -1:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
-
-    enlink = enlink.replace(u' ', u'_')
-    params = {
-        'action': 'query',
-        'prop': 'langlinks',
-        'titles': enlink,
-        'redirects': 1,
-        'lllimit': 500,
-    }
-    try:
-        categoryname = pywikibot.data.api.Request(site=firstsite, **params).submit()
-        for item in categoryname[u'query'][u'pages']:
-            case = categoryname[u'query'][u'pages'][item][u'langlinks']
-        for item in case:
-            if item[u'lang'] == secondsite.code:
-                intersec = item[u'*']
-                break
-        result = intersec
+    result=link_translator(enlink,firstsite,secondsite)
+    #print result
+    if result:
         if result.find('#') != -1:
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = result
         return result
+    else:
+        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]=False
+        return False 
+
+def link_translator(title,ensite,fasite):
+
+    params = {
+        'action': 'query',
+        'redirects': '',
+        'titles': title
+    }
+    query_res = pywikibot.data.api.Request(site=ensite, **params).submit()
+
+
+    normalizeds = query_res['query'].get('normalized', [])
+    if len(normalizeds):
+        title = normalizeds[0]['to']
+        
+    redirects = query_res['query'].get('redirects', [])
+    if len(redirects):
+        title = redirects[0]['to']
+
+
+    wikidata = pywikibot.Site('wikidata', 'wikidata')
+    
+    endbName = ensite.dbName()
+    fadbName = fasite.dbName()
+    params = {
+        'action': 'wbgetentities',
+        'sites': endbName,
+        'titles': title,
+        'props': 'sitelinks'
+    }
+
+    try:
+        query_res = pywikibot.data.api.Request(site=wikidata, **params).submit()
     except:
-        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
-        return False
+        return ''
+
+    matches_titles = {}
+    entities = query_res.get('entities', {})
+    for qid, entity in entities.items():
+        if fadbName in entity.get('sitelinks', {}):
+            fa_title = entity['sitelinks'][fadbName]
+
+            # for not updated since addition of badges on Wikidata items
+            if not isinstance(title, str):
+                fa_title = fa_title['title']
+
+            return fa_title
+
+    return ''
 
 
 def catquery(enlink, firstsite, hidden):
@@ -190,7 +168,6 @@ def catquery(enlink, firstsite, hidden):
         _cache[tuple([enlink, firstsite, hidden, 'cat_query'])] = False
         return False
 
-
 def templatequery(enlink, firstsite):
     if _cache.get(tuple([enlink, firstsite, 'tem_query'])):
         return _cache[tuple([enlink, firstsite, 'tem_query'])]
@@ -224,7 +201,6 @@ def templatequery(enlink, firstsite):
     except:
         _cache[tuple([enlink, firstsite, 'tem_query'])] = False
         return False
-
 
 def subcatquery(enlink, firstsite):
     if _cache.get(tuple([enlink, firstsite, 'subcat_query'])):
@@ -260,7 +236,6 @@ def subcatquery(enlink, firstsite):
         _cache[tuple([enlink, firstsite, 'subcat_query'])] = False
         return False
 
-
 def sitop(link, wiki):
     link = link.replace(u'[[', u'').replace(u']]', u'').strip()
     site = pywikibot.Site(wiki)
@@ -275,7 +250,6 @@ def sitop(link, wiki):
         return False
     except:
         return False
-
 
 def category(PageTitle, koltuple):
     counters = 0
@@ -308,7 +282,6 @@ def category(PageTitle, koltuple):
     else:
         return listacategory
 
-
 def pagefafinder(encatTitle):
 
     cats = []
@@ -332,7 +305,6 @@ def pagefafinder(encatTitle):
     else:
         return False
 
-
 def duplic(catfa, radeh):
     catfa = catfa.replace(u'fa:', u'')
     radeht = u' '
@@ -350,7 +322,6 @@ def duplic(catfa, radeh):
     for rad in radeh.split(','):
         radeht += rad + '\n'
     return radeht
-
 
 def pedar(catfa, radehi, link):
     link = link.replace(u'[[', u'').replace(u']]', u'').strip()
@@ -399,9 +370,9 @@ def pedar(catfa, radehi, link):
     radehi = radehi.replace(',', '\n').strip()
     return radehi
 
-
 def run(gen):
     for pagework in gen:
+            
         try:
             radehf, catsfas, maghalehen, radeh, finallRadeh = ' ', ' ', ' ', ' ', ' '
             try:
@@ -591,9 +562,9 @@ def run(gen):
                  pywikibot.output(u'\03{lightred}Could not open page\03{default}')
                  continue
         except:
+            pywikibot.output(u'\03{lightred}Bot has error\03{default}')
             continue
 # -------------------------------encat part-----------------------------------
-
 
 def categorydown(listacategory):
     listacategory = [listacategory]
@@ -614,7 +585,6 @@ def categorydown(listacategory):
                 listacategory.append(subcat)
         break
     return listacategory
-
 
 def encatlist(encat):
     count = 0
@@ -674,7 +644,6 @@ def encatlist(encat):
         return False, False
     return listenpageTitle, listacategory
 #-------------------------------------------------------------------encat part finish--------------------------
-
 
 def main():
     summary_commandline, gen, template = None, None, None
@@ -800,5 +769,4 @@ def main():
 
 
 if __name__ == '__main__':
-    login_fa()
     main()

@@ -6,7 +6,7 @@ import pywikibot,re,codecs
 from pywikibot.compat import query
 pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
-bot_version=u'۲.۰'
+bot_version=u'۴.۰'
 _cache={}
 def translation(firstsite,secondsite,enlink):
     if _cache.get(tuple([enlink, firstsite,enlink, 'translation_en'])):
@@ -139,6 +139,7 @@ def get_cite_template(backage,test_text,text_refs):
                text_refs.append(i)
             backage=u'}}'
         return backage,text_refs
+
 def run (text,sum,text2):
     old_text=text
     old_text2=text2
@@ -185,6 +186,7 @@ def run (text,sum,text2):
         return text,sum
 
 def main(text,sum):
+    sum2=u'اصلاح ارجاع لاتین'
     #The first time
     new_text,sum=run(text,sum,text)
     #The second time
