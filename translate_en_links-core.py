@@ -416,6 +416,7 @@ def get_query():
     
 def run(results, NotArticle):
     for enlink in results:
+        Comp=0
         pywikibot.output(u'========== Check link: \03{lightblue}'+enlink[0]+u'\03{default} ==============')
         if switchnamespace(enlink[1]):# if the link is from permited namespaces 
             enlink=switchnamespace(enlink[1])+unicode(enlink[0],'UTF-8').strip()
@@ -442,6 +443,7 @@ def run(results, NotArticle):
                     a=getlinks(enlink,falink,NotArticle)
                 else:
                     #unwikify the # links
+                    
                     if u'#' in enlink:
                         remove_wikify (enlink_old,'#',Comp)
                     else:
