@@ -348,7 +348,7 @@ def getlinks(enlink,falink,NotArticle):
                                 else:
                                     if replace_link[2]==re.sub(u'[ابضصثقفغعهخحجچشسیلتنمکگظطزرذدپو]',u'',replace_link[2]):
                                         text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+u']]')
-                                    elif re.sub(u'[0-9۰۱۲۳۴۵۶۷۸۹ \)\(\]\[]+',u'',replace_link[2])==u''
+                                    elif re.sub(u'[0-9۰۱۲۳۴۵۶۷۸۹ \)\(\]\[]+',u'',replace_link[2])==u'':
                                         text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+u']]')
                                     else:
                                         text2=text2.replace(u'[['+replace_link[0]+replace_link[1]+u'|'+replace_link[2]+u']]',ur'[['+replace_link[0]+falink+ur'|'+replace_link[2]+u']]') 
