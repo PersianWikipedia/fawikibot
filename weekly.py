@@ -632,7 +632,7 @@ def main(sqlnum):
             "sql":
             "select rev_user_text, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d') as sunrise, str_to_date(left(min(sunset), 8), '%Y%m%d') as sunset, old_edits, count(rev_id) as recent_edits, GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') as groups from revision join ( select rev_user old_user, max(rev_timestamp) sunset, count(rev_id) as old_edits from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') group by rev_user ) old on old_user = rev_user left join user_groups on rev_user = ug_user where rev_user <> 0 and rev_timestamp > concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_user not in ( select rev_user from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_timestamp > concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') ) group by rev_user_text;",
             "out": 'وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده',
-            "cols": [u'ردیف', u'کاربر', u'اولین ویرایش در ماه جاری', u'آخرین ویرایش قبل از مرخصی', u'ویرایش‌ها پیش از غیبت', u'ویرایش‌ها پس از ظهور', u'گروه‌های کاربری'],
+            "cols": [u'ردیف', u'کاربر', u'اولین ویرایش{{سخ}} در ماه جاری', u'آخرین ویرایش{{سخ}} قبل از مرخصی', u'ویرایش‌های پیش{{سخ}} از غیبت', u'ویرایش‌های{{سخ}} پس از ظهور', u'گروه‌های کاربری'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که از اول ماه جاری میلادی ویرایشی داشته‌اند، در سه سال منتهی به ماه جاری میلادی هیچ ویرایشی نداشته‌اند، و در زمان پیش از آن دورهٔ سه‌ساله دست کم یک ویرایش کرده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
