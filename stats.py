@@ -67,7 +67,7 @@ page_namespace={u'0':u'',u'1':u'بحث:',
 class StatsBot:
 
     def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 frmt=None, sign=True, sqlnum=None):
+                 frmt=None, sqlnum=None, sign=True):
         if not (sql and out and cols and summary):
             raise ValueError('You must define sql, out, cols, and summary')
         self.sql = sql
@@ -197,7 +197,7 @@ def main(*args):
             frmt = arg[len('-frmt:'):]
         elif arg.startswith('-sign:'):
             sign = False
-    bot = StatsBot(sql, out, cols, summary, pref, frmt, sign)
+    bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign)
     bot.run()
 
 if __name__ == "__main__":
