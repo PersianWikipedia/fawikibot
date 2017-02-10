@@ -442,7 +442,7 @@ def main(sqlnum):
         {
             "sqlnum":34,
             "sql":
-            "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, ipb_timestamp, ipb_expiry, ipb_reason from ipblocks where ipb_address like '%/%'",
+            "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), ipb_expiry, ipb_reason from ipblocks where ipb_address like '%/%'",
             "out": 'ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده',
             "cols":
             [u'ردیف',
