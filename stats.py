@@ -102,7 +102,7 @@ class StatsBot:
         print "Query time: %f" % (1000.0 * abs(query_start - query_end))
         timer = '<!-- Query time: %f-->\n' % (1000.0 * abs(query_start - query_end))
         text = timer + text
-        text = u'<!-- SQL Number = ' + str(sqlnum) + u' -->\n' + text
+        text = u'<!-- SQL Number = ' + str(self.sqlnum) + u' -->\n' + text
         print len(results), ' rows will be processed'
         
         for rowid in range(len(results)):
