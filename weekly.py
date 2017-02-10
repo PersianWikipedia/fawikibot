@@ -86,7 +86,7 @@ def main(sqlnum):
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] || [[کاربر:%s|]] || {{formatnum:%s|NOSEP}} || %s',
+            u'| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] || [[کاربر:%s|]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s',
             "sign": True
         },
         {
@@ -442,7 +442,7 @@ def main(sqlnum):
         {
             "sqlnum":34,
             "sql":
-            "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), ipb_expiry, ipb_reason from ipblocks where ipb_address like '%/%'",
+            "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), str_to_date(left(ipb_expiry,8), '%Y%m%d'), ipb_reason from ipblocks where ipb_address like '%/%'",
             "out": 'ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده',
             "cols":
             [u'ردیف',
@@ -456,7 +456,7 @@ def main(sqlnum):
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || %s || {{formatnum:%s|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
+            u'| {{formatnum:%d|NOSEP}} || %s || {{formatnum:%s|NOSEP}} || [[کاربر:%s]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s',
             "sign": True
         },
         {
@@ -585,7 +585,7 @@ def main(sqlnum):
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که محافظت کامل با زمان محدود (اما نه بی‌پایان) شده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
+            u'| {{formatnum:%d}} || [[%s]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}',
             "sign": True
         },
         {
