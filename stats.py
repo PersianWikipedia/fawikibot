@@ -67,7 +67,7 @@ page_namespace={u'0':u'',u'1':u'بحث:',
 class StatsBot:
 
     def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 frmt=None, sign=True):
+                 frmt=None, sign=True, sqlnum=None):
         if not (sql and out and cols and summary):
             raise ValueError('You must define sql, out, cols, and summary')
         self.sql = sql
@@ -77,6 +77,7 @@ class StatsBot:
         self.pref = pref
         self.frmt = frmt
         self.sign = sign
+        self.sqlnum = sqlnum
 
     def run(self):
         print "Stats bot started ..."
@@ -101,6 +102,7 @@ class StatsBot:
         print "Query time: %f" % (1000.0 * abs(query_start - query_end))
         timer = '<!-- Query time: %f-->\n' % (1000.0 * abs(query_start - query_end))
         text = timer + text
+        text = u'<!-- SQL Number = ' str(sqlnum) + u' -->\n' + text
         print len(results), ' rows will be processed'
         
         for rowid in range(len(results)):
