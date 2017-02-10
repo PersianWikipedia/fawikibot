@@ -591,6 +591,19 @@ def main(sqlnum):
         {
             "sqlnum":44,
             "sql":
+            "Select page_namespace, page_title, pr_type, str_to_date(pr_expiry, '%Y%m%d%H%i%s') FROM page_restrictions JOIN page ON page_id = pr_page AND pr_level = 'extendedconfirmed';",
+            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای نیمه‌محافظت ویژه',
+            "cols": [u'ردیف', u'صفحه',  u'نوع محافظت',  u'پایان محافظت'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی که نیمه‌محافظت ویژه شده‌اند، را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || %s || {{formatnum:%s}}',
+            "sign": True
+        },
+        {
+            "sqlnum":45,
+            "sql":
             "select p1.page_title, count(pl_from) as cnt from page p1 join categorylinks on p1.page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title and pl_namespace = 0 join page p2 on pl_from = p2.page_id and p2.page_namespace = 0 where p1.page_namespace = 0 group by pl_title order by 2 desc limit 1000;",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی پرکاربرد',
             "cols": [u'ردیف', u'مقاله',  u'تعداد پیوندها'],
@@ -602,7 +615,7 @@ def main(sqlnum):
             "sign": True
         },
         {
-            "sqlnum":45,
+            "sqlnum":46,
             "sql":
             "select page.page_title,GROUP_CONCAT(CONCAT ('[[الگو:',tem.page_title,']]') SEPARATOR '، '), count(tem.page_title) as cnt from page join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title JOIN (select * from page where page_namespace = 10 and page_is_redirect = 0) as tem WHERE tem.page_id=pl_from and pl_namespace = 0 AND pl_from_namespace=10  and NOT tem.page_title LIKE '%_/_%' and page.page_namespace = 0 group by page.page_title order by 3 desc limit 1000;",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی استفاده شده در الگو',
@@ -615,7 +628,7 @@ def main(sqlnum):
             "sign": True
         },
         {
-            "sqlnum":46,
+            "sqlnum":47,
             "sql":
             "SELECT fap.page_title, enp.page_title , limagelist.il_to, limagelist.il_to FROM fawiki_p.page as fap INNER JOIN fawiki_p.langlinks as fal ON fap.page_id = fal.ll_from and fap.page_namespace = 0 AND fap.page_is_redirect = 0 inner join fawiki_p.templatelinks as fat on fat.tl_namespace=10 and fat.tl_from=fap.page_id and (fat.tl_title like 'جعبه%' or fat.tl_title like 'Infobox%') inner join enwiki_p.page as enp on fal.ll_title=enp.page_title and enp.page_namespace = 0 AND enp.page_is_redirect = 0 join (SELECT * FROM enwiki_p.imagelinks as eni) as limagelist WHERE fap.page_namespace = 0 and fal.ll_lang = 'en' AND fap.page_is_redirect = 0 and fap.page_id not in (SELECT fai.il_from FROM fawiki_p.imagelinks as fai where not fai.il_to like 'Flag_of_%' and not fai.il_to like 'Ambox_%' and not fai.il_to like 'Wiktionary%' and not fai.il_to like 'Wikibooks%' and not fai.il_to like 'Wikivoyage%' and not fai.il_to like 'Incubator%' and not fai.il_to like 'Searchtool%' and not fai.il_to like 'Speech_balloon%' and not fai.il_to like 'Crystal_Clear%' and not fai.il_to like 'Speakerlink%' and not fai.il_to like 'Loudspeaker%' and not fai.il_to like 'Padlock%' and not fai.il_to like 'Nuvola_apps_%' and not fai.il_to like 'Wikiquote%' and not fai.il_to like 'Wikisource%' and not fai.il_to like 'Wikinews%' and not fai.il_to like 'Wikiversity%' and not fai.il_to like 'Question_book%' and not fai.il_to like 'Folder_Hexagonal%' and not fai.il_to like 'Portal-puzzle%' and not fai.il_to like 'Edit-clear%' and not fai.il_to like 'Text_document_with_red_question_mark%' and not fai.il_to like '%_stub%' and not fai.il_to like 'Rod_of_Asclepius%' and not fai.il_to like 'Merge-arrows%' and not fai.il_to like '%_icon%' and not fai.il_to like '%Balloon%' and not fai.il_to like 'Mergefrom%' and not fai.il_to like 'WikiProject%' and not fai.il_to like 'Yes_check%' and not fai.il_to like 'X_mark%' and not fai.il_to like 'Blank%' and not fai.il_to like '%_Icon%' and not fai.il_to like 'Symbol_book_class%' and not fai.il_to like 'Free_and_open-source_software_logo%' and not fai.il_to like 'Red_pog%' and not fai.il_to like 'Symbol_list_class%' and not fai.il_to like 'Allah-green%' and not fai.il_to like 'Symbol_support_vote%' and not fai.il_to like 'A_coloured_voting_box%' and not fai.il_to like 'Wiki_letter_w_cropped%' and not fai.il_to like '%.wav' and not fai.il_to like '%.mid' and not fai.il_to like '%.ogg' and not fai.il_to like '%.ogv' and not fai.il_to like '%.webm' and not fai.il_to like 'Commons%' ) and enp.page_id=limagelist.il_from and not limagelist.il_to like 'Flag_of_%' and not limagelist.il_to like 'Ambox_%' and not limagelist.il_to like 'Wiktionary%' and not limagelist.il_to like 'Wikibooks%' and not limagelist.il_to like 'Wikivoyage%' and not limagelist.il_to like 'Incubator%' and not limagelist.il_to like 'Searchtool%' and not limagelist.il_to like 'Speech_balloon%' and not limagelist.il_to like 'Crystal_Clear%' and not limagelist.il_to like 'Speakerlink%' and not limagelist.il_to like 'Loudspeaker%' and not limagelist.il_to like 'Padlock%' and not limagelist.il_to like 'Nuvola_apps_%' and not limagelist.il_to like 'Wikiquote%' and not limagelist.il_to like 'Wikisource%' and not limagelist.il_to like 'Wikinews%' and not limagelist.il_to like 'Wikiversity%' and not limagelist.il_to like 'Question_book%' and not limagelist.il_to like 'Folder_Hexagonal%' and not limagelist.il_to like 'Portal-puzzle%' and not limagelist.il_to like 'Edit-clear%' and not limagelist.il_to like 'Text_document_with_red_question_mark%' and not limagelist.il_to like '%_stub%' and not limagelist.il_to like 'Rod_of_Asclepius%' and not limagelist.il_to like 'Merge-arrows%' and not limagelist.il_to like '%_icon%' and not limagelist.il_to like '%Balloon%' and not limagelist.il_to like 'Mergefrom%' and not limagelist.il_to like 'WikiProject%' and not limagelist.il_to like 'Yes_check%' and not limagelist.il_to like 'X_mark%' and not limagelist.il_to like 'Blank%' and not limagelist.il_to like '%_Icon%' and not limagelist.il_to like 'Symbol_book_class%' and not limagelist.il_to like 'Free_and_open-source_software_logo%' and not limagelist.il_to like 'Red_pog%' and not limagelist.il_to like 'Symbol_list_class%' and not limagelist.il_to like 'Allah-green%' and not limagelist.il_to like 'Symbol_support_vote%' and not limagelist.il_to like 'A_coloured_voting_box%' and not limagelist.il_to like 'Wiki_letter_w_cropped%' and not limagelist.il_to like '%.svg' and not limagelist.il_to like '%.png' and not limagelist.il_to like '%.ogg' and not limagelist.il_to like '%.webm' and not limagelist.il_to like '%.ogv' and not limagelist.il_to like '%.wav' and not limagelist.il_to like '%.mid' and not limagelist.il_to like 'Commons%' group by limagelist.il_to order by fap.page_title;",
             "out": 'وپ:گزارش دیتابیس/مقاله‌های نیازمند پرونده همسنگ',
@@ -628,7 +641,7 @@ def main(sqlnum):
             "sign": True
         },
         {
-            "sqlnum":47,
+            "sqlnum":48,
             "sql":
             "select rev_user_text, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d') as sunrise, str_to_date(left(min(sunset), 8), '%Y%m%d') as sunset, old_edits, count(rev_id) as recent_edits, GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') as groups from revision join ( select rev_user old_user, max(rev_timestamp) sunset, count(rev_id) as old_edits from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') group by rev_user ) old on old_user = rev_user left join user_groups on rev_user = ug_user where rev_user <> 0 and rev_timestamp > concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_user not in ( select rev_user from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_timestamp > concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') ) group by rev_user_text;",
             "out": 'وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده',
@@ -641,7 +654,7 @@ def main(sqlnum):
             "sign": True
         },
         {
-            "sqlnum":48,
+            "sqlnum":49,
             "sql":
             "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl_from, cl_to from categorylinks join page on cl_to = page_title and page_namespace = 14 where page_is_redirect = 1 limit 5000) redir join page on cl_from = page_id;",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ تغییرمسیر',
@@ -654,7 +667,7 @@ def main(sqlnum):
             "sign": True
         },
         {
-            "sqlnum":49,
+            "sqlnum":50,
             "sql":
             "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl1.cl_from, cl1.cl_to from categorylinks cl1 join page on cl1.cl_to = page_title and page_namespace = 14 join categorylinks cl2 on page_id = cl2.cl_from and cl2.cl_to = 'رده‌های_منتقل‌شده' limit 5000) redir join page on cl_from = page_id;",
             "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ منتقل‌شده',
