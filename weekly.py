@@ -695,10 +695,11 @@ def main(sqlnum):
             t["sqlnum"],
             t["sign"])
         
-        try:
-            bot.run()
-        except:
-            print sys.exc_info()[0]
+        #try:
+        #    bot.run()
+        #except:
+        #    print sys.exc_info()[0]
+        bot.run()
 
 if __name__ == "__main__":
     #For testing specifice sql you can use it's sqlnum argument
