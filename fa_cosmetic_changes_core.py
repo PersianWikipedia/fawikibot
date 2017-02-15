@@ -268,7 +268,7 @@ def Dictation(txt,msg_short,msg=msg):
     #e: طبق قاعدهٔ فارسی
     txt = re.sub(u'(آزمایش|پژوهش|پیشنهاد|نمایش|دستور|فرمایش|گزارش|گرایش|باغ|کوهستان)اتی ', ur'\1‌هایی ', txt) # اتی -> هایی
     txt = txt.replace(u'بازرسین', u'بازرسان').replace(u'داوطلبین', u'داوطلبان') #e: ین -> ان
-    txt = re.sub(bLB+ur'\b(رهبر|خوب|بد|من)یّ?ت\b', ur'\1ی', txt,re.UNICODE) # یّت -> ی
+    txt = re.sub(ur'\b(رهبر|خوب|بد|من)یّ?ت\b', ur'\1ی', txt, re.UNICODE) # یّت -> ی
     txt = re.sub(bLB+u'دو[یئ]یت', u'دوگانگی', txt) # یّت
     txt = txt.replace(u'زباناً', u'زبانی').replace(u'تلفناً', u'تلفنی').replace(u'ناچاراً', u'به‌ناچار').replace(u'گاهاً', u'گاهی') #e: اً
     #--------------------------Reza added------------------------
