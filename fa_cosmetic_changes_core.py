@@ -24,7 +24,7 @@ pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
 testpass=False
-cleaning_version=u'۱۴.۵ core'
+cleaning_version=u'۱۴.۶ core'
 msg=u'('+cleaning_version +u')' 
 faSite=pywikibot.Site('fa',fam='wikipedia')
 _cache = {}
