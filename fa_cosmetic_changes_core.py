@@ -24,7 +24,7 @@ pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
 testpass=False
-cleaning_version=u'۱۴.۶ core'
+cleaning_version=u'۱۴.۷ core'
 msg=u'('+cleaning_version +u')' 
 faSite=pywikibot.Site('fa',fam='wikipedia')
 _cache = {}
@@ -289,8 +289,8 @@ def cleaning(text,msg_short,msg=msg):
     #تمیزکاری فاصلهٔ مجازی
     text = re.sub(u'(\u202A|\u202B|\u202C|\u202D|\u202E|\u200F)',u'\u200C', text)#حذف کارکترهای تغییرجهت
     text = re.sub(u'‌{2,}', u'‌', text) # پشت‌سرهم
-    text = re.sub(u'‌(?![ئاآأإژزرذدوؤةبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|ֹ)', '', text) # در پس
-    text = re.sub(u'(?<![ئبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|f|ֹ)‌', '', text) # در پیش
+    text = re.sub(u'‌(?![ئاآأإژزرذدوؤةبپتثجچحخسشصضطظعغفقکگلمنهیيً\[\]ٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|ֹ)', '', text) # در پس
+    text = re.sub(u'(?<![ئبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔك\[\]ﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|f|ֹ)‌', '', text) # در پیش
     text=arabic_to_farsi(text)
     
     text = re.sub(u"(?:"+zaed+u")", "", text)
@@ -737,8 +737,8 @@ def reverting (text,old_text):
 def finall_cleaning(txt):
     #---zwnj cleaning
     txt = re.sub(u'‌{2,}', u'‌', txt)
-    txt = re.sub(u'‌(?![ئاآأإژزرذدوؤةبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|ֹ)', '', txt) # در پس
-    txt = re.sub(u'(?<![ئبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|f|ֹ)‌', '', txt) # در پیش
+    txt = re.sub(u'‌(?![ئاآأإژزرذدوؤةبپتثجچحخسشصضطظعغفقکگلمنهیيً\[\]ٌٍَُِّْٰٓٔكﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|ֹ)', '', txt) # در پس
+    txt = re.sub(u'(?<![ئبپتثجچحخسشصضطظعغفقکگلمنهیيًٌٍَُِّْٰٓٔك\[\]ﮑﮐﮏﮎﻜﻛﻚﻙىىىﻴﻳﻲﻱﻰىىﻯيکیہەھ]|[\u0900-\u097F]|f|ֹ)‌', '', txt) # در پیش
     return txt
 
 def fa_cosmetic_changes(text,page,msg=msg,msg_short=True):
