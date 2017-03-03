@@ -679,6 +679,19 @@ def main(sqlnum):
             u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
             "sign": True
         },
+        {
+            "sqlnum":51,
+            "sql":
+            "select rev_user_text, count(*) cnt, case when ufg_group is null then '' else '{{خیر|بله}}' end as lostautopatrol from revision left join user_former_groups on rev_user = ufg_user and ufg_group = 'autopatrolled' where rev_parent_id = 0 and rev_timestamp > case when MONTH(CURDATE()) = 1 then CONCAT(YEAR(CURDATE()) - 1, '12', LPAD(DAY(CURDATE()), 2, 0), '000000') else CONCAT(YEAR(CURDATE()), LPAD(MONTH(CURDATE()) - 1, 2, 0), LPAD(DAY(CURDATE()), 2, 0), '000000') end and rev_user not in ( select ug_user from user_groups where ug_group in ('autopatrolled', 'sysop', 'bot') ) and rev_user <> 0 /* anonymous users */ and rev_user <> 374638 /* پیام به کاربر جدید */ group by rev_user_text, ufg_group having cnt > 50 order by cnt desc ;",
+            "out": 'وپ:گزارش دیتابیس/نامزدهای احتمالی گشت خودکار',
+            "cols": [u'ردیف', u'کاربر', u'تعداد ویرایش‌ها در یک ماه اخیر', u'قبلاً گشت خودکار را از دست داده؟'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که اخیراً بسیار مقاله ساخته‌اند و ممکن است نامزد خوبی برای دسترسی گشت خودکار باشند..\n\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || %s ',
+            "sign": True
+        },
     ]
 
     for t in tasks:
