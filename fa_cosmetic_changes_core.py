@@ -20,6 +20,7 @@ from pywikibot import cosmetic_changes
 import urllib
 import ref_link_correction_core
 import signal
+
 pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
@@ -355,6 +356,18 @@ def cleaning(text,msg_short,msg=msg):
     text = re.sub(ur'\=\s*(?:منبع|منبع[‌ ]?ها|رفرنس|رفرنس[‌ ]?ها|ارجاع[‌ ]?ها|ارجاع|مرجع[‌ ]?ها|رفرنس|برگرفته از|مراجع|منابع و یادداشت[‌ ]?ها|منبع|مرجع|فهرست مراجع|لیست مراجع|فهرست ارجاع[‌ ]?ها|فهرست ارجاع)\s*\=', u'= منابع =', text)
     text = re.sub(ur'\=\s*(?:پ[یي]وند|ل[یي]ن[کك])[‌ ]?(?:ها[یي])? (?:به ب[یي]رون|ب[یي]رون[یي]|خارج[یي])\s*\=', u'= پیوند به بیرون =', text)
     text=text.replace(u'= همچنین ببینید =',u'= جستارهای وابسته =').replace(u'=همچنین ببینید=',u'= جستارهای وابسته =').replace(u'=مطالب مرتبط=',u'= جستارهای وابسته =').replace(u'= مطالب مرتبط =',u'= جستارهای وابسته =').replace(u'= مطلب مرتبط =',u'= جستارهای وابسته =').replace(u'=مطلب مرتبط=',u'= جستارهای وابسته =')
+    # تمیزکاری زیربخش‌های پردندانه
+    text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
+    text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
+    text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==') 
+    text_test=re.sub(ur'\n\=\= (منابع|جستارهای وابسته|پیوند به بیرون|پانویس|نگارخانه) \=\=\n',u'',text)
+
+    if string.count(text_test,u'\n== ')==0 and string.count(text_test,u' ==\n')==0:
+        if string.count(text_test,u'\n=== ')==0 and string.count(text_test,u' ===\n')==0:
+            text=text.replace(u'====',u'==')
+        else:
+            text=text.replace(u'===',u'==')
+
     #e: <ref> & {{پانویس}}
     text = re.sub(ur'<(?:\s*|\s*/\s*)references?(?:\s*|\s*/\s*)>', u'{{پانویس}}', text).replace(u'<references />',u'{{پانویس}}').replace(u'<references/>',u'{{پانویس}}')
     text = re.sub(ur'{{(?:[Rr]eflist|[Rr]eferences?|پانویس[‌ ]?ها)(?=\||})', u'{{پانویس', text)
