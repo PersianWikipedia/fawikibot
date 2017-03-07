@@ -364,12 +364,14 @@ def cleaning(text,msg_short,msg=msg):
     if text_test.find(u'\n== ')==-1:
         #۳ تایی
         if text_test.find(u'\n=== ')!=-1:
-            text = re.sub(re.compile(ur'^\=\=\=([^\=\r\n]+)\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
+            text2 = re.sub(re.compile(ur'^\=\=\=([^\=\r\n]+)\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
         # ۴ تایی
         elif text_test.find(u'\n==== ')!=-1:
-            text = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
+            text2 = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
         else:
-            text=text.replace(u'===',u'==')
+            text2=text.replace(u'===',u'==')
+        if text!=text2:
+            text=text2.replace(u'\n=  ',u'\n= ').replace(u'  =\n',u' =\n')
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==')
     text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
