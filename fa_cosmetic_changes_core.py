@@ -325,8 +325,9 @@ def cleaning(text,msg_short,msg=msg):
         text=text.replace(u"== "+i,u"== ").replace(i+u" ==",u" ==").replace(u"\n\n"+i+u"\n\n",u"\n\n").replace(u"=\n"+i+u"\n\n",u"=\n\n")
     #زیربخش‌ها فقط یکی باشند
     if text.find(u'==')==-1:    
-        text = re.sub(re.compile(ur'^\=([^\=\r\n]+)\=$', re.MULTILINE), ur"== \1 ==",text)
-        text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==')
+        text2 = re.sub(re.compile(ur'^\=([^\=\r\n]+)\=$', re.MULTILINE), ur"== \1 ==",text)
+        if text!=text2:
+            text=text2.replace(u'\n=  ',u'\n= ').replace(u'  =\n',u' =\n')
     #----cleaning for links and wiki syntaxes-----
     text=text.replace(u'[[ ',u'[[').replace(u' ]]',u']]').replace(u' }}',u'}}').replace(u'{{ ',u'{{').replace(u'< ',u'<').replace(u' >',u'>').replace(u'</ ',u'</').replace(u' />',u'/>')
     text=text.replace(u'[[ ',u'[[').replace(u' ]]',u']]').replace(u' }}',u'}}').replace(u'{{ ',u'{{').replace(u'==  ',u'== ').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'  ==',u' ==')
