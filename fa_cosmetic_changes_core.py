@@ -25,7 +25,7 @@ pywikibot.config.put_throttle = 0
 pywikibot.config.maxthrottle = 0
 
 testpass=False
-cleaning_version=u'۱۴.۸ core'
+cleaning_version=u'۱۴.۹ core'
 msg=u'('+cleaning_version +u')' 
 faSite=pywikibot.Site('fa',fam='wikipedia')
 _cache = {}
@@ -323,7 +323,7 @@ def cleaning(text,msg_short,msg=msg):
     
     for i in u".:,;&^#@•→←↔↑↓…~٫،؛ٔ*":
         text=text.replace(u"== "+i,u"== ").replace(i+u" ==",u" ==").replace(u"\n\n"+i+u"\n\n",u"\n\n").replace(u"=\n"+i+u"\n\n",u"=\n\n")
-
+    #زیربخش‌ها فقط یکی باشند
     if text.find(u'==')==-1:    
         text = re.sub(re.compile(ur'^\=([^\=\r\n]+)\=$', re.MULTILINE), ur"== \1 ==",text)
     #----cleaning for links and wiki syntaxes-----
@@ -357,6 +357,18 @@ def cleaning(text,msg_short,msg=msg):
     text = re.sub(ur'\=\s*(?:پ[یي]وند|ل[یي]ن[کك])[‌ ]?(?:ها[یي])? (?:به ب[یي]رون|ب[یي]رون[یي]|خارج[یي])\s*\=', u'= پیوند به بیرون =', text)
     text=text.replace(u'= همچنین ببینید =',u'= جستارهای وابسته =').replace(u'=همچنین ببینید=',u'= جستارهای وابسته =').replace(u'=مطالب مرتبط=',u'= جستارهای وابسته =').replace(u'= مطالب مرتبط =',u'= جستارهای وابسته =').replace(u'= مطلب مرتبط =',u'= جستارهای وابسته =').replace(u'=مطلب مرتبط=',u'= جستارهای وابسته =')
     # تمیزکاری زیربخش‌های پردندانه
+    # اصلاح مواردی که همه زیر بخش‌ها ۳ تایی باشند
+    text_test=re.sub(r'\n\=+ (منابع|جستارهای وابسته|پیوند به بیرون|پانویس|نگارخانه) \=+\n','',text)
+    if text_test.find(u'\n== ')==-1:
+        #۳ تایی
+        if text_test.find(u'\n=== ')!=-1:
+            text = re.sub(re.compile(ur'^\=\=\=([^\=\r\n]+)\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
+        # ۴ تایی
+        elif text_test.find(u'\n==== ')!=-1:
+            text = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
+        else:
+            text=text.replace(u'===',u'==')
+
     text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==') 
