@@ -326,6 +326,7 @@ def cleaning(text,msg_short,msg=msg):
     #زیربخش‌ها فقط یکی باشند
     if text.find(u'==')==-1:    
         text = re.sub(re.compile(ur'^\=([^\=\r\n]+)\=$', re.MULTILINE), ur"== \1 ==",text)
+        text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==')
     #----cleaning for links and wiki syntaxes-----
     text=text.replace(u'[[ ',u'[[').replace(u' ]]',u']]').replace(u' }}',u'}}').replace(u'{{ ',u'{{').replace(u'< ',u'<').replace(u' >',u'>').replace(u'</ ',u'</').replace(u' />',u'/>')
     text=text.replace(u'[[ ',u'[[').replace(u' ]]',u']]').replace(u' }}',u'}}').replace(u'{{ ',u'{{').replace(u'==  ',u'== ').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'  ==',u' ==')
@@ -368,6 +369,7 @@ def cleaning(text,msg_short,msg=msg):
             text = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
         else:
             text=text.replace(u'===',u'==')
+        text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==')
 
     text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
