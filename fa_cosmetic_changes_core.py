@@ -313,7 +313,7 @@ def cleaning(text,msg_short,msg=msg):
     text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n([\n\#\*])",r"\n\n== \1 ==\n\3",text)
     text=re.sub(ur"^(=+([^=].*?)=+)[\t\s]{1,}\n",r"\1\n",text)
 
-    text = re.sub(re.compile(ur'^(\=+) *([^\=\r\n]+) *(\=+)$', re.MULTILINE), ur"\1 \2 \3",text).replace(u"==  ",u'== ').replace(u"  ==",u' ==')
+    text = re.sub(re.compile(ur'^(\={2,}) *(.*?) *(\={2,})', re.MULTILINE), ur"\1 \2 \3",text).replace(u"==  ",u'== ').replace(u"  ==",u' ==')
     
     for i in range(0,40):
         text=text.replace(u"=  =",u'==').replace(u"=   =",u'==')
