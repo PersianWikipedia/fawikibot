@@ -374,7 +374,7 @@ def cleaning(text,msg_short,msg=msg):
         if text!=text2:
             text=text2.replace(u'\n=  ',u'\n= ').replace(u'  =\n',u' =\n')
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==')
-    text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
+    #text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==') 
     text_test=re.sub(ur'\n\=\= (منابع|جستارهای وابسته|پیوند به بیرون|پانویس|نگارخانه) \=\=\n',u'',text)
