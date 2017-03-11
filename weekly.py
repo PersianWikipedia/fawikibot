@@ -695,7 +695,7 @@ def main(sqlnum):
         {
             "sqlnum":52,
             "sql":
-            "Select page_title AS title, cid From (Select ll_from As page_id, count(ll_lang) As cid From langlinks Group By ll_from Having count(ll_lang)>=1 And max(ll_lang='fa')=0) As sq Natural Join page Where page_namespace=828 Order By cid DESC,page_title;",
+            "Select page_title AS title, cid From (Select ll_from As page_id, count(ll_lang) As cid From enwiki_p.langlinks Group By ll_from Having count(ll_lang)>=1 And max(ll_lang='fa')=0) As sq Natural Join enwiki_p.page Where page_namespace=828 Order By cid DESC,page_title;",
             "out": 'وپ:گزارش دیتابیس/پودمان‌های موردنیاز',
             "cols": [u'ردیف', u'پودمان', u'تعداد میان‌ویکی'],
             "summary": u'به روز کردن آمار',
