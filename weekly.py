@@ -98,8 +98,7 @@ WHERE
   ug_group = 'eliminator'
   AND log_type = 'protect'
   AND log_action = 'protect'
-  AND (log_params NOT LIKE '%[edit=autoconfirmed]%'
-  AND log_params NOT LIKE '%[create=autoconfirmed]%')
+  AND log_params LIKE '%level%sysop%'
 ORDER BY log_id DESC
 """,
             "out": "وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها",
