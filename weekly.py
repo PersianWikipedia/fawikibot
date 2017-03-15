@@ -3,12 +3,11 @@
 """
 weekly.py - a wrapper for stats.py to be called every week.
 usage:
-    <sqlnum>: For testing specifice sql you can use it's sqlnum argument. it is optional
     python pwb.py weekly <sqlnum>
-    Like:
-    python pwb.py weekly 2
     or
     python pwb.py weekly
+parameters:
+    <sqlnum>: (optinal) integer Used to run specifice queries
 """
 #
 # (C) Pywikibot team, 2006-2014
@@ -27,689 +26,2156 @@ import stats
 def main(sqlnum):
     tasks = [
         {
-            "sqlnum":1,
-            "sql":
-            "select distinct log_id, user_name, CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) as link, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d'), 'حذف تصویر' as issue from logging join user_groups ug on log_user = ug.ug_user and ug.ug_group = 'eliminator' join user on log_user = user_id join archive on log_page = ar_page_id left join user_groups ug2 on log_user = ug2.ug_user and ug2.ug_group = 'Image-reviewer' where log_type = 'delete' and ar_namespace = 6 and log_timestamp >= date_format(date_sub(now(), interval 30 day), '%Y%m%d000000') and ug2.ug_user is null union select distinct log_id, u.user_name, CONCAT('کاربر:', log_title) as link, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d'), 'بستن غیرمجاز' as issue from logging join user_groups ug on log_user = ug.ug_user join user u on log_user = u.user_id join user u2 on log_title = u2.user_name join user_groups ug2 on u2.user_id = ug2.ug_user where ug.ug_group = 'eliminator' and log_type = 'block' and ug2.ug_group in ('sysop', 'bureaucrat', 'patroller', 'autopatrol', 'rollbacker') and log_timestamp >= date_format(date_sub(now(), interval 30 day), '%Y%m%d000000') union select distinct log_id, user_name, log_title as link, log_comment, str_to_date(left(log_timestamp, 8), '%Y%m%d'), 'محافظت کامل' as issue from logging join user_groups on log_user = ug_user join user on log_user = user_id where ug_group = 'eliminator' and log_type = 'protect' and log_action = 'protect' and (log_params not like '%[edit=autoconfirmed]%' and log_params not like '%[create=autoconfirmed]%') order by log_id desc",
-            "out": u'وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها',
-            "cols": [u'شناسه', u'کاربر', u'هدف', u'توضیح', u'تاریخ', u'مشکل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه جدولی از فعالیت‌های ویکی‌بان‌ها در یک ماه گذشته را نشان می‌دهد که ممکن است ناقض [[وپ:ویکی‌بان]] باشند. مواردی که چک می‌کند عبارتند از:\n* حذف تصاویر (چک کنید که کاربر دسترسی جداگانه برای حذف تصاویر داشته باشد)\n* بستن کاربران دارای دسترسی گشت خودکار یا گشت یا واگردان یا مدیر\n* محافظت در سطح محافظت کامل و/یا برای بیشتر از یک هفته\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| %s || [[کاربر:%s|]] || [[%s]] || <nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}} || %s',
+            "sqlnum": 1,
+            "sql": """
+SELECT DISTINCT
+  log_id,
+  user_name,
+  CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) AS link,
+  log_comment,
+  STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
+  'حذف تصویر' AS issue
+FROM logging
+JOIN user_groups ug
+  ON log_user = ug.ug_user
+  AND ug.ug_group = 'eliminator'
+JOIN user
+  ON log_user = user_id
+JOIN archive
+  ON log_page = ar_page_id
+LEFT JOIN user_groups ug2
+  ON log_user = ug2.ug_user
+  AND ug2.ug_group = 'Image-reviewer'
+WHERE
+  log_type = 'delete'
+  AND ar_namespace = 6
+  AND log_timestamp >=
+    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+  AND ug2.ug_user IS NULL
+UNION
+SELECT DISTINCT
+  log_id,
+  u.user_name,
+  CONCAT('کاربر:', log_title) AS link,
+  log_comment,
+  STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
+  'بستن غیرمجاز' AS issue
+FROM logging
+JOIN user_groups ug
+  ON log_user = ug.ug_user
+JOIN user u
+  ON log_user = u.user_id
+JOIN user u2
+  ON log_title = u2.user_name
+JOIN user_groups ug2
+  ON u2.user_id = ug2.ug_user
+WHERE
+  ug.ug_group = 'eliminator'
+  AND log_type = 'block'
+  AND ug2.ug_group IN (
+    'sysop',
+    'bureaucrat',
+    'patroller',
+    'autopatrol',
+    'rollbacker'
+  )
+  AND log_timestamp >=
+    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+UNION
+SELECT DISTINCT
+  log_id,
+  user_name,
+  log_title AS link,
+  log_comment,
+  STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
+  'محافظت کامل' AS issue
+FROM logging
+JOIN user_groups
+  ON log_user = ug_user
+JOIN user
+  ON log_user = user_id
+WHERE
+  ug_group = 'eliminator'
+  AND log_type = 'protect'
+  AND log_action = 'protect'
+  AND (log_params NOT LIKE '%[edit=autoconfirmed]%'
+  AND log_params NOT LIKE '%[create=autoconfirmed]%')
+ORDER BY log_id DESC
+""",
+            "out": "وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها",
+            "cols": ["شناسه", "کاربر", "هدف", "توضیح", "تاریخ", "مشکل"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه جدولی از فعالیت‌های ویکی‌بان‌ها در یک ماه گذشته را نشان می‌دهد که ممکن
+است ناقض [[وپ:ویکی‌بان]] باشند. مواردی که چک می‌کند عبارتند از:
+* حذف تصاویر (چک کنید که کاربر دسترسی جداگانه برای حذف تصاویر داشته باشد)
+* بستن کاربران دارای دسترسی گشت خودکار یا گشت یا واگردان یا مدیر
+* محافظت در سطح محافظت کامل و/یا برای بیشتر از یک هفته
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| %s || [[کاربر:%s|]] || [[%s]] || " +
+                    "<nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}} || %s",
             "sign": True
         },
         {
-            "sqlnum":2,
-            "sql":
-            "select page_title from categorylinks join page on cl_from = page_id left join imagelinks on il_to = page_title where cl_to = 'پرونده‌های_مالکیت_عمومی' and page_namespace = 6 and il_from is null",
-            "out": 'وپ:گزارش دیتابیس/پرونده‌های آزاد استفاده نشده',
-            "cols": [u'ردیف', u'پرونده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d|NOSEP}} || [[:File:%s]]',
+            "sqlnum": 2,
+            "sql": """
+SELECT page_title
+FROM categorylinks
+JOIN page
+  ON cl_from = page_id
+LEFT JOIN imagelinks
+  ON il_to = page_title
+WHERE
+  cl_to = 'پرونده‌های_مالکیت_عمومی'
+  AND page_namespace = 6
+  AND il_from IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/پرونده‌های آزاد استفاده نشده",
+            "cols": ["ردیف", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:File:%s]]",
             "sign": True
         },
         {
-            "sqlnum":3,
-            "sql":
-            "select page_title from categorylinks join page on cl_from = page_id left join imagelinks on il_to = page_title where cl_to = 'محتویات_غیر_آزاد' and page_namespace = 6 and il_from is null",
-            "out": 'ویکی‌پدیا:گزارش_دیتابیس/پرونده‌های غیر آزاد استفاده نشده',
-            "cols": [u'ردیف', u'پرونده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]]',
+            "sqlnum": 3,
+            "sql": """
+SELECT page_title
+FROM categorylinks
+JOIN page
+  ON cl_from = page_id
+LEFT JOIN imagelinks
+  ON il_to = page_title
+WHERE cl_to = 'محتویات_غیر_آزاد'
+  AND page_namespace = 6
+  AND il_from IS NULL
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/پرونده‌های غیر آزاد استفاده نشده",
+            "cols": ["ردیف", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]]",
             "sign": True
         },
         {
-            "sqlnum":4,
-            "sql":
-            "select page_title, str_to_date(left(page_touched,8), '%Y%m%d') from page left join categorylinks on page_id = cl_from where page_namespace = 6 and page_is_redirect = 0 and cl_to is null",
-            "out": 'وپ:گزارش دیتابیس/پرونده‌های رده‌بندی نشده',
-            "cols": [u'ردیف', u'پرونده', u'تاریخ بارگذاری'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:File:%s]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 4,
+            "sql": """
+SELECT
+  page_title,
+  STR_TO_DATE(LEFT(page_touched,8), '%Y%m%d')
+FROM page
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+WHERE
+  page_namespace = 6
+  AND page_is_redirect = 0
+  AND cl_to IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/پرونده‌های رده‌بندی نشده",
+            "cols": ["ردیف", "پرونده", "تاریخ بارگذاری"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:File:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":5,
-            "sql":
-            "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), ipb_reason from ipblocks where ipb_expiry = 'infinity' AND ipb_user = 0",
-            "out": 'وپ:گزارش دیتابیس/آی‌پی‌های بی‌پایان بسته شده',
-            "cols": [u'ردیف', u'آی‌پی', u'مدیر', u'تاریخ', u'دلیل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] || [[کاربر:%s|]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s',
+            "sqlnum": 5,
+            "sql": """
+SELECT
+  ipb_address,
+  ipb_by_text,
+  STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
+  ipb_reason
+FROM ipblocks
+WHERE
+  ipb_expiry = 'infinity'
+  AND ipb_user = 0
+""",
+            "out": "وپ:گزارش دیتابیس/آی‌پی‌های بی‌پایان بسته شده",
+            "cols": ["ردیف", "آی‌پی", "مدیر", "تاریخ", "دلیل"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] " +
+                    "|| [[کاربر:%s|]] " +
+                    "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s",
             "sign": True
         },
         {
-            "sqlnum":6,
-            "sql":
-            "select if(up_value = 'male', 'مرد', 'زن'), count(up_value) from user_properties where up_property = 'gender' group by up_value",
-            "out": 'وپ:گزارش دیتابیس/ترجیحات کاربران/جنسیت',
-            "cols": [u'جنسیت', u'تعداد'],
-            "summary": u'به روز کردن آمار',
+            "sqlnum": 6,
+            "sql": """
+SELECT
+ CASE
+   WHEN up_value = 'male' THEN 'مرد'
+   ELSE 'زن'
+ END AS Gender,
+ COUNT(up_value)
+FROM user_properties
+WHERE up_property = 'gender'
+GROUP BY up_value
+""",
+            "out": "وپ:گزارش دیتابیس/ترجیحات کاربران/جنسیت",
+            "cols": ["جنسیت", "تعداد"],
+            "summary": "به روز کردن آمار",
             "pref": u'',
-            "frmt": u'| %s || {{formatnum:%s}}',
+            "frmt": "| %s || {{formatnum:%s}}",
             "sign": False
         },
         {
-            "sqlnum":7,
-            "sql":
-            "select (mid(up_value, 10, locate('|', mid(up_value,10))-1) / 60) as offset, count(up_value) from user_properties where up_property = 'timecorrection' group by offset order by offset asc",
-            "out": 'وپ:گزارش دیتابیس/ترجیحات کاربران',
-            "cols": [u'اختلاف ساعت', u'تعداد'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~\n\n==جنسیت==\n\n{{/جنسیت}}\n\n==منطقه زمانی==\n\n',
-            "frmt": u'| {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 7,
+            "sql": """
+SELECT
+  (mid(up_value, 10, locate('|', mid(up_value,10))-1) / 60) AS offset,
+  COUNT(up_value)
+FROM user_properties
+WHERE up_property = 'timecorrection'
+GROUP BY offset
+ORDER BY offset
+""",
+            "out": "وپ:گزارش دیتابیس/ترجیحات کاربران",
+            "cols": ["اختلاف ساعت", "تعداد"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~\n\n==جنسیت==\n\n{{/جنسیت}}" +
+                    "\n\n==منطقه زمانی==\n\n",
+            "frmt": "| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":8,
-            "sql":
-            "select page_title from page left join categorylinks on page_id = cl_from where page_namespace = 0 and page_is_redirect = 0 and cl_from is null",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های رده‌بندی نشده',
-            "cols": [u'ردیف', u'مقاله'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]]',
+            "sqlnum": 8,
+            "sql": """
+SELECT page_title
+FROM page
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+WHERE
+  page_namespace = 0
+  AND page_is_redirect = 0
+  AND cl_from IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های رده‌بندی نشده",
+            "cols": ["ردیف", "مقاله"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[%s]]",
             "sign": True
         },
         {
-            "sqlnum":9,
-            "sql":
-            "select page_title, str_to_date(left(rev_timestamp, 8), '%Y%m%d') from page join revision on page_latest = rev_id left join pagelinks on page_id = pl_from where page_namespace = 0 and page_is_redirect = 0 and pl_from is null",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های بدون پیوند ویکی',
-            "cols": [u'ردیف', u'مقاله', u'آخرین ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 9,
+            "sql": """
+SELECT
+  page_title,
+  STR_TO_DATE(LEFT(rev_timestamp, 8), '%Y%m%d')
+FROM page JOIN revision
+  ON page_latest = rev_id
+LEFT JOIN pagelinks
+  ON page_id = pl_from
+WHERE
+  page_namespace = 0
+  AND page_is_redirect = 0
+  AND pl_from IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های بدون پیوند ویکی",
+            "cols": ["ردیف", "مقاله", "آخرین ویرایش"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":10,
-            "sql":
-            "select page_title, pl_title from page join pagelinks on page_id = pl_from left join categorylinks on page_id = cl_from and cl_to = 'مقاله‌های_نامزد_حذف_سریع' where page_namespace = 0 and pl_namespace in (2, 3) and cl_to is null",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به صفحه کاربری',
-            "cols": [u'ردیف', u'مقاله', u'پیوند به صفحه (بحث) کاربر'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست شامل صفحه‌هایی که برچسب حذف سریع دارند اما در ردهٔ حذف سریع قرار نگرفته‌اند نیز می‌شود\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]]',
+            "sqlnum": 10,
+            "sql": """
+SELECT
+  page_title,
+  pl_title
+FROM page JOIN pagelinks
+  ON page_id = pl_from
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'مقاله‌های_نامزد_حذف_سریع'
+WHERE
+  page_namespace = 0
+  AND pl_namespace IN (2, 3)
+  AND cl_to IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به صفحه کاربری",
+            "cols": ["ردیف", "مقاله", "پیوند به صفحه (بحث) کاربر"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست شامل صفحه‌هایی که برچسب حذف سریع دارند اما در ردهٔ حذف سریع قرار
+نگرفته‌اند نیز می‌شود
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]]",
             "sign": True
         },
         {
-            "sqlnum":11,
-            "sql":
-            "select page_namespace, page_title, page_len, str_to_date(left(rev_timestamp, 8), '%Y%m%d') from page join revision on page_latest = rev_id where page_len > 300 * 1024",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های پرحجم',
-            "cols": [u'ردیف', u'مقاله', u'پیوند به صفحه (بحث) کاربر'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || {{formatnum:%s}} || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 11,
+            "sql": """
+SELECT
+  page_namespace,
+  page_title,
+  page_len,
+  STR_TO_DATE(LEFT(rev_timestamp, 8), '%Y%m%d')
+FROM page
+JOIN revision
+  ON page_latest = rev_id
+WHERE page_len > 300 * 1024
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های پرحجم",
+            "cols": ["ردیف", "مقاله", "پیوند به صفحه (بحث) کاربر"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[{{ns:%s}}:%s]] " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":12,
-            "sql":
-            "select page_title from page join (select rev_page, count(distinct rev_user) as cnt from revision group by rev_page having cnt = 1) singleauth on page_id = rev_page left join pagelinks on pl_title = page_title and pl_namespace = 4 and pl_from <> 1171408 left join templatelinks on tl_title = page_title and tl_namespace = 4 where page_namespace = 4 and page_is_redirect = 0 and pl_title is null and tl_title is null",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده',
-            "cols": [u'ردیف', u'صفحه'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[{{ns:4}}:%s]]',
+            "sqlnum": 12,
+            "sql": """
+SELECT page_title
+FROM page
+JOIN (
+  SELECT
+    rev_page,
+    COUNT(DISTINCT rev_user) AS cnt
+  FROM revision
+  GROUP BY rev_page
+  HAVING cnt = 1
+) singleauth
+  ON page_id = rev_page
+LEFT JOIN pagelinks
+  ON pl_title = page_title
+  AND pl_namespace = 4
+  AND pl_from <> 1171408
+LEFT JOIN templatelinks
+  ON tl_title = page_title
+  AND tl_namespace = 4
+WHERE
+  page_namespace = 4
+  AND page_is_redirect = 0
+  AND pl_title IS NULL
+  AND tl_title IS NULL
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده",
+            "cols": ["ردیف", "صفحه"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[{{ns:4}}:%s]]",
             "sign": True
         },
         {
-            "sqlnum":13,
-            "sql":
-            "select i1.img_name, i2.img_name from image i1 join image i2 on i1.img_sha1 = i2.img_sha1 and i1.img_name > i2.img_name",
-            "out": 'وپ:گزارش دیتابیس/پرونده‌های تکراری',
-            "cols": [u'ردیف', u'پرونده اول', u'پرونده دوم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[:پرونده:%s]] || [[:پرونده:%s]]',
+            "sqlnum": 13,
+            "sql": """
+SELECT
+  i1.img_name,
+  i2.img_name
+FROM image i1
+JOIN image i2
+  ON i1.img_sha1 = i2.img_sha1 AND i1.img_name > i2.img_name
+""",
+            "out": "وپ:گزارش دیتابیس/پرونده‌های تکراری",
+            "cols": ["ردیف", "پرونده اول", "پرونده دوم"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]] || [[:پرونده:%s]]",
             "sign": True
         },
         {
-            "sqlnum":14,
-            "sql":
-            "select page_title, count(il_to) cnt from page join categorylinks on page_id = cl_from and cl_to = 'محتویات_غیر_آزاد' join imagelinks on page_title = il_to group by page_title having cnt > 10 order by cnt desc",
-            "out": 'وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده',
-            "cols": [u'پرونده', u'تعداد کاربردها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پرونده‌های غیر آزادی را نشان می‌دهد که بیش از ده بار استفاده شده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[:پرونده:%s]] || {{formatnum:%s}}',
+            "sqlnum": 14,
+            "sql": """
+SELECT
+  page_title,
+  COUNT(il_to) cnt
+FROM page
+JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'محتویات_غیر_آزاد'
+JOIN imagelinks
+  ON page_title = il_to
+GROUP BY page_title
+HAVING cnt > 10
+ORDER BY cnt DESC
+""",
+            "out": "وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده",
+            "cols": ["پرونده", "تعداد کاربردها"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست پرونده‌های غیر آزادی را نشان می‌دهد که بیش از ده بار استفاده شده‌اند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":15,
-            "sql":
-            "select page_title, page_len from page join categorylinks on page_id = cl_from and cl_to = 'همه_مقاله‌های_خرد' where page_len > 10 * 1024 order by page_len desc",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های خرد بلند',
-            "cols": [u'ردیف', u'مقاله', u'حجم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که برچسب خرد دارند و دست کم یک کیلوبایت حجم دارند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
+            "sqlnum": 15,
+            "sql": """
+SELECT
+  page_title,
+  page_len
+FROM page
+JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'همه_مقاله‌های_خرد'
+WHERE page_len > 10 * 1024
+ORDER BY page_len DESC
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های خرد بلند",
+            "cols": ["ردیف", "مقاله", "حجم"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌هایی را نشان می‌دهد که برچسب خرد دارند و دست کم یک کیلوبایت
+حجم دارند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":16,
-            "sql":
-            "select page_namespace, page_title from externallinks join page on el_from = page_id where left(el_to, 7) = 'mailto:' and el_to not like '%wikimedia.org%'",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای پیوند به رایانامه',
-            "cols": [u'ردیف', u'صفحه'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی را نشان می‌دهد که پیوند به نشانی ایمیل دارند (اما مواردی که نشانی ایمیل مربوط به خود ویکی‌مدیا است را نشان نمی‌دهد).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]]',
+            "sqlnum": 16,
+            "sql": """
+SELECT
+  page_namespace,
+  page_title
+FROM externallinks
+JOIN page
+  ON el_from = page_id
+WHERE
+  LEFT(el_to, 7) = 'mailto:'
+  AND el_to NOT LIKE '%wikimedia.org%'
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های دارای پیوند به رایانامه",
+            "cols": ["ردیف", "صفحه"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی را نشان می‌دهد که پیوند به نشانی ایمیل دارند (اما مواردی
+که نشانی ایمیل مربوط به خود ویکی‌مدیا است را نشان نمی‌دهد).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[{{ns:%s}}:%s]]",
             "sign": True
         },
         {
-            "sqlnum":17,
-            "sql":
-            "select page_title, str_to_date(left(rev_timestamp, 8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from and cl_to = 'صفحه‌های_ابهام‌زدایی' where page_namespace = 0 and page_is_redirect = 0 and rev_timestamp < concat(date_format(date_sub(now(), interval 4 year), '%Y%m%d'), '000000') and cl_to is null order by rev_timestamp asc",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های فراموش‌شده',
-            "cols": [u'ردیف', u'صفحه', u'آخرین ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که دست کم چهار سال  از آخرین ویرایش‌شان می‌گذرد (به جز صفحه‌های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 17,
+            "sql": """
+SELECT
+  page_title,
+  STR_TO_DATE(LEFT(rev_timestamp, 8), '%Y%m%d')
+FROM page
+JOIN revision
+  ON page_latest = rev_id
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'صفحه‌های_ابهام‌زدایی'
+WHERE
+  page_namespace = 0
+  AND page_is_redirect = 0
+  AND rev_timestamp <
+    concat(DATE_FORMAT(DATE_SUB(NOW(), interval 4 year), '%Y%m%d'), '000000')
+  AND cl_to IS NULL
+ORDER BY rev_timestamp
+LIMIT 5000
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های فراموش‌شده",
+            "cols": ["ردیف", "صفحه", "آخرین ویرایش"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌هایی را نشان می‌دهد که دست کم چهار سال  از آخرین ویرایش‌شان
+می‌گذرد (به جز صفحه‌های ابهام‌زدایی).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":18,
-            "sql":
-            "select page_title, page_len from page where page_namespace = 0 and page_len > 20 * 1024 order by page_len desc",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های پرحجم',
-            "cols": [u'ردیف', u'صفحه', u'حجم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که دست کم بیست کیلوبایت حجم دارند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
+            "sqlnum": 18,
+            "sql": """
+SELECT
+  page_title,
+  page_len
+FROM page
+WHERE
+  page_namespace = 0
+  AND page_len > 20 * 1024
+ORDER BY page_len DESC
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های پرحجم",
+            "cols": ["ردیف", "صفحه", "حجم"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌هایی را نشان می‌دهد که دست کم بیست کیلوبایت حجم دارند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":19,
-            "sql":
-            "select page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to in ('همه_صفحه‌های_ابهام‌زدایی', 'نام‌های_کوچک','نام‌های_خانوادگی', 'همه_مقاله‌های_مجموعه‌نمایه') where page_namespace = 0 and page_is_redirect = 0 and cl_to is null and page_len < 500 order by page_len",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های کم‌حجم',
-            "cols": [u'ردیف', u'مقاله', u'حجم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که زیر پانصد بایت حجم دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
+            "sqlnum": 19,
+            "sql": """
+SELECT
+  page_title,
+  page_len
+FROM page
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to IN (
+  'همه_صفحه‌های_ابهام‌زدایی',
+  'نام‌های_کوچک',
+  'نام‌های_خانوادگی',
+  'همه_مقاله‌های_مجموعه‌نمایه'
+  )
+WHERE
+  page_namespace = 0
+  AND page_is_redirect = 0
+  AND cl_to IS NULL
+  AND page_len < 500
+ORDER BY page_len
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های کم‌حجم",
+            "cols": ["ردیف", "مقاله", "حجم"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌هایی را نشان می‌دهد که زیر پانصد بایت حجم دارند (به جز صفحه های
+ابهام‌زدایی).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":20,
-            "sql":
-            "select page.page_namespace, page.page_namespace, noredir, redir, count(page_id) tot from page join (select page_namespace, count(page_id) redir from page where page_is_redirect = 1 group by page_namespace) redir on page.page_namespace = redir.page_namespace join (select page_namespace, count(page_id) noredir from page where page_is_redirect = 0 group by page_namespace) noredir on page.page_namespace = noredir.page_namespace group by page.page_namespace",
-            "out": 'وپ:گزارش دیتابیس/تعداد صفحه‌های هر فضای نام',
+            "sqlnum": 20,
+            "sql": """
+SELECT
+  page.page_namespace,
+  page.page_namespace,
+  noredir,
+  redir,
+  COUNT(page_id) tot
+FROM page
+JOIN (
+  SELECT
+    page_namespace,
+    COUNT(page_id) redir
+  FROM page
+  WHERE page_is_redirect = 1
+  GROUP BY page_namespace
+) redir
+  ON page.page_namespace = redir.page_namespace
+JOIN (
+  SELECT
+    page_namespace,
+    COUNT(page_id) noredir
+  FROM page
+  WHERE page_is_redirect = 0
+  GROUP BY page_namespace
+) noredir
+  ON page.page_namespace = noredir.page_namespace
+GROUP BY page.page_namespace
+""",
+            "out": "وپ:گزارش دیتابیس/تعداد صفحه‌های هر فضای نام",
+            "cols": [
+                u"ردیف",
+                u"شناسه فضای نام",
+                u"عنوان فضای نام",
+                u"بدون تغییرمسیر",
+                u"تغییرمسیر",
+                u"جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || %s || {{ns:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}}",
+            "sign": True
+        },
+        {
+            "sqlnum": 21,
+            "sql": """
+SELECT
+  page_namespace,
+  page_title,
+  page_len
+FROM page
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
+JOIN (
+  SELECT
+    rev_page,
+    COUNT(DISTINCT rev_user) cnt
+  FROM revision
+  GROUP BY rev_page
+  HAVING cnt = 1
+) authors
+  ON page_id = rev_page
+WHERE
+  page_namespace NOT IN (6, 14)
+  AND page_is_redirect = 0
+  AND page_namespace IN (0, 4, 12)
+  AND cl_to IS NULL
+  AND page_len < 10
+ORDER BY page_len
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های کوتاه تک‌نویسنده",
+            "cols": ["ردیف", "صفحه", "حجم"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی در فضای نام مقاله، ویکی‌پدیا یا راهنما را نشان می‌دهد که
+زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[{{ns:%s}}:%s]] " +
+                    "|| {{formatnum:%s}}",
+            "sign": True
+        },
+        {
+            "sqlnum": 22,
+            "sql": """
+SELECT
+  page_title,
+  il_to
+FROM page
+JOIN imagelinks
+  ON il_from = page_id
+WHERE
+  page_namespace = 0
+  AND il_to NOT IN (
+    SELECT page_title
+    FROM page
+    WHERE
+    page_namespace = 6
+  )
+  AND il_to NOT IN (
+    SELECT page_title
+    FROM commonswiki_p.page
+    WHERE page_namespace = 6
+  )
+LIMIT 10000
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به پرونده ناموجود",
+            "cols": ["ردیف", "مقاله", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست حداکثر ده‌هزارتا از مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و
+تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[:پرونده:%s]]",
+            "sign": True
+        },
+        {
+            "sqlnum": 23,
+            "sql": """
+SELECT
+  user_name,
+  COUNT(log_id) cnt
+FROM user
+JOIN logging
+  ON log_user = user_id
+LEFT JOIN user_groups
+  ON log_user = ug_user
+  AND ug_group = 'bot'
+WHERE
+  log_type ='patrol'
+  AND log_action='patrol'
+  AND ug_group IS NULL
+GROUP BY
+  log_user,
+  log_action
+ORDER BY cnt DESC
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر پایه تعداد گشت‌زنی‌ها",
+            "cols": ["ردیف", "کاربر", "گشت‌زنی"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+کاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} ",
+            "sign": True
+        },
+        {
+            "sqlnum": 24,
+            "sql": """
+SELECT
+  user_name,
+  COUNT(wll_id) gotlove,
+  IFNULL(gavelove, 0)
+FROM user
+JOIN wikilove_log
+  ON user_id = wll_receiver
+LEFT JOIN (
+  SELECT
+    wll_sender,
+    COUNT(wll_id) gavelove
+  FROM wikilove_log
+  GROUP BY wll_sender
+) gavelove
+  ON user_id = gavelove.wll_sender
+GROUP BY wll_receiver
+ORDER BY gotlove DESC
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر پایه قدردانی‌ها",
+            "cols": ["ردیف", "کاربر", "قدردانی از او", "قدردانی او از دیگران"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+کاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}}",
+            "sign": True
+        },
+        {
+            "sqlnum": 25,
+            "sql": """
+SELECT
+  log_title,
+  COUNT(log_id),
+  IFNULL(thankback, 0),
+  COUNT(log_id) + IFNULL(thankback, 0) AS cnt
+FROM logging
+LEFT JOIN (
+  SELECT
+    user_name,
+    COUNT(log_id) thankback
+  FROM logging JOIN user
+    ON user_id = log_user
+  WHERE log_type = 'thanks'
+  GROUP BY user_name
+) back
+  ON back.user_name = replace(log_title, '_', ' ')
+WHERE log_type = 'thanks'
+GROUP BY log_title
+ORDER BY cnt DESC
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر پایه تعداد تشکر",
             "cols":
-            [u'ردیف',
-             u'شناسه فضای نام',
-             u'عنوان فضای نام',
-             u'بدون تغییرمسیر',
-             u'تغییرمسیر',
-             u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || %s || {{ns:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            ["ردیف",
+             "کاربر",
+             "تشکرها از او",
+             "تشکرهای او از دیگران",
+             "جمع کل"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":21,
-            "sql":
-            "select page_namespace, page_title, page_len from page left join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join (select rev_page, count(distinct rev_user) cnt from revision group by rev_page having cnt = 1) authors on page_id = rev_page where page_namespace not in (6, 14) and page_is_redirect = 0 and page_namespace in (0, 4, 12) and cl_to is null and page_len < 10 order by page_len",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های کوتاه تک‌نویسنده',
-            "cols": [u'ردیف', u'صفحه', u'حجم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی در فضای نام مقاله، ویکی‌پدیا یا راهنما را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || {{formatnum:%s}}',
+            "sqlnum": 26,
+            "sql": """
+SELECT
+  user_name,
+  IFNULL(del.cnt, 0),
+  IFNULL(res.cnt, 0),
+  IFNULL(revdel.cnt, 0),
+  IFNULL(logdel.cnt, 0),
+  IFNULL(prot.cnt, 0),
+  IFNULL(unprot.cnt, 0),
+  IFNULL(editprot.cnt, 0),
+  IFNULL(block.cnt, 0),
+  IFNULL(unblock.cnt, 0),
+  IFNULL(editblock.cnt, 0),
+  IFNULL(renames.cnt, 0),
+  IFNULL(rights.cnt, 0),
+  (
+    IFNULL(del.cnt, 0) +
+    IFNULL(res.cnt, 0) +
+    IFNULL(revdel.cnt, 0) +
+    IFNULL(logdel.cnt, 0) +
+    IFNULL(prot.cnt, 0) +
+    IFNULL(unprot.cnt, 0) +
+    IFNULL(editprot.cnt, 0) +
+    IFNULL(block.cnt, 0) +
+    IFNULL(unblock.cnt, 0) +
+    IFNULL(editblock.cnt, 0) +
+    IFNULL(renames.cnt, 0) +
+    IFNULL(rights.cnt, 0)
+  ) tot
+FROM user JOIN user_groups
+  ON user_id = ug_user
+  AND ug_group = 'sysop'
+LEFT JOIN (
+  SELECT
+   log_user,
+   COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'delete'
+    AND log_action='delete'
+  GROUP BY log_user
+) del
+  ON user_id = del.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'delete'
+    AND log_action='restore'
+  GROUP BY log_user
+) res
+  ON user_id = res.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'delete'
+    AND log_action='revision'
+  GROUP BY log_user
+) revdel
+  ON user_id = revdel.log_user
+LEFT JOIN (
+  SELECT
+    log_user,\
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'delete'
+    AND log_action = 'event'
+  GROUP BY log_user
+) logdel
+  ON user_id = logdel.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'protect'
+    AND log_action = 'protect'
+  GROUP BY log_user
+) prot
+  ON user_id = prot.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'protect'
+    AND log_action = 'unprotect'
+  GROUP BY log_user
+) unprot
+  ON user_id = unprot.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'protect'
+    AND log_action = 'modify'
+  GROUP BY log_user
+) editprot
+  ON user_id = editprot.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'block'
+    AND log_action = 'block'
+  GROUP BY log_user
+) block
+  ON user_id = block.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'block'
+    AND log_action = 'unblock'
+  GROUP BY log_user
+) unblock
+  ON user_id = unblock.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE
+    log_type = 'block'
+    AND log_action = 'reblock'
+  GROUP BY log_user
+) editblock
+  ON user_id = editblock.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE log_type = 'renameuser'
+  GROUP BY log_user
+) renames
+  ON user_id = renames.log_user
+LEFT JOIN (
+  SELECT
+    log_user,
+    COUNT(log_id) cnt
+  FROM logging
+  WHERE log_type = 'rights'
+  AND log_action = 'rights'
+  GROUP BY log_user
+) rights
+  ON user_id = rights.log_user
+ORDER BY tot DESC
+""",
+            "out": "وپ:گزارش دیتابیس/فعالیت‌ مدیران کنونی",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "حذف",
+                "احیا",
+                "حذف نسخه",
+                "حذف سیاهه",
+                "محافظت",
+                "رفع محافظت",
+                "تغییر محافظت",
+                "بستن",
+                "باز کردن",
+                "تغییر بندایش",
+                "تغییر نام",
+                "تغییر اختیارات",
+                "جمع کل"
+             ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":22,
-            "sql":
-            "select page_title, il_to from page join imagelinks on il_from = page_id where page_namespace = 0 and il_to not in (select page_title from page where page_namespace = 6) and il_to not in (select page_title from commonswiki_p.page where page_namespace = 6) limit 10000",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به پرونده ناموجود',
-            "cols": [u'ردیف', u'مقاله', u'پرونده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست حداکثر ده‌هزارتا از مقاله‌هایی را نشان می‌دهد که زیر ده بایت حجم و تنها یک ویرایشگر دارند (به جز صفحه های ابهام‌زدایی).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[%s]] || [[:پرونده:%s]]',
+            "sqlnum": 27,
+            "sql": """
+SELECT *
+FROM (
+  SELECT DISTINCT
+    user_name,
+    IFNULL(del.cnt, 0),
+    IFNULL(res.cnt, 0),
+    IFNULL(revdel.cnt, 0),
+    IFNULL(logdel.cnt, 0),
+    IFNULL(prot.cnt, 0),
+    IFNULL(unprot.cnt, 0),
+    IFNULL(editprot.cnt, 0),
+    IFNULL(block.cnt, 0),
+    IFNULL(unblock.cnt, 0),
+    IFNULL(editblock.cnt, 0),
+    IFNULL(renames.cnt, 0),
+    IFNULL(rights.cnt, 0),
+    (
+      IFNULL(del.cnt, 0) +
+      IFNULL(res.cnt, 0) +
+      IFNULL(revdel.cnt, 0) +
+      IFNULL(logdel.cnt, 0) +
+      IFNULL(prot.cnt, 0) +
+      IFNULL(unprot.cnt, 0) +
+      IFNULL(editprot.cnt, 0) +
+      IFNULL(block.cnt, 0) +
+      IFNULL(unblock.cnt, 0) +
+      IFNULL(editblock.cnt, 0) +
+      IFNULL(renames.cnt, 0) +
+      IFNULL(rights.cnt, 0)
+    ) tot
+  FROM user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'delete'
+      AND log_action='delete'
+    GROUP BY log_user
+  ) del
+    ON user_id = del.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'delete'
+      AND log_action='restore'
+    GROUP BY log_user
+  ) res
+    ON user_id = res.log_user
+  LEFT JOIN (
+    SELECT
+     log_user,
+     COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'delete'
+      AND log_action='revision'
+    GROUP BY log_user
+  ) revdel
+    ON user_id = revdel.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'delete'
+      AND log_action = 'event'
+    GROUP BY log_user
+  ) logdel
+    ON user_id = logdel.log_user
+  LEFT JOIN (
+    SELECT
+     log_user,
+     COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'protect'
+      AND log_action = 'protect'
+    GROUP BY log_user
+  ) prot
+    ON user_id = prot.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'protect'
+      AND log_action = 'unprotect'
+    GROUP BY log_user
+  ) unprot
+    ON user_id = unprot.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'protect'
+      AND log_action = 'modify'
+    GROUP BY log_user
+  ) editprot
+    ON user_id = editprot.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'block'
+      AND log_action = 'block'
+    GROUP BY log_user
+  ) block
+    ON user_id = block.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'block'
+      AND log_action = 'unblock'
+    GROUP BY log_user
+  ) unblock
+    ON user_id = unblock.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'block'
+      AND log_action = 'reblock'
+    GROUP BY log_user
+  ) editblock
+    ON user_id = editblock.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE log_type = 'renameuser'
+    GROUP BY log_user
+  ) renames
+    ON user_id = renames.log_user
+  LEFT JOIN (
+    SELECT
+      log_user,
+      COUNT(log_id) cnt
+    FROM logging
+    WHERE
+      log_type = 'rights'
+      AND log_action = 'rights'
+    GROUP BY log_user
+  ) rights
+    ON user_id = rights.log_user
+) withzeros
+WHERE tot > 0
+ORDER BY tot DESC
+""",
+            "out": "وپ:گزارش دیتابیس/فعالیت‌های مدیران از ابتدا",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "حذف",
+                "احیا",
+                "حذف نسخه",
+                "حذف سیاهه",
+                "محافظت",
+                "رفع محافظت",
+                "تغییر محافظت",
+                "بستن",
+                "باز کردن",
+                "تغییر بندایش",
+                "تغییر نام",
+                "تغییر اختیارات",
+                "جمع کل"
+             ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":23,
-            "sql":
-            "select user_name, count(log_id) from user join logging on log_user = user_id left join user_groups on log_user = ug_user and ug_group = 'bot' where log_type ='patrol' and log_action='patrol' and ug_group is null group by log_user, log_action order by 2 desc;",
-            "out": 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد گشت‌زنی‌ها',
-            "cols": [u'ردیف', u'کاربر', u'گشت‌زنی'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nکاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} ',
+            "sqlnum": 28,
+            "sql": """
+SELECT
+  page_title,
+  cnt
+FROM enwiki_p.page
+JOIN (
+  SELECT
+    ll_from,
+    COUNT(ll_lang) cnt
+  FROM enwiki_p.langlinks
+  GROUP BY ll_from
+  HAVING
+    cnt >= 40
+    AND max(ll_lang='fa') = 0
+) highll
+  ON page_id = ll_from
+WHERE page_namespace = 0
+ORDER BY cnt DESC
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "مقاله‌های مهم ایجادنشده بر پایه دیگر میان‌ویکی‌ها",
+            "cols": ["ردیف", "مقاله", "میان‌ویکی‌ها"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\n{{/بالا}}\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":24,
-            "sql":
-            "select user_name, count(wll_id) gotlove, ifnull(gavelove, 0) from user join wikilove_log on user_id = wll_receiver left join (select wll_sender, count(wll_id) gavelove from wikilove_log group by wll_sender) gavelove on user_id = gavelove.wll_sender group by wll_receiver order by gotlove desc",
-            "out": 'وپ:گزارش دیتابیس/کاربران بر پایه قدردانی‌ها',
-            "cols":
-            [u'ردیف', u'کاربر', u'قدردانی از او', u'قدردانی او از دیگران'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nکاربرانی که در حال حاضر برچسب ربات دارند را شامل نمی‌شود.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 29,
+            "sql": """
+SELECT
+  page_title,
+  page_len
+FROM enwiki_p.page
+JOIN (
+  SELECT
+    ll_from,
+    COUNT(ll_lang) cnt
+  FROM enwiki_p.langlinks
+  GROUP BY ll_from
+  HAVING
+    max(ll_lang='fa') = 0
+) highll
+  ON page_id = ll_from
+WHERE
+  page_namespace = 0
+  AND page_len > 150 * 1024
+ORDER BY page_len DESC
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های مهم ایجادنشده بر پایه حجم",
+            "cols": ["ردیف", "مقاله", "حجم"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست طولانی‌ترین مقاله‌های ویکی‌پدیای انگلیسی را نشان می‌دهد که در
+ویکی‌پدیای فارسی معادل ندارند (یا دست کم پیوند میان‌ویکی داده نشده‌است).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":25,
-            "sql":
-            "select log_title, count(log_id), ifnull(thankback, 0), count(log_id) + ifnull(thankback, 0) as cnt from logging left join (select user_name, count(log_id) thankback from logging join user on user_id = log_user where log_type = 'thanks' group by user_name) back on back.user_name = replace(log_title, '_', ' ') where log_type = 'thanks' group by log_title order by cnt desc",
-            "out": 'وپ:گزارش دیتابیس/کاربران بر پایه تعداد تشکر',
-            "cols":
-            [u'ردیف',
-             u'کاربر',
-             u'تشکرها از او',
-             u'تشکرهای او از دیگران',
-             u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 30,
+            "sql": """
+SELECT DISTINCT page_title
+FROM page
+JOIN iwlinks
+  ON page_id = iwl_from
+LEFT JOIN langlinks
+  ON page_id = ll_from
+WHERE
+  page_namespace = 0
+  AND ll_from IS NULL
+  AND iwl_prefix NOT IN (
+    'b', 'n', 'q', 's', 'm', 'wikt', 'commons', 'wikispecies'
+  )
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "مقاله‌های دارای پیوند به ویکی که میان‌ویکی ندارند",
+            "cols": ["ردیف", "الگو"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]]",
             "sign": True
         },
         {
-            "sqlnum":26,
-            "sql":
-            "select user_name, ifnull(del.cnt, 0), ifnull(res.cnt, 0), ifnull(revdel.cnt, 0), ifnull(logdel.cnt, 0), ifnull(prot.cnt, 0), ifnull(unprot.cnt, 0), ifnull(editprot.cnt, 0), ifnull(block.cnt, 0), ifnull(unblock.cnt, 0), ifnull(editblock.cnt, 0), ifnull(renames.cnt, 0), ifnull(rights.cnt, 0), (ifnull(del.cnt, 0) + ifnull(res.cnt, 0) + ifnull(revdel.cnt, 0) + ifnull(logdel.cnt, 0) + ifnull(prot.cnt, 0) + ifnull(unprot.cnt, 0) + ifnull(editprot.cnt, 0) + ifnull(block.cnt, 0) + ifnull(unblock.cnt, 0) + ifnull(editblock.cnt, 0) + ifnull(renames.cnt, 0) + ifnull(rights.cnt, 0)) tot from user join user_groups on user_id = ug_user and ug_group = 'sysop' left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='delete' group by log_user) del on user_id = del.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='restore' group by log_user) res on user_id = res.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='revision' group by log_user) revdel on user_id = revdel.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action = 'event' group by log_user) logdel on user_id = logdel.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'protect' group by log_user) prot on user_id = prot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'unprotect' group by log_user) unprot on user_id = unprot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'modify' group by log_user) editprot on user_id = editprot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'block' group by log_user) block on user_id = block.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'unblock' group by log_user) unblock on user_id = unblock.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'reblock' group by log_user) editblock on user_id = editblock.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'renameuser' group by log_user) renames on user_id = renames.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'rights' and log_action = 'rights' group by log_user) rights on user_id = rights.log_user order by tot desc",
-            "out": 'وپ:گزارش دیتابیس/فعالیت‌ مدیران کنونی',
-            "cols": [u'ردیف', u'کاربر', u'حذف', u'احیا', u'حذف نسخه', u'حذف سیاهه', u'محافظت', u'رفع محافظت',
-                     u'تغییر محافظت', u'بستن', u'باز کردن', u'تغییر بندایش', u'تغییر نام', u'تغییر اختیارات', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 31,
+            "sql": """
+SELECT cl_to
+FROM categorylinks
+JOIN page
+  ON cl_from = page_id
+WHERE
+ page_title = cl_to
+ AND page_title <> 'صفحه‌های_نمایه‌نشده'
+ AND page_namespace = 14
+""",
+            "out": "وپ:گزارش دیتابیس/رده‌های حلقوی",
+            "cols": ["ردیف", "رده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:رده:%s]]",
             "sign": True
         },
         {
-            "sqlnum":27,
-            "sql":
-            "select * from (select distinct user_name, ifnull(del.cnt, 0), ifnull(res.cnt, 0), ifnull(revdel.cnt, 0), ifnull(logdel.cnt, 0), ifnull(prot.cnt, 0), ifnull(unprot.cnt, 0), ifnull(editprot.cnt, 0), ifnull(block.cnt, 0), ifnull(unblock.cnt, 0), ifnull(editblock.cnt, 0), ifnull(renames.cnt, 0), ifnull(rights.cnt, 0), (ifnull(del.cnt, 0) + ifnull(res.cnt, 0) + ifnull(revdel.cnt, 0) + ifnull(logdel.cnt, 0) + ifnull(prot.cnt, 0) + ifnull(unprot.cnt, 0) + ifnull(editprot.cnt, 0) + ifnull(block.cnt, 0) + ifnull(unblock.cnt, 0) + ifnull(editblock.cnt, 0) + ifnull(renames.cnt, 0) + ifnull(rights.cnt, 0)) tot from user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='delete' group by log_user) del on user_id = del.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='restore' group by log_user) res on user_id = res.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action='revision' group by log_user) revdel on user_id = revdel.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'delete' and log_action = 'event' group by log_user) logdel on user_id = logdel.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'protect' group by log_user) prot on user_id = prot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'unprotect' group by log_user) unprot on user_id = unprot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'protect' and log_action = 'modify' group by log_user) editprot on user_id = editprot.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'block' group by log_user) block on user_id = block.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'unblock' group by log_user) unblock on user_id = unblock.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'block' and log_action = 'reblock' group by log_user) editblock on user_id = editblock.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'renameuser' group by log_user) renames on user_id = renames.log_user left join (select log_user, count(log_id) cnt from logging where log_type = 'rights' and log_action = 'rights' group by log_user) rights on user_id = rights.log_user) withzeros where tot > 0 order by tot desc",
-            "out": 'وپ:گزارش دیتابیس/فعالیت‌های مدیران از ابتدا',
-            "cols": [u'ردیف', u'کاربر', u'حذف', u'احیا', u'حذف نسخه', u'حذف سیاهه', u'محافظت', u'رفع محافظت',
-                     u'تغییر محافظت', u'بستن', u'باز کردن', u'تغییر بندایش', u'تغییر نام', u'تغییر اختیارات', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
-            "sign": True
-        },
-        {
-            "sqlnum":28,
-            "sql":
-            "select page_title, cnt from enwiki_p.page join (select ll_from, count(ll_lang) cnt from enwiki_p.langlinks group by ll_from having cnt >= 40 and max(ll_lang='fa') = 0) highll on page_id = ll_from where page_namespace = 0 order by cnt desc",
-            "out":
-            'وپ:گزارش دیتابیس/مقاله‌های مهم ایجادنشده بر پایه دیگر میان‌ویکی‌ها',
-            "cols": [u'ردیف', u'مقاله', u'میان‌ویکی‌ها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}',
-            "sign": True
-        },
-        {
-            "sqlnum":29,
-            "sql":
-            "select page_title, page_len from enwiki_p.page join (select ll_from, count(ll_lang) cnt from enwiki_p.langlinks group by ll_from having max(ll_lang='fa') = 0) highll on page_id = ll_from where page_namespace = 0 and page_len > 150 * 1024 order by page_len desc",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های مهم ایجادنشده بر پایه حجم',
-            "cols": [u'ردیف', u'مقاله', u'حجم'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست طولانی‌ترین مقاله‌های ویکی‌پدیای انگلیسی را نشان می‌دهد که در ویکی‌پدیای فارسی معادل ندارند (یا دست کم پیوند میان‌ویکی داده نشده‌است).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}',
-            "sign": True
-        },
-        {
-            "sqlnum":30,
-            "sql":
-            "select distinct page_title from page join iwlinks on page_id = iwl_from left join langlinks on page_id = ll_from where page_namespace = 0 and ll_from is null and iwl_prefix not in ('b', 'n', 'q', 's', 'm', 'wikt', 'commons', 'wikispecies')",
-            "out":
-            'وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به ویکی که میان‌ویکی ندارند',
-            "cols": [u'ردیف', u'الگو'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d|NOSEP}} || [[%s]]',
-            "sign": True
-        },
-        {
-            "sqlnum":31,
-            "sql":
-            "select cl_to from categorylinks join page on cl_from = page_id where page_title = cl_to and page_title <> 'صفحه‌های_نمایه‌نشده' and page_namespace = 14",
-            "out": 'وپ:گزارش دیتابیس/رده‌های حلقوی',
-            "cols": [u'ردیف', u'رده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]]',
-            "sign": True
-        },
-        {
-            "sqlnum":32,
-            "sql":
-            "select page_title FROM page_restrictions JOIN page ON page_id = pr_page AND page_namespace = 0 AND pr_type = 'edit' AND pr_level = 'sysop' AND pr_expiry = 'infinity'",
+            "sqlnum": 32,
+            "sql": """
+SELECT
+  page_title
+FROM page_restrictions
+JOIN page
+  ON page_id = pr_page
+  AND page_namespace = 0
+  AND pr_type = 'edit'
+  AND pr_level = 'sysop'
+  AND pr_expiry = 'infinity'
+""",
             "out":
             'ویکی‌پدیا:گزارش دیتابیس/مقاله‌های دارای محافظت کامل بی‌پایان',
-            "cols": [u'ردیف', u'مقاله'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| {{formatnum:%d|NOSEP}} || [[%s]] ',
+            "cols": ["ردیف", "مقاله"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] ",
             "sign": True
         },
         # Query 33 was moved to weekly-slow #14
         {
-            "sqlnum":34,
-            "sql":
-            "select ipb_address, mid(ipb_address, instr(ipb_address, '/') + 1) as cnt, ipb_by_text, str_to_date(left(ipb_timestamp,8), '%Y%m%d'), str_to_date(left(ipb_expiry,8), '%Y%m%d'), ipb_reason from ipblocks where ipb_address like '%/%'",
-            "out": 'ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده',
+            "sqlnum": 34,
+            "sql": """
+SELECT
+  ipb_address,
+  MID(ipb_address, INSTR(ipb_address, '/') + 1) AS cnt,
+  ipb_by_text,
+  STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
+  STR_TO_DATE(LEFT(ipb_expiry,8), '%Y%m%d'),
+  ipb_reason
+FROM ipblocks
+WHERE ipb_address LIKE '%/%'
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده",
             "cols":
-            [u'ردیف',
-             u'بازه',
-             u'تعداد آی‌پی',
-             u'مدیر',
-             u'تاریخ بستن',
-             u'انقضا',
-             u'دلیل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || %s || {{formatnum:%s|NOSEP}} || [[کاربر:%s]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s',
+            ["ردیف",
+             "بازه",
+             "تعداد آی‌پی",
+             "مدیر",
+             "تاریخ بستن",
+             "انقضا",
+             "دلیل"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || %s || " +
+                    "{{formatnum:%s|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} " +
+                    "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s",
             "sign": True
         },
         {
-            "sqlnum":35,
-            "sql":
-            "select page_title, il_to from page join imagelinks on page_id = il_from where (not exists (select 1 from image where img_name = il_to)) and (not exists (select 1 from commonswiki_p.page where page_title = il_to and page_namespace = 6)) and (not exists (select 1 from page where page_title = il_to and page_namespace = 6)) and page_namespace = 10",
-            "out":
-            'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای پیوند به پرونده‌های ناموجود',
-            "cols": [u'ردیف', u'الگو', u'پرونده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || [[:پرونده:%s]]',
+            "sqlnum": 35,
+            "sql": """
+SELECT
+  page_title,
+  il_to
+FROM page
+JOIN imagelinks
+  ON page_id = il_from
+WHERE (
+  NOT EXISTS (
+    SELECT 1
+    FROM image
+    WHERE img_name = il_to
+    )
+  )
+  AND (
+    NOT EXISTS (
+      SELECT 1
+      FROM commonswiki_p.page
+      WHERE
+        page_title = il_to
+        AND page_namespace = 6
+    )
+  )
+  AND (
+    NOT EXISTS (
+      SELECT 1
+      FROM page
+      WHERE
+        page_title = il_to
+        AND page_namespace = 6
+    )
+  )
+  AND page_namespace = 10
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/" +
+                   "الگوهای دارای پیوند به پرونده‌های ناموجود",
+            "cols": ["ردیف", "الگو", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] " +
+                    "|| [[:پرونده:%s]]",
             "sign": True
         },
         {
-            "sqlnum":36,
-            "sql":
-            "select tl_title, count(*) from templatelinks where tl_namespace = 10 group by tl_title order by count(*) desc limit 1000",
-            "out": 'ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای بیشترین تراگنجایش',
-            "cols": [u'ردیف', u'الگو', u'تعداد تراگنجایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه فهرست ۱۰۰۰ الگوی دارای بیشترین تراگنجایش را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 36,
+            "sql": """
+SELECT
+  tl_title,
+  COUNT(*)
+FROM templatelinks
+WHERE tl_namespace = 10
+GROUP BY tl_title
+ORDER BY COUNT(*) DESC
+LIMIT 1000
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/الگوهای دارای بیشترین تراگنجایش",
+            "cols": ["ردیف", "الگو", "تعداد تراگنجایش"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه فهرست ۱۰۰۰ الگوی دارای بیشترین تراگنجایش را نشان می‌دهد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] " +
+                    "|| {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":37,
-            "sql":
-            "select tl_title, count(*) from page join templatelinks on page_title = tl_title and page_namespace = tl_namespace left join page_restrictions on pr_page = page_id and pr_level in ('sysop', 'autoconfirmed') and pr_type = 'edit' where tl_namespace = 10 and pr_page is null group by tl_title having count(*) > 500 order by count(*) desc",
-            "out": 'ویکی‌پدیا:گزارش_دیتابیس/الگوهای پرکاربرد بدون محافظت',
-            "cols": [u'ردیف', u'الگو', u'تعداد تراگنجایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین صفحه فهرست الگوی دارای دست کم ۵۰۰ تراگنجایش را نشان می‌دهد که محافظت نشده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 37,
+            "sql": """
+SELECT
+  tl_title,
+  COUNT(*)
+FROM page
+JOIN templatelinks
+  ON page_title = tl_title
+  AND page_namespace = tl_namespace
+LEFT JOIN page_restrictions
+  ON pr_page = page_id
+  AND pr_level IN ('sysop', 'autoconfirmed')
+  AND pr_type = 'edit'
+WHERE
+  tl_namespace = 10
+  AND pr_page IS NULL
+GROUP BY tl_title
+HAVING COUNT(*) > 500
+ORDER BY COUNT(*) DESC
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/الگوهای پرکاربرد بدون محافظت",
+            "cols": ["ردیف", "الگو", "تعداد تراگنجایش"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه فهرست الگوی دارای دست کم ۵۰۰ تراگنجایش را نشان می‌دهد که محافظت
+نشده‌اند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[الگو:%s|]] " +
+                    "|| {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":38,
-            "sql":
-            "select page_title, (select count(*) from imagelinks where il_to = page_title) as imagelinks, (select count(*) from pagelinks where pl_namespace = 6 and pl_title = page_title) as links from page where page_namespace = 6 and page_is_redirect = 1 having imagelinks + links <= 1",
-            "out":
-            'ویکی‌پدیا:گزارش_دیتابیس/صفحه‌های بدون استفاده تغییرمسیر پرونده',
+            "sqlnum": 38,
+            "sql": """
+SELECT
+  page_title,
+  (
+    SELECT COUNT(*)
+    FROM imagelinks
+    WHERE il_to = page_title
+  ) AS imagelinks,
+  (
+    SELECT COUNT(*)
+    FROM pagelinks
+    WHERE
+      pl_namespace = 6
+      AND pl_title = page_title
+  ) AS links
+  FROM page
+  WHERE
+    page_namespace = 6
+    AND page_is_redirect = 1
+HAVING imagelinks + links <= 1
+""",
+            "out": "ویکی‌پدیا:گزارش_دیتابیس/" +
+                   "صفحه‌های بدون استفاده تغییرمسیر پرونده",
             "cols":
-            [u'ردیف',
-             u'صفحه پرونده',
-             u'تعداد تراگنجایش',
-             u'تعداد پیوند ورودی'],
-            "summary": u'به روز کردن آمار',
-            "pref": u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}',
+            ["ردیف",
+             "صفحه پرونده",
+             "تعداد تراگنجایش",
+             "تعداد پیوند ورودی"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\n: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":39,
-            "sql":
-            "select user_name, sum(img_size) as tot from image join user on img_user = user_id group by img_user order by tot desc limit 500",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران برپایه مقدار حجم پرونده بارگذاری شده',
-            "cols": [u'ردیف', u'کاربر', u'حجم کل (بایت)'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست ۵۰۰ کاربر دارای بیشترین حجم بارگذاری در ویکی‌پدیای فارسی را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
+            "sqlnum": 39,
+            "sql": """
+SELECT
+  user_name,
+  sum(img_size) AS tot
+FROM image
+JOIN user
+  ON img_user = user_id
+GROUP BY img_user
+ORDER BY tot DESC
+LIMIT 500
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران برپایه مقدار حجم پرونده بارگذاری شده",
+            "cols": ["ردیف", "کاربر", "حجم کل (بایت)"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست ۵۰۰ کاربر دارای بیشترین حجم بارگذاری در ویکی‌پدیای فارسی را نشان
+می‌دهد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":40,
-            "sql":
-            "select u1.user_name blockee, u2.user_name blocker, replace(str_to_date(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime, replace(str_to_date(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend, ipb_reason from ipblocks join user u1 on ipb_user = u1.user_id join user u2 on ipb_by = u2.user_id where ipb_user <> 0 and ipb_expiry not in ('infinity', 'indefinite') and ipb_expiry > concat(date_format(now(), '%Y%m%d'), '000000')",
-            "out": 'وپ:گزارش دیتابیس/کاربران بسته شده',
+            "sqlnum": 40,
+            "sql": """
+SELECT
+  u1.user_name blockee,
+  u2.user_name blocker,
+  REPLACE(STR_TO_DATE(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime,
+  REPLACE(STR_TO_DATE(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend,
+  ipb_reason
+FROM ipblocks
+JOIN user u1
+  ON ipb_user = u1.user_id
+JOIN user u2
+  ON ipb_by = u2.user_id
+WHERE
+  ipb_user <> 0
+  AND ipb_expiry NOT IN ('infinity', 'indefinite')
+  AND ipb_expiry > CONCAT(DATE_FORMAT(NOW(), '%Y%m%d'), '000000')
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بسته شده",
             "cols":
-            [u'ردیف',
-             u'کاربر هدف',
-             u'مجری',
-             u'شروع قطع دسترسی',
-             u'پایان قطع دسترسی',
-             u'دلیل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که در زمان ثبت آمار دسترسی‌شان برای مدتی مشخص قطع شده بوده‌است. قطع دسترسی‌های آی‌پی و قطع دسترسی‌های بی‌پایان در این فهرست نشان داده نمی‌شوند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || %s',
+            ["ردیف",
+             "کاربر هدف",
+             "مجری",
+             "شروع قطع دسترسی",
+             "پایان قطع دسترسی",
+             "دلیل"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست کاربرانی را نشان می‌دهد که در زمان ثبت آمار دسترسی‌شان برای مدتی
+مشخص قطع شده بوده‌است. قطع دسترسی‌های آی‌پی و قطع دسترسی‌های بی‌پایان در این
+فهرست نشان داده نمی‌شوند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || " +
+                    "[[کاربر:%s]] || {{formatnum:%s|NOSEP}} " +
+                    "|| {{formatnum:%s|NOSEP}} || %s",
             "sign": True
         },
         {
-            "sqlnum":41,
-            "sql":
-            "select cl_to, count(cl_from) cnt from categorylinks join logging on log_title = cl_to left join page on cl_to = page_title and page_namespace = 14 where log_action = 'delete' and page_id is null group by cl_to order by CNT desc",
-            "out": 'وپ:گزارش دیتابیس/رده‌های حذف شده مورد نیاز',
-            "cols": [u'ردیف', u'رده', u'تعداد کاربردها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s}}',
+            "sqlnum": 41,
+            "sql": """
+SELECT
+  cl_to,
+  COUNT(cl_from) cnt
+FROM categorylinks
+JOIN logging
+  ON log_title = cl_to
+LEFT JOIN page
+  ON cl_to = page_title
+  AND page_namespace = 14
+WHERE
+  log_action = 'delete'
+  AND page_id IS NULL
+GROUP BY cl_to
+ORDER BY CNT DESC
+""",
+            "out": "وپ:گزارش دیتابیس/رده‌های حذف شده مورد نیاز",
+            "cols": ["ردیف", "رده", "تعداد کاربردها"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:رده:%s]] " +
+                    "|| {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":42,
-            "sql":
-            "select ipb_address, ipb_by_text, str_to_date(left(ipb_timestamp, 8), '%Y%m%d'), str_to_date(left(ipb_expiry, 8), '%Y%m%d'), ipb_reason from ipblocks where str_to_date(left(ipb_expiry, 8), '%Y%m%d') > date_add(str_to_date(left(ipb_timestamp, 8), '%Y%m%d'),interval 2 year) and ipb_expiry <> 'infinity' and ipb_user = 0",
-            "out": 'وپ:گزارش دیتابیس/آی‌پی‌های بسته‌شده به مدت طولانی',
-            "cols": [u'ردیف', u'آی‌پی', u'مجری', u'تاریخ بستن', u'تاریخ انقضا', u'دلیل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست آی‌پی‌هایی را نشان می‌دهد که بیش از دو سال بسته شده‌اند (اما نه بی‌پایان).\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || <nowiki>%s</nowiki>',
+            "sqlnum": 42,
+            "sql": """
+SELECT
+  ipb_address,
+  ipb_by_text,
+  STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'),
+  STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
+  ipb_reason
+FROM ipblocks
+WHERE
+  STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d') >
+    DATE_ADD(STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'), INTERVAL 2 YEAR)
+  AND ipb_expiry <> 'infinity'
+  AND ipb_user = 0
+""",
+            "out": "وپ:گزارش دیتابیس/آی‌پی‌های بسته‌شده به مدت طولانی",
+            "cols": [
+                "ردیف",
+                "آی‌پی",
+                "مجری",
+                "تاریخ بستن",
+                "تاریخ انقضا",
+                "دلیل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست آی‌پی‌هایی را نشان می‌دهد که بیش از دو سال بسته شده‌اند
+(اما نه بی‌پایان).
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} " +
+                    "|| <nowiki>%s</nowiki>",
             "sign": True
         },
         {
-            "sqlnum":43,
-            "sql":
-            "SELECT  page_title, replace(str_to_date(pr_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ')   FROM page_restrictions JOIN page ON page_id = pr_page WHERE page_namespace = 0 AND pr_type = 'edit' AND pr_level = 'sysop' AND pr_expiry != 'infinity';",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های دارای محافظت کامل با زمان محدود',
-            "cols": [u'ردیف', u'مقاله',  u'تاریخ انقضا'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست مقاله‌هایی را نشان می‌دهد که محافظت کامل با زمان محدود (اما نه بی‌پایان) شده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}',
+            "sqlnum": 43,
+            "sql": """
+SELECT
+  page_title,
+  REPLACE(STR_TO_DATE(pr_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ')
+FROM page_restrictions
+JOIN page
+  ON page_id = pr_page
+WHERE
+  page_namespace = 0
+  AND pr_type = 'edit'
+  AND pr_level = 'sysop'
+  AND pr_expiry != 'infinity'
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "مقاله‌های دارای محافظت کامل با زمان محدود",
+            "cols": ["ردیف", "مقاله",  "تاریخ انقضا"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌هایی را نشان می‌دهد که محافظت کامل با زمان محدود
+(اما نه بی‌پایان) شده‌اند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] " +
+                    "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}",
             "sign": True
         },
         {
-            "sqlnum":44,
-            "sql":
-            "Select page_namespace, page_title, pr_type, str_to_date(pr_expiry, '%Y%m%d%H%i%s') FROM page_restrictions JOIN page ON page_id = pr_page AND pr_level = 'extendedconfirmed';",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای نیمه‌محافظت ویژه',
-            "cols": [u'ردیف', u'صفحه',  u'نوع محافظت',  u'پایان محافظت'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی که نیمه‌محافظت ویژه شده‌اند، را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || %s || {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}',
+            "sqlnum": 44,
+            "sql": """
+SELECT
+  page_namespace,
+  page_title,
+  pr_type,
+  STR_TO_DATE(pr_expiry, '%Y%m%d%H%i%s')
+FROM page_restrictions
+JOIN page
+  ON page_id = pr_page
+  AND pr_level = 'extendedconfirmed'
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های دارای نیمه‌محافظت ویژه",
+            "cols": ["ردیف", "صفحه",  "نوع محافظت",  "پایان محافظت"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی که نیمه‌محافظت ویژه شده‌اند، را نشان می‌دهد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || %s " +
+                    "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}",
             "sign": True
         },
         {
-            "sqlnum":45,
-            "sql":
-            "select p1.page_title, count(pl_from) as cnt from page p1 join categorylinks on p1.page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title and pl_namespace = 0 join page p2 on pl_from = p2.page_id and p2.page_namespace = 0 where p1.page_namespace = 0 group by pl_title order by 2 desc limit 1000;",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی پرکاربرد',
-            "cols": [u'ردیف', u'مقاله',  u'تعداد پیوندها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌های ابهام‌زدایی را نشان می‌دهد که بیشترین پیوند به آن‌ها داده شده‌است.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}',
+            "sqlnum": 45,
+            "sql": """
+SELECT
+  p1.page_title,
+  COUNT(pl_from) AS cnt
+FROM page p1
+JOIN categorylinks
+  ON p1.page_id = cl_from
+  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
+JOIN pagelinks
+  ON pl_title = page_title
+  AND pl_namespace = 0
+JOIN page p2
+  ON pl_from = p2.page_id
+  AND p2.page_namespace = 0
+WHERE p1.page_namespace = 0
+GROUP BY pl_title
+ORDER BY cnt DESC
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی پرکاربرد",
+            "cols": ["ردیف", "مقاله",  "تعداد پیوندها"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌های ابهام‌زدایی را نشان می‌دهد که بیشترین پیوند به آن‌ها داده
+شده‌است.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":46,
-            "sql":
-            "select page.page_title,GROUP_CONCAT(CONCAT ('[[الگو:',tem.page_title,']]') SEPARATOR '، '), count(tem.page_title) as cnt from page join categorylinks on page_id = cl_from and cl_to = 'همه_صفحه‌های_ابهام‌زدایی' join pagelinks on pl_title = page_title JOIN (select * from page where page_namespace = 10 and page_is_redirect = 0) as tem WHERE tem.page_id=pl_from and pl_namespace = 0 AND pl_from_namespace=10  and NOT tem.page_title LIKE '%_/_%' and page.page_namespace = 0 group by page.page_title order by 3 desc limit 1000;",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی استفاده شده در الگو',
-            "cols": [u'ردیف', u'مقاله', u'الگوهای استفاده شده', u'تعداد پیوندها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌های ابهام‌زدایی که در الگو به کار رفته‌اند را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] ||%s|| {{formatnum:%s|NOSEP}}',
+            "sqlnum": 46,
+            "sql": """
+SELECT
+  page.page_title,
+  GROUP_CONCAT(CONCAT('[[الگو:',tem.page_title,']]') SEPARATOR '، '),
+  COUNT(tem.page_title) AS cnt
+FROM page
+JOIN categorylinks
+  ON page_id = cl_from
+  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
+JOIN pagelinks
+  ON pl_title = page_title
+JOIN (
+  SELECT *
+  FROM page
+  WHERE
+    page_namespace = 10
+    AND page_is_redirect = 0
+) AS tem
+  ON tem.page_id=pl_from
+WHERE
+  pl_namespace = 0
+  AND pl_from_namespace=10
+  AND NOT tem.page_title LIKE '%_/_%'
+  AND page.page_namespace = 0
+GROUP BY page.page_title
+ORDER BY cnt DESC
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های ابهام‌زدایی استفاده شده در الگو",
+            "cols": ["ردیف", "مقاله", "الگوهای استفاده شده", "تعداد پیوندها"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌های ابهام‌زدایی که در الگو به کار رفته‌اند را نشان می‌دهد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || %s " +
+                    "|| {{formatnum:%s|NOSEP}}",
             "sign": True
         },
         {
-            "sqlnum":47,
-            "sql":
-            "SELECT fap.page_title, enp.page_title , limagelist.il_to, limagelist.il_to FROM fawiki_p.page as fap INNER JOIN fawiki_p.langlinks as fal ON fap.page_id = fal.ll_from and fap.page_namespace = 0 AND fap.page_is_redirect = 0 inner join fawiki_p.templatelinks as fat on fat.tl_namespace=10 and fat.tl_from=fap.page_id and (fat.tl_title like 'جعبه%' or fat.tl_title like 'Infobox%') inner join enwiki_p.page as enp on fal.ll_title=enp.page_title and enp.page_namespace = 0 AND enp.page_is_redirect = 0 join (SELECT * FROM enwiki_p.imagelinks as eni) as limagelist WHERE fap.page_namespace = 0 and fal.ll_lang = 'en' AND fap.page_is_redirect = 0 and fap.page_id not in (SELECT fai.il_from FROM fawiki_p.imagelinks as fai where not fai.il_to like 'Flag_of_%' and not fai.il_to like 'Ambox_%' and not fai.il_to like 'Wiktionary%' and not fai.il_to like 'Wikibooks%' and not fai.il_to like 'Wikivoyage%' and not fai.il_to like 'Incubator%' and not fai.il_to like 'Searchtool%' and not fai.il_to like 'Speech_balloon%' and not fai.il_to like 'Crystal_Clear%' and not fai.il_to like 'Speakerlink%' and not fai.il_to like 'Loudspeaker%' and not fai.il_to like 'Padlock%' and not fai.il_to like 'Nuvola_apps_%' and not fai.il_to like 'Wikiquote%' and not fai.il_to like 'Wikisource%' and not fai.il_to like 'Wikinews%' and not fai.il_to like 'Wikiversity%' and not fai.il_to like 'Question_book%' and not fai.il_to like 'Folder_Hexagonal%' and not fai.il_to like 'Portal-puzzle%' and not fai.il_to like 'Edit-clear%' and not fai.il_to like 'Text_document_with_red_question_mark%' and not fai.il_to like '%_stub%' and not fai.il_to like 'Rod_of_Asclepius%' and not fai.il_to like 'Merge-arrows%' and not fai.il_to like '%_icon%' and not fai.il_to like '%Balloon%' and not fai.il_to like 'Mergefrom%' and not fai.il_to like 'WikiProject%' and not fai.il_to like 'Yes_check%' and not fai.il_to like 'X_mark%' and not fai.il_to like 'Blank%' and not fai.il_to like '%_Icon%' and not fai.il_to like 'Symbol_book_class%' and not fai.il_to like 'Free_and_open-source_software_logo%' and not fai.il_to like 'Red_pog%' and not fai.il_to like 'Symbol_list_class%' and not fai.il_to like 'Allah-green%' and not fai.il_to like 'Symbol_support_vote%' and not fai.il_to like 'A_coloured_voting_box%' and not fai.il_to like 'Wiki_letter_w_cropped%' and not fai.il_to like '%.wav' and not fai.il_to like '%.mid' and not fai.il_to like '%.ogg' and not fai.il_to like '%.ogv' and not fai.il_to like '%.webm' and not fai.il_to like 'Commons%' ) and enp.page_id=limagelist.il_from and not limagelist.il_to like 'Flag_of_%' and not limagelist.il_to like 'Ambox_%' and not limagelist.il_to like 'Wiktionary%' and not limagelist.il_to like 'Wikibooks%' and not limagelist.il_to like 'Wikivoyage%' and not limagelist.il_to like 'Incubator%' and not limagelist.il_to like 'Searchtool%' and not limagelist.il_to like 'Speech_balloon%' and not limagelist.il_to like 'Crystal_Clear%' and not limagelist.il_to like 'Speakerlink%' and not limagelist.il_to like 'Loudspeaker%' and not limagelist.il_to like 'Padlock%' and not limagelist.il_to like 'Nuvola_apps_%' and not limagelist.il_to like 'Wikiquote%' and not limagelist.il_to like 'Wikisource%' and not limagelist.il_to like 'Wikinews%' and not limagelist.il_to like 'Wikiversity%' and not limagelist.il_to like 'Question_book%' and not limagelist.il_to like 'Folder_Hexagonal%' and not limagelist.il_to like 'Portal-puzzle%' and not limagelist.il_to like 'Edit-clear%' and not limagelist.il_to like 'Text_document_with_red_question_mark%' and not limagelist.il_to like '%_stub%' and not limagelist.il_to like 'Rod_of_Asclepius%' and not limagelist.il_to like 'Merge-arrows%' and not limagelist.il_to like '%_icon%' and not limagelist.il_to like '%Balloon%' and not limagelist.il_to like 'Mergefrom%' and not limagelist.il_to like 'WikiProject%' and not limagelist.il_to like 'Yes_check%' and not limagelist.il_to like 'X_mark%' and not limagelist.il_to like 'Blank%' and not limagelist.il_to like '%_Icon%' and not limagelist.il_to like 'Symbol_book_class%' and not limagelist.il_to like 'Free_and_open-source_software_logo%' and not limagelist.il_to like 'Red_pog%' and not limagelist.il_to like 'Symbol_list_class%' and not limagelist.il_to like 'Allah-green%' and not limagelist.il_to like 'Symbol_support_vote%' and not limagelist.il_to like 'A_coloured_voting_box%' and not limagelist.il_to like 'Wiki_letter_w_cropped%' and not limagelist.il_to like '%.svg' and not limagelist.il_to like '%.png' and not limagelist.il_to like '%.ogg' and not limagelist.il_to like '%.webm' and not limagelist.il_to like '%.ogv' and not limagelist.il_to like '%.wav' and not limagelist.il_to like '%.mid' and not limagelist.il_to like 'Commons%' group by limagelist.il_to order by fap.page_title;",
-            "out": 'وپ:گزارش دیتابیس/مقاله‌های نیازمند پرونده همسنگ',
-            "cols": [u'ردیف', u'مقالهٔ ویکی‌پدیای فارسی', u'مقالهٔ ویکی‌پدیای انگلیسی', u'پروندهٔ به کار رفته در ویکی‌پدیای انگلیسی',u'نام پرونده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی در ویکی‌پدیای فارسی را نشان می‌دهد که صفحهٔ نظیرشان در ویکی‌پدیای انگلیسی یک تصویر شاخص دارد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || [[:en:%s]] || [[File:%s|60px]]|| %s',
+            "sqlnum": 47,
+            "sql": """
+SELECT
+  fap.page_title,
+  enp.page_title,
+  limagelist.il_to,
+  limagelist.il_to
+FROM fawiki_p.page AS fap
+JOIN fawiki_p.langlinks AS fal
+  ON fap.page_id = fal.ll_from
+  AND fap.page_namespace = 0
+  AND fap.page_is_redirect = 0
+JOIN fawiki_p.templatelinks AS fat
+  ON fat.tl_namespace=10
+  AND fat.tl_from=fap.page_id
+  AND (
+    fat.tl_title LIKE 'جعبه%'
+    OR fat.tl_title LIKE 'Infobox%'
+  )
+JOIN enwiki_p.page AS enp
+  ON fal.ll_title=enp.page_title
+  AND enp.page_namespace = 0
+  AND enp.page_is_redirect = 0
+JOIN (
+  SELECT *
+  FROM enwiki_p.imagelinks AS eni
+) AS limagelist
+WHERE
+  fap.page_namespace = 0
+  AND fal.ll_lang = 'en'
+  AND fap.page_is_redirect = 0
+  AND fap.page_id NOT IN (
+    SELECT fai.il_from
+    FROM fawiki_p.imagelinks AS fai
+    WHERE
+      NOT fai.il_to LIKE 'Flag_of_%'
+      AND NOT fai.il_to LIKE 'Ambox_%'
+      AND NOT fai.il_to LIKE 'Wiktionary%'
+      AND NOT fai.il_to LIKE 'Wikibooks%'
+      AND NOT fai.il_to LIKE 'Wikivoyage%'
+      AND NOT fai.il_to LIKE 'Incubator%'
+      AND NOT fai.il_to LIKE 'Searchtool%'
+      AND NOT fai.il_to LIKE 'Speech_balloon%'
+      AND NOT fai.il_to LIKE 'Crystal_Clear%'
+      AND NOT fai.il_to LIKE 'Speakerlink%'
+      AND NOT fai.il_to LIKE 'Loudspeaker%'
+      AND NOT fai.il_to LIKE 'Padlock%'
+      AND NOT fai.il_to LIKE 'Nuvola_apps_%'
+      AND NOT fai.il_to LIKE 'Wikiquote%'
+      AND NOT fai.il_to LIKE 'Wikisource%'
+      AND NOT fai.il_to LIKE 'Wikinews%'
+      AND NOT fai.il_to LIKE 'Wikiversity%'
+      AND NOT fai.il_to LIKE 'Question_book%'
+      AND NOT fai.il_to LIKE 'Folder_Hexagonal%'
+      AND NOT fai.il_to LIKE 'Portal-puzzle%'
+      AND NOT fai.il_to LIKE 'Edit-clear%'
+      AND NOT fai.il_to LIKE 'Text_document_with_red_question_mark%'
+      AND NOT fai.il_to LIKE '%_stub%'
+      AND NOT fai.il_to LIKE 'Rod_of_Asclepius%'
+      AND NOT fai.il_to LIKE 'Merge-arrows%'
+      AND NOT fai.il_to LIKE '%_icon%'
+      AND NOT fai.il_to LIKE '%Balloon%'
+      AND NOT fai.il_to LIKE 'Mergefrom%'
+      AND NOT fai.il_to LIKE 'WikiProject%'
+      AND NOT fai.il_to LIKE 'Yes_check%'
+      AND NOT fai.il_to LIKE 'X_mark%'
+      AND NOT fai.il_to LIKE 'Blank%'
+      AND NOT fai.il_to LIKE '%_Icon%'
+      AND NOT fai.il_to LIKE 'Symbol_book_class%'
+      AND NOT fai.il_to LIKE 'Free_and_open-source_software_logo%'
+      AND NOT fai.il_to LIKE 'Red_pog%'
+      AND NOT fai.il_to LIKE 'Symbol_list_class%'
+      AND NOT fai.il_to LIKE 'Allah-green%'
+      AND NOT fai.il_to LIKE 'Symbol_support_vote%'
+      AND NOT fai.il_to LIKE 'A_coloured_voting_box%'
+      AND NOT fai.il_to LIKE 'Wiki_letter_w_cropped%'
+      AND NOT fai.il_to LIKE '%.wav'
+      AND NOT fai.il_to LIKE '%.mid'
+      AND NOT fai.il_to LIKE '%.ogg'
+      AND NOT fai.il_to LIKE '%.ogv'
+      AND NOT fai.il_to LIKE '%.webm'
+      AND NOT fai.il_to LIKE 'Commons%'
+  )
+  AND enp.page_id = limagelist.il_from
+  AND NOT limagelist.il_to LIKE 'Flag_of_%'
+  AND NOT limagelist.il_to LIKE 'Ambox_%'
+  AND NOT limagelist.il_to LIKE 'Wiktionary%'
+  AND NOT limagelist.il_to LIKE 'Wikibooks%'
+  AND NOT limagelist.il_to LIKE 'Wikivoyage%'
+  AND NOT limagelist.il_to LIKE 'Incubator%'
+  AND NOT limagelist.il_to LIKE 'Searchtool%'
+  AND NOT limagelist.il_to LIKE 'Speech_balloon%'
+  AND NOT limagelist.il_to LIKE 'Crystal_Clear%'
+  AND NOT limagelist.il_to LIKE 'Speakerlink%'
+  AND NOT limagelist.il_to LIKE 'Loudspeaker%'
+  AND NOT limagelist.il_to LIKE 'Padlock%'
+  AND NOT limagelist.il_to LIKE 'Nuvola_apps_%'
+  AND NOT limagelist.il_to LIKE 'Wikiquote%'
+  AND NOT limagelist.il_to LIKE 'Wikisource%'
+  AND NOT limagelist.il_to LIKE 'Wikinews%'
+  AND NOT limagelist.il_to LIKE 'Wikiversity%'
+  AND NOT limagelist.il_to LIKE 'Question_book%'
+  AND NOT limagelist.il_to LIKE 'Folder_Hexagonal%'
+  AND NOT limagelist.il_to LIKE 'Portal-puzzle%'
+  AND NOT limagelist.il_to LIKE 'Edit-clear%'
+  AND NOT limagelist.il_to LIKE 'Text_document_with_red_question_mark%'
+  AND NOT limagelist.il_to LIKE '%_stub%'
+  AND NOT limagelist.il_to LIKE 'Rod_of_Asclepius%'
+  AND NOT limagelist.il_to LIKE 'Merge-arrows%'
+  AND NOT limagelist.il_to LIKE '%_icon%'
+  AND NOT limagelist.il_to LIKE '%Balloon%'
+  AND NOT limagelist.il_to LIKE 'Mergefrom%'
+  AND NOT limagelist.il_to LIKE 'WikiProject%'
+  AND NOT limagelist.il_to LIKE 'Yes_check%'
+  AND NOT limagelist.il_to LIKE 'X_mark%'
+  AND NOT limagelist.il_to LIKE 'Blank%'
+  AND NOT limagelist.il_to LIKE '%_Icon%'
+  AND NOT limagelist.il_to LIKE 'Symbol_book_class%'
+  AND NOT limagelist.il_to LIKE 'Free_and_open-source_software_logo%'
+  AND NOT limagelist.il_to LIKE 'Red_pog%'
+  AND NOT limagelist.il_to LIKE 'Symbol_list_class%'
+  AND NOT limagelist.il_to LIKE 'Allah-green%'
+  AND NOT limagelist.il_to LIKE 'Symbol_support_vote%'
+  AND NOT limagelist.il_to LIKE 'A_coloured_voting_box%'
+  AND NOT limagelist.il_to LIKE 'Wiki_letter_w_cropped%'
+  AND NOT limagelist.il_to LIKE '%.svg'
+  AND NOT limagelist.il_to LIKE '%.png'
+  AND NOT limagelist.il_to LIKE '%.ogg'
+  AND NOT limagelist.il_to LIKE '%.webm'
+  AND NOT limagelist.il_to LIKE '%.ogv'
+  AND NOT limagelist.il_to LIKE '%.wav'
+  AND NOT limagelist.il_to LIKE '%.mid'
+  AND NOT limagelist.il_to LIKE 'Commons%'
+GROUP BY limagelist.il_to
+ORDER BY fap.page_title;
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های نیازمند پرونده همسنگ",
+            "cols": [
+                "ردیف",
+                "مقالهٔ ویکی‌پدیای فارسی",
+                "مقالهٔ ویکی‌پدیای انگلیسی",
+                "پروندهٔ به کار رفته در ویکی‌پدیای انگلیسی",
+                "نام پرونده"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی در ویکی‌پدیای فارسی را نشان می‌دهد که صفحهٔ نظیرشان در
+ویکی‌پدیای انگلیسی یک تصویر شاخص دارد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[:en:%s]] " +
+                    "|| [[File:%s|60px]]|| %s",
             "sign": True
         },
         {
-            "sqlnum":48,
-            "sql":
-            "select rev_user_text, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d') as sunrise, str_to_date(left(min(sunset), 8), '%Y%m%d') as sunset, old_edits, count(rev_id) as recent_edits, GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') as groups from revision join ( select rev_user old_user, max(rev_timestamp) sunset, count(rev_id) as old_edits from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') group by rev_user ) old on old_user = rev_user left join user_groups on rev_user = ug_user where rev_user <> 0 and rev_timestamp > concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_user not in ( select rev_user from revision where rev_user <> 0 and rev_timestamp < concat(year(curdate()) , LPAD(month(curdate()) , 2, 0), '01000000') and rev_timestamp > concat(year(curdate()) - 3, LPAD(month(curdate()) , 2, 0), '01000000') ) group by rev_user_text;",
-            "out": 'وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده',
-            "cols": [u'ردیف', u'کاربر', u'اولین ویرایش{{سخ}} در ماه جاری', u'آخرین ویرایش{{سخ}} قبل از مرخصی', u'ویرایش‌های پیش{{سخ}} از غیبت', u'ویرایش‌های{{سخ}} پس از ظهور', u'گروه‌های کاربری'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که از اول ماه جاری میلادی ویرایشی داشته‌اند، در سه سال منتهی به ماه جاری میلادی هیچ ویرایشی نداشته‌اند، و در زمان پیش از آن دورهٔ سه‌ساله دست کم یک ویرایش کرده‌اند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} || {{formatnum:%s}} || {{formatnum:%s}} || %s',
+            "sqlnum": 48,
+            "sql": """
+SELECT
+  rev_user_text,
+  STR_TO_DATE(LEFT(min(rev_timestamp), 8), '%Y%m%d') AS sunrise,
+  STR_TO_DATE(LEFT(min(sunset), 8), '%Y%m%d') AS sunset,
+  old_edits,
+  COUNT(rev_id) AS recent_edits,
+  GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') AS groups
+FROM revision
+JOIN (
+  SELECT
+    rev_user old_user,
+    max(rev_timestamp) sunset,
+    COUNT(rev_id) AS old_edits
+  FROM revision
+  WHERE
+    rev_user <> 0
+    AND rev_timestamp < CONCAT(
+      YEAR(CURDATE()) - 3,
+      LPAD(MONTH(CURDATE()) , 2, 0),
+      '01000000'
+    )
+  GROUP BY rev_user
+) old
+  ON old_user = rev_user
+LEFT JOIN user_groups
+  ON rev_user = ug_user
+WHERE
+  rev_user <> 0
+  AND rev_timestamp > CONCAT(
+    YEAR(CURDATE()),
+    LPAD(MONTH(CURDATE()) , 2, 0),
+    '01000000'
+  )
+  AND rev_user NOT IN (
+    SELECT rev_user
+    FROM revision
+    WHERE
+      rev_user <> 0
+      AND rev_timestamp < CONCAT(
+        YEAR(CURDATE()),
+        LPAD(MONTH(CURDATE()) , 2, 0),
+        '01000000')
+      AND rev_timestamp > CONCAT(
+        YEAR(CURDATE()) - 3,
+        LPAD(MONTH(CURDATE()) , 2, 0),
+        '01000000'
+      )
+)
+GROUP BY rev_user_text
+""",
+            "out": "وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "اولین ویرایش{{سخ}} در ماه جاری",
+                "آخرین ویرایش{{سخ}} قبل از مرخصی",
+                "ویرایش‌های پیش{{سخ}} از غیبت",
+                "ویرایش‌های{{سخ}} پس از ظهور",
+                "گروه‌های کاربری"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست کاربرانی را نشان می‌دهد که از اول ماه جاری میلادی ویرایشی
+داشته‌اند، در سه سال منتهی به ماه جاری میلادی هیچ ویرایشی نداشته‌اند، و در زمان
+پیش از آن دورهٔ سه‌ساله دست کم یک ویرایش کرده‌اند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} || %s",
             "sign": True
         },
         {
-            "sqlnum":49,
-            "sql":
-            "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl_from, cl_to from categorylinks join page on cl_to = page_title and page_namespace = 14 where page_is_redirect = 1 limit 5000) redir join page on cl_from = page_id;",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ تغییرمسیر',
-            "cols": [u'ردیف', u'صفحه', u'رده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن رده‌ها خود تغییر مسیر هستند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
+            "sqlnum": 49,
+            "sql": """
+SELECT
+  CASE
+    WHEN page_namespace = 0 THEN page_title
+    ELSE CONCAT(':{{ns:', page_namespace, '}}:', page_title)
+  END AS page_title,
+  cl_to
+FROM (
+  SELECT
+    cl_from,
+    cl_to
+  FROM categorylinks
+  JOIN page
+    ON cl_to = page_title
+    AND page_namespace = 14
+  WHERE page_is_redirect = 1
+  LIMIT 5000
+) redir
+JOIN page
+  ON cl_from = page_id
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ تغییرمسیر",
+            "cols": ["ردیف", "صفحه", "رده"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن
+رده‌ها خود تغییر مسیر هستند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ",
             "sign": True
         },
         {
-            "sqlnum":50,
-            "sql":
-            "select case when page_namespace = 0 then page_title else concat(':{{ns:', page_namespace, '}}:', page_title) end as page_title, cl_to from (select cl1.cl_from, cl1.cl_to from categorylinks cl1 join page on cl1.cl_to = page_title and page_namespace = 14 join categorylinks cl2 on page_id = cl2.cl_from and cl2.cl_to = 'رده‌های_منتقل‌شده' limit 5000) redir join page on cl_from = page_id;",
-            "out": 'وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ منتقل‌شده',
-            "cols": [u'ردیف', u'صفحه', u'رده'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن رده‌ها خود تغییر مسیر هستند.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ',
+            "sqlnum": 50,
+            "sql": """
+SELECT
+  CASE
+    WHEN page_namespace = 0 THEN page_title
+    ELSE concat(':{{ns:', page_namespace, '}}:', page_title)
+  END AS page_title,
+  cl_to
+FROM (
+  SELECT
+    cl1.cl_from,
+    cl1.cl_to
+  FROM categorylinks cl1
+  JOIN page
+    ON cl1.cl_to = page_title
+    AND page_namespace = 14
+  JOIN categorylinks cl2
+   ON page_id = cl2.cl_from
+   AND cl2.cl_to = 'رده‌های_منتقل‌شده'
+   LIMIT 5000
+) redir
+JOIN page
+  ON cl_from = page_id
+""",
+            "out": "وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ منتقل‌شده",
+            "cols": ["ردیف", "صفحه", "رده"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست صفحه‌هایی را نشان می‌دهد که در یک یا چند رده قرار دارند که آن
+رده‌ها خود تغییر مسیر هستند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[:رده:%s]] ",
             "sign": True
         },
         {
-            "sqlnum":51,
-            "sql":
-            "SELECT rev_user_text, Count(*) cnt, CASE WHEN ufg_group IS NULL THEN '' ELSE '{{خیر|بله}}' END AS lostautopatrol FROM revision LEFT JOIN user_former_groups ON rev_user = ufg_user AND ufg_group = 'autopatrolled' left join page on rev_page = page_id WHERE rev_parent_id = 0 and page_is_redirect = 0 and page_namespace = 0 AND rev_timestamp > CASE WHEN Month(Curdate()) = 1 THEN Concat(Year(Curdate()) - 1, '12', Lpad(Day( Curdate()), 2, 0), '000000') ELSE Concat(Year(Curdate()), Lpad( Month(Curdate()) - 1, 2, 0), Lpad(Day(Curdate()), 2, 0), '000000') END AND rev_user NOT IN (SELECT ug_user FROM user_groups WHERE ug_group IN ( 'autopatrolled', 'sysop', 'bot' )) AND rev_user <> 0 /* anonymous users */ AND rev_user <> 374638 /* پیام به کاربر جدید */ GROUP BY rev_user_text, ufg_group HAVING cnt > 20 ORDER BY cnt DESC;",
-            "out": 'وپ:گزارش دیتابیس/نامزدهای احتمالی گشت خودکار',
-            "cols": [u'ردیف', u'کاربر', u'تعداد ویرایش‌ها در یک ماه اخیر', u'قبلاً گشت خودکار را از دست داده؟'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست کاربرانی را نشان می‌دهد که اخیراً بسیار مقاله ساخته‌اند و ممکن است نامزد خوبی برای دسترسی گشت خودکار باشند..\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} || %s ',
+            "sqlnum": 51,
+            "sql": """
+SELECT
+  rev_user_text,
+  COUNT(*) cnt,
+  CASE
+    WHEN ufg_group IS NULL THEN ''
+    ELSE '{{خیر|بله}}'
+  END AS lostautopatrol
+FROM revision
+LEFT JOIN user_former_groups
+  ON rev_user = ufg_user
+  AND ufg_group = 'autopatrolled'
+LEFT JOIN page
+  ON rev_page = page_id
+WHERE
+  rev_parent_id = 0
+  AND page_is_redirect = 0
+  AND page_namespace = 0
+  AND rev_timestamp >
+    CASE
+      WHEN MONTH(CURDATE()) = 1 THEN CONCAT(
+        YEAR(CURDATE()) - 1,
+        '12',
+        LPAD(DAY(CURDATE()), 2, 0),
+        '000000'
+      )
+      ELSE CONCAT(
+        YEAR(CURDATE()),
+        LPAD(MONTH(CURDATE()) - 1, 2, 0),
+        LPAD(DAY(CURDATE()), 2, 0),
+        '000000'
+      )
+    END
+  AND rev_user NOT IN (
+    SELECT ug_user
+    FROM user_groups
+    WHERE ug_group IN ('autopatrolled', 'sysop', 'bot')
+  )
+  AND rev_user <> 0 /* anonymous users */
+  AND rev_user <> 374638 /* پیام به کاربر جدید */
+GROUP BY
+  rev_user_text,
+  ufg_group
+HAVING cnt > 20
+ORDER BY cnt DESC
+""",
+            "out": "وپ:گزارش دیتابیس/نامزدهای احتمالی گشت خودکار",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "تعداد ویرایش‌ها در یک ماه اخیر",
+                "قبلاً گشت خودکار را از دست داده؟"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست کاربرانی را نشان می‌دهد که اخیراً بسیار مقاله ساخته‌اند و ممکن است
+نامزد خوبی برای دسترسی گشت خودکار باشند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s}} || %s ",
             "sign": True
         },
         {
-            "sqlnum":52,
-            "sql":
-            "Select page_title AS title, cid From (Select ll_from As page_id, count(ll_lang) As cid From enwiki_p.langlinks Group By ll_from Having count(ll_lang)>=1 And max(ll_lang='fa')=0) As sq Natural Join enwiki_p.page Where page_namespace=828 Order By cid DESC,page_title;",
-            "out": 'وپ:گزارش دیتابیس/پودمان‌های موردنیاز',
-            "cols": [u'ردیف', u'پودمان', u'تعداد میان‌ویکی'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[:en:Module:%s]] || {{formatnum:%s}} ',
+            "sqlnum": 52,
+            "sql": """
+SELECT
+  page_title AS title,
+  cnt
+FROM (
+  SELECT
+    ll_from AS page_id,
+    COUNT(ll_lang) AS cnt
+  FROM enwiki_p.langlinks
+  GROUP BY ll_from
+  HAVING
+    COUNT(ll_lang)>=1
+    AND MAX(ll_lang='fa') = 0
+) AS sq
+JOIN enwiki_p.page p
+  ON p.page_id = sq.page_id
+WHERE page_namespace=828
+ORDER BY
+  cnt DESC,
+  page_title
+""",
+            "out": "وپ:گزارش دیتابیس/پودمان‌های موردنیاز",
+            "cols": ["ردیف", "پودمان", "تعداد میان‌ویکی"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[:en:Module:%s]] " +
+                    "|| {{formatnum:%s}} ",
             "sign": True
         },
     ]
 
     for t in tasks:
         if sqlnum:
-            if sqlnum!=t["sqlnum"]:
+            if sqlnum != t["sqlnum"]:
                 continue
         bot = stats.StatsBot(
             t["sql"],
@@ -720,19 +2186,12 @@ def main(sqlnum):
             t["frmt"],
             t["sqlnum"],
             t["sign"])
-        
-        #try:
-        #    bot.run()
-        #except:
-        #    print sys.exc_info()[0]
         bot.run()
 
 if __name__ == "__main__":
-    #For testing specifice sql you can use it's sqlnum argument
-    # python pwb.py weekly.py <sqlnum>
-    # python pwb.py weekly.py 2
     try:
-        sqlnum=int(sys.argv[1])
+        sqlnum = int(sys.argv[1])
     except:
-        sqlnum=0
+        sqlnum = 0
     main(sqlnum)
+
