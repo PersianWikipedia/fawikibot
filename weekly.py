@@ -2085,7 +2085,7 @@ SELECT
 FROM revision
 LEFT JOIN user_former_groups
   ON rev_user = ufg_user
-  AND ufg_group = 'autopatrolled'
+  AND ufg_group IN ('autopatrolled', 'autopatrol')
 LEFT JOIN page
   ON rev_page = page_id
 WHERE
@@ -2124,7 +2124,7 @@ ORDER BY cnt DESC
             "cols": [
                 "ردیف",
                 "کاربر",
-                "تعداد ویرایش‌ها در یک ماه اخیر",
+                "تعداد مقاله‌های جدید در یک ماه اخیر",
                 "قبلاً گشت خودکار را از دست داده؟"
             ],
             "summary": "به روز کردن آمار",
