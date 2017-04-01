@@ -230,9 +230,9 @@ def main(sqlnum):
         {
             "sqlnum":15,
             "sql":
-            "SELECT i.img_name, c.img_name FROM image AS i INNER JOIN commonswiki_p.image AS c ON i.img_sha1 = c.img_sha1 limit 5000",
+            "SELECT i.img_name, c.img_name ,CASE WHEN i.img_name = c.img_name THEN 'بله' ELSE '-' END AS ourcase FROM image AS i INNER JOIN commonswiki_p.image AS c ON i.img_sha1 = c.img_sha1 limit 5000",
             "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های موجود در ویکی‌انبار',
-            "cols": [u'ردیف', u'پرونده در ویکی‌فا' ,u'پرونده در ویکی‌انبار'],
+            "cols": [u'ردیف', u'پرونده در ویکی‌فا' ,u'پرونده در ویکی‌انبار',u'نام همسان؟'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
