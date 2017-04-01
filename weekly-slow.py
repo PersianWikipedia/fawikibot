@@ -268,31 +268,3 @@ if __name__ == "__main__":
     except:
         sqlnum=0
     main(sqlnum)
-
-
-        if sqlnum:
-            if sqlnum!=t["sqlnum"]:
-                continue
-        bot = stats.StatsBot(
-            t["sql"],
-            t["out"],
-            t["cols"],
-            t["summary"],
-            t["pref"],
-            t["frmt"],
-            t["sqlnum"],
-            t["sign"])
-        #try:
-        #    bot.run()
-        #except:
-        #    print sys.exc_info()[0]
-        bot.run()
-
-if __name__ == "__main__":
-
-    try:
-        sqlnum=int(sys.argv[1])
-    except:
-        sqlnum=0
-    main(sqlnum)
-
