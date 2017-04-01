@@ -230,14 +230,14 @@ def main(sqlnum):
         {
             "sqlnum":15,
             "sql":
-            "SELECT i.img_name,i.img_name, c.img_name,c.img_name FROM image AS i INNER JOIN commonswiki_p.image AS c ON i.img_sha1 = c.img_sha1 limit 5000",
+            "SELECT i.img_name, c.img_name FROM image AS i INNER JOIN commonswiki_p.image AS c ON i.img_sha1 = c.img_sha1 limit 5000",
             "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های موجود در ویکی‌انبار',
-            "cols": [u'ردیف', u'نام پرونده در ویکی‌فا', u'پرونده در ویکی‌فا' , u'نام پرونده در ویکی‌انبار',u'پرونده در ویکی‌انبار'],
+            "cols": [u'ردیف', u'پرونده در ویکی‌فا' ,u'پرونده در ویکی‌انبار'],
             "summary": u'به روز کردن آمار',
             "pref":
             u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] || [[file:%s|70px]] || [[:file:%s]] || [[file:%s|70px]]',
+            u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] || [[:commons:file:%s]] ',
             "sign": True
         },
     ]
