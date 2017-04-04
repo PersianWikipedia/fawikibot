@@ -8,29 +8,33 @@ Fawikibot مجموعه‌ای از کدهای نوشته شده توسط کار�
 
 در صورتی که نام پوشه pywikibot کتابخانه core شما pycore باشد.
 <div dir="ltr">
-```
+
    git clone --recursive https://github.com/PersianWikipedia/pywikibot-core.git pycore
+   
    cd pycore
+   
    git submodule foreach git pull origin master
-```
+
 <div dir="rtl">
 
 برای به‌روز رسانی کافی است دستور زیر را بنویسید.
 
 <div dir="ltr">
-```
+
    cd pycore
+   
    git submodule foreach git pull origin master
-```
+
 
 <div dir="rtl">
 برای اجرا مانند دستور زیر عمل کنید.
 
 <div dir="ltr">
-```
+
    cd pycore
+   
    python pwb.py fawikibot/rade.py --newpages:100
-```
+
 
 <div dir="rtl">
 **راهنمای کدها**
