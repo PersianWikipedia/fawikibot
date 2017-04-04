@@ -243,7 +243,7 @@ def main(sqlnum):
         {
             "sqlnum":16,
             "sql":
-            "SELECT faimage.img_name FROM fawiki_p.image as faimage where faimage.img_name in (SELECT DISTINCT log_title FROM enwiki_p.logging WHERE log_type = 'delete' AND log_action = 'delete' AND log_namespace = 6 GROUP BY log_timestamp) and faimage.img_name not in (SELECT img_name FROM enwiki_p.image)and faimage.img_name in (SELECT page_title FROM page INNER JOIN categorylinks WHERE cl_from = page_id AND cl_to = 'محتویات_غیر_آزاد' GROUP BY page_title) limit 5000;",
+            "SELECT faimage.img_name FROM fawiki_p.image AS faimage WHERE faimage.img_name IN ( SELECT DISTINCT log_title FROM enwiki_p.logging WHERE log_type = 'delete' AND log_action = 'delete' AND log_namespace = 6 GROUP BY log_timestamp) AND faimage.img_sha1 not in ( SELECT image.img_sha1 FROM enwiki_p.image) AND faimage.img_name IN ( SELECT page_title FROM page INNER JOIN categorylinks where cl_from = page_id AND cl_to = 'محتویات_غیر_آزاد' GROUP BY page_title) limit 5000;",
             "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های غیر آزاد حذف شده از ویکی‌انگلیسی که در ویکی‌فا موجودند',
             "cols": [u'ردیف', u'پرونده در ویکی‌فا'],
             "summary": u'به روز کردن آمار',
