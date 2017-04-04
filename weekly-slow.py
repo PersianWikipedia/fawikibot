@@ -240,6 +240,19 @@ def main(sqlnum):
             u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] || [[:commons:file:%s]] || %s ',
             "sign": True
         },
+        {
+            "sqlnum":16,
+            "sql":
+            "SELECT faimage.img_name FROM fawiki_p.image as faimagewhere faimage.img_name in (SELECT DISTINCT log_titleFROM enwiki_p.loggingWHERE log_type = 'delete'AND log_action = 'delete'AND log_namespace = 6GROUP BY log_timestamp) and faimage.img_name not in (SELECT img_nameFROM enwiki_p.image)and faimage.img_name in (SELECT page_title FROM page INNER JOIN categorylinks WHERE cl_from = page_id AND cl_to = 'محتویات_غیر_آزاد' GROUP BY page_title) limit 5000;",
+            "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های غیر آزاد حذف شده از ویکی‌انگلیسی که در ویکی‌فا موجودند',
+            "cols": [u'ردیف', u'پرونده در ویکی‌فا'],
+            "summary": u'به روز کردن آمار',
+            "pref":
+            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nدر این فهرست پرونده‌هایی غیرآزاد برگرفته از ویکی‌انگلیسی که در ویکی‌انگلیسی حذف شده‌اند ولی در ویکی‌فا هنوز هستند قرار دارند. لطفاً بعد از حذف، پیوند آنها را از مقالات بزدائید.\nآخرین به روز رسانی: ~~~~~',
+            "frmt":
+            u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] ',
+            "sign": True
+        },
     ]
 
     for t in tasks:
