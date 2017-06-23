@@ -366,6 +366,7 @@ def cleaning(text,msg_short,msg=msg):
         #۳ تایی
         if text_test.find(u'\n=== ')!=-1:
             text = re.sub(re.compile(ur'^\=\=\=([^\=\r\n]+)\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
+            text = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"=== \1 ===",text)
         # ۴ تایی
         elif text_test.find(u'\n==== ')!=-1:
             text = re.sub(re.compile(ur'^\=\=\=\=([^\=\r\n]+)\=\=\=\=$', re.MULTILINE), ur"== \1 ==",text)
@@ -373,7 +374,7 @@ def cleaning(text,msg_short,msg=msg):
             text=text.replace(u'===',u'==')
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==')
     #text = re.sub(re.compile(ur"^(\=+)([^\=\r\n]+)(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
-    text = re.sub(re.compile(ur"^(\=+) \<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> (\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
+    text = re.sub(re.compile(ur"^(\=+) ?\<(?:small|big) *\>([^\=\r\n]+)\<\/(?:small|big) *\> ?(\=+)$", re.MULTILINE), ur"\1 \2 \3",text)
     text=text.replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==').replace(u'==  ',u'== ').replace(u'  ==',u' ==') 
     text_test=re.sub(ur'\n\=\= (منابع|جستارهای وابسته|پیوند به بیرون|پانویس|نگارخانه) \=\=\n',u'',text)
 
