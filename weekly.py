@@ -1930,7 +1930,11 @@ SELECT
   STR_TO_DATE(LEFT(min(sunset), 8), '%Y%m%d') AS sunset,
   old_edits,
   COUNT(rev_id) AS recent_edits,
-  GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') AS groups
+  GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') AS groups,
+  CASE
+    WHEN ipb_user IS NULL THEN ''
+    ELSE '{{بله}}'
+  END AS blocked
 FROM revision
 JOIN (
   SELECT
@@ -1950,6 +1954,8 @@ JOIN (
   ON old_user = rev_user
 LEFT JOIN user_groups
   ON rev_user = ug_user
+LEFT JOIN ipblocks
+  ON ipb_user = rev_user
 WHERE
   rev_user <> 0
   AND rev_timestamp > CONCAT(
@@ -1982,7 +1988,8 @@ GROUP BY rev_user_text
                 "آخرین ویرایش{{سخ}} قبل از مرخصی",
                 "ویرایش‌های پیش{{سخ}} از غیبت",
                 "ویرایش‌های{{سخ}} پس از ظهور",
-                "گروه‌های کاربری"
+                "گروه‌های کاربری",
+                "قطع دسترسی"
             ],
             "summary": "به روز کردن آمار",
             "pref": """
@@ -1995,7 +2002,7 @@ GROUP BY rev_user_text
 """,
             "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] " +
                     "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}} " +
-                    "|| {{formatnum:%s}} || {{formatnum:%s}} || %s",
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} || %s || %s",
             "sign": True
         },
         {
