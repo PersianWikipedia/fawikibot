@@ -1304,7 +1304,11 @@ WHERE
             "sqlnum": 32,
             "sql": """
 SELECT
-  page_title
+  page_title,
+  CASE
+    WHEN page_is_redirect = 1 THEN '{{بله}}'
+    ELSE '{{خیر}}'
+  END AS is_redirect
 FROM page_restrictions
 JOIN page
   ON page_id = pr_page
@@ -1315,11 +1319,11 @@ JOIN page
 """,
             "out":
             'ویکی‌پدیا:گزارش دیتابیس/مقاله‌های دارای محافظت کامل بی‌پایان',
-            "cols": ["ردیف", "مقاله"],
+            "cols": ["ردیف", "مقاله", "تغییرمسیر؟"],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
                     "\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] ",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] || %s ",
             "sign": True
         },
         # Query 33 was moved to weekly-slow #14
