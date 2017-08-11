@@ -707,6 +707,10 @@ LEFT JOIN user_groups
 WHERE
   log_type ='patrol'
   AND log_action='patrol'
+  AND (
+    log_params LIKE '%auto";i:0;}'
+    OR log_params LIKE '%0'
+  )
   AND ug_group IS NULL
 GROUP BY
   log_user,
