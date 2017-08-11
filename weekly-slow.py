@@ -253,6 +253,91 @@ def main(sqlnum):
             u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] ',
             "sign": True
         },
+        {
+            "sqlnum": 17,
+            "sql": """
+SELECT
+  user_name,
+  SUM(freq) TotalEdits,
+  FORMAT(100 * SUM(
+    CASE
+      WHEN page_namespace = 0 THEN freq
+      ELSE 0
+    END
+  ) / SUM(freq), 1) ContentEdits,
+  FORMAT(100 * SUM(
+    CASE
+      WHEN page_namespace IN (8, 10) THEN freq
+      ELSE 0
+    END
+  ) / SUM(freq), 1) TechnicalEdits,
+  FORMAT(100 * SUM(
+    CASE
+      WHEN page_namespace IN (4, 5) THEN freq
+      ELSE 0
+    END
+  ) / SUM(freq), 1) ProjectDiscussionEdits,
+  FORMAT(100 * SUM(
+    CASE
+      WHEN page_namespace IN (1, 3, 7, 9, 11, 13) THEN freq
+      ELSE 0
+    END
+  ) / SUM(freq), 1) OtherDiscussionEdits,
+  FORMAT(100 * SUM(
+    CASE
+      WHEN page_namespace NOT IN (0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 13) THEN freq
+      ELSE 0
+    END
+  ) / SUM(freq), 1) AllOtherEdits
+FROM (
+  SELECT
+    user_name,
+    page_namespace,
+    COUNT(*) freq
+  FROM revision
+  JOIN user
+    ON user_id = rev_user
+  JOIN page
+    ON rev_page = page_id
+  WHERE rev_user IN
+  (
+    SELECT rev_user
+    FROM revision
+    LEFT JOIN user_groups
+      ON rev_user = ug_user
+      AND ug_group = 'bot'
+    WHERE
+      rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
+      AND rev_user <> 0
+      AND rev_user_text NOT IN ('FawikiPatroller', 'پیام به کاربر جدید')
+      AND ug_user IS NULL
+  )
+  GROUP BY
+    rev_user,
+    page_namespace
+) last30days
+WHERE SUM(freq) >= 5
+GROUP BY user_name
+ORDER BY SUM(freq) DESC
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران فعال در یک ماه اخیر",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "تعداد کل ویرایش‌ها",
+                "ویرایش در مقاله‌ها",
+                "ویرایش‌های فنی",
+                "بحث‌های پروژه",
+                "سایر بحث‌ها",
+                "سایر ویرایش‌ها"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "این صفحه فهرستی از کاربران غیر رباتی است که در یک ماه اخیر دست کم ۵ ویرایش داشته‌اند؛ برای هر کاربر نسبت کل ویرایش‌هایش (از ابتدای ایجاد حساب) در فضاهای نام مختلف هم نشان داده شده‌است.\n[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] || {{formatnum:%s}} " +
+		            "|| %s%% || %s%% || %s%% || %s%% || %s%% ",
+            "sign": True
+        },
     ]
 
     for t in tasks:
