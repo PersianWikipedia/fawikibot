@@ -398,7 +398,13 @@ JOIN image i2
             "sql": """
 SELECT
   page_title,
-  COUNT(il_to) cnt
+  COUNT(il_to) cnt,
+  SUM(
+    CASE
+      WHEN il_from_namespace = 0 THEN 0
+      ELSE 1
+    END
+  ) AS nonarticle
 FROM page
 JOIN categorylinks
   ON page_id = cl_from
@@ -410,7 +416,7 @@ HAVING cnt > 10
 ORDER BY cnt DESC
 """,
             "out": "وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده",
-            "cols": ["پرونده", "تعداد کاربردها"],
+            "cols": ["ردیف", "پرونده", "کل کاربردها", "کاربرد غیر منصفانه"],
             "summary": "به روز کردن آمار",
             "pref": """
 [[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
@@ -418,7 +424,8 @@ ORDER BY cnt DESC
 
 آخرین به روز رسانی: ~~~~~
 """,
-            "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]] || {{formatnum:%s}}",
+            "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]] " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
