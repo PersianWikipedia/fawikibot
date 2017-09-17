@@ -102,36 +102,53 @@ class ISBNBot(
             if char in LatinLetters:
                 latin += 1
 
+        if total == 0:
+            return False
+
         if float(latin) / total > 0.5:
             return 'Latin'
         else:
             return 'Non-latin'
 
     def treat_page(self):
-        """Load the given page, do some changes, and save it."""
         text = self.current_page.text
         newtext = u''
         lines = text.split('\n')
-        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13}$)(?:[0-9]+[- ]){3}[0-9]*[xX0-9])'
+        anyISBN = False
+        ISBNpat = u' ISBN\s((?=[-0-9xX ]{17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9])'
 
         for line in lines:
+            # Add a space before ISBN to make it easier for the pattern to detect it
+            line = line.replace('=ISBN', '= ISBN')
+            line = line.replace('|ISBN', '| ISBN')
+
             hasISBN = re.search(ISBNpat, line)
 
             if hasISBN:
+                anyISBN = True
                 ISBNlink = hasISBN.group(0)
                 ISBNpart = hasISBN.group(1)
-                print line
-                if self.guess_language(line) == 'Latin':
+
+                # Use the last (up to) 50 characters to determine language
+                linepart = line[max(line.index('ISBN') - 50, 0):line.index('ISBN')]
+
+                gl = self.guess_language(linepart)
+                if gl is False:
+                    continue
+                elif gl == 'Latin':
                     replacement = u' {{ISBN|' + ISBNpart + u'|en}}'
                     line = line.replace(ISBNlink, replacement)
                 else:
-                    replacement = u' {{شابک|' + ISBNpart + u'}}'
+                    if (u'شابک=' in line or u'شابک =' in line):
+                        replacement = ISBNpart
+                    else:
+                        replacement = u' {{شابک|' + ISBNpart + u'}}'
                     line = line.replace(ISBNlink, replacement)
-                print line
 
             newtext += line + '\n'
 
-        self.put_current(newtext, summary=self.getOption('summary'))
+        if anyISBN:
+            self.put_current(newtext, summary=self.getOption('summary'))
 
 
 def main(*args):
@@ -186,4 +203,3 @@ def main(*args):
 
 if __name__ == '__main__':
     main()
-
