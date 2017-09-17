@@ -134,7 +134,8 @@ class ISBNBot(
 
                 gl = self.guess_language(linepart)
                 if gl is False:
-                    continue
+                    # Do not change the line as we cannot guess its language
+                    pass
                 elif gl == 'Latin':
                     replacement = u' {{ISBN|' + ISBNpart + u'|en}}'
                     line = line.replace(ISBNlink, replacement)
