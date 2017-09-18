@@ -115,7 +115,7 @@ class ISBNBot(
         newtext = u''
         lines = text.split('\n')
         anyISBN = False
-        ISBNpat = u' ISBN\s((?=[-0-9xX ]{17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9])'
+        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13,17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9])'
 
         for line in lines:
             # Add a space before ISBN to make it easier for the pattern to detect it
@@ -135,6 +135,7 @@ class ISBNBot(
                 gl = self.guess_language(linepart)
                 if gl is False:
                     # Do not change the line as we cannot guess its language
+                    pywikibot.output('Skipping ...')
                     pass
                 elif gl == 'Latin':
                     replacement = u' {{ISBN|' + ISBNpart + u'|en}}'
