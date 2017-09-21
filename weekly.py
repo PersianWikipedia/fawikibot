@@ -99,6 +99,28 @@ WHERE
   AND log_type = 'protect'
   AND log_action = 'protect'
   AND log_params LIKE '%level%sysop%'
+  AND log_timestamp >=
+    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+UNION
+SELECT
+  log_id,
+  user_name,
+  CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
+  log_comment,
+  STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
+  'احیای نسخهٔ حذف‌شده' AS issue
+FROM logging
+JOIN user_groups
+  ON log_user = ug_user
+JOIN user
+  ON user_id = log_user
+WHERE
+  ug_group = 'eliminator'
+  AND log_params LIKE '%nfield";i:0%'
+  AND log_type='delete'
+  AND log_action='revision'
+  AND log_timestamp >=
+    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
 ORDER BY log_id DESC
 """,
             "out": "وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها",
@@ -2216,4 +2238,3 @@ if __name__ == "__main__":
     except:
         sqlnum = 0
     main(sqlnum)
-
