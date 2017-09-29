@@ -93,7 +93,17 @@ class CatMoveBot:
                 pass
 
         self.move(origin, destination, user)
-
+        originPage = pywikibot.Page(self.site, origin)
+        if originPage:
+            try:
+                originPageText = originPage.get()
+                # Replace contents with the {{Category redirect}} template
+                originPage.put(
+                    '{{' + self.redirTemplate + '|' + destTitle + '}}',
+                    self.summary % (user, user, origin, destinatino))
+            except:
+                # Failed to fetch page contents. Gracefully ignore!
+                pass
 
 class CatMoveInput:
 
@@ -108,7 +118,7 @@ class CatMoveInput:
         self.cache = self.loadCache()
         self.site = pywikibot.Site('fa')
         self.tasksPageDefault = u'{{/بالا}}'
-        self.moverBots = [u'Dexbot', u'HujiBot']
+        self.moverBots = [u'Dexbot', u'HujiBot', u'rezabot']
         self.threshold = 3000
         self.successSummary = u'ربات: انتقال رده انجام شد!'
 
@@ -227,6 +237,7 @@ class CatMoveInput:
     @param taskText: wikicode of the page containing category move requests
     """
     def getTaskList(self, taskText):
+        taskText=taskText.replace(u'{{/بالا}}',u'').replace(u'\r',u'').replace(u'\n\n',u'\n').strip()
         taskList = []
         for line in taskText.strip('\r').split('\n'):
             if line[0] == '*':
