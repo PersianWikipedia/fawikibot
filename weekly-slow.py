@@ -165,7 +165,7 @@ def main(sqlnum):
         {
             "sqlnum":10,
             "sql":
-            "SELECT /* SLOW OK */ CONCAT(':{{ns:', page_namespace, '}}:', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
+            "SELECT /* SLOW OK */ CONCAT(page_namespace, ':', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
             "out": 'وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها',
             "cols": [u'ردیف',  u'صفحه',  u'تعداد ویرایش'],
             "summary": u'به روز کردن آمار',
