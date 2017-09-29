@@ -2119,7 +2119,7 @@ JOIN page
         {
             "sqlnum": 51,
             "sql": """
-SELECT
+SELECT DISTINCT
   rev_user_text,
   COUNT(*) cnt,
   CASE
