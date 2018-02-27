@@ -18,7 +18,7 @@
 #jsub -l release=trusty -once -N addbox  -mem 3g  /data/project/checkdictation-fa/www/python/venv/bin/python /data/project/checkdictation-fa/www/python/src/zz_checkDictation_cmd.py -start:!
 
 import sys
-# version 7.10
+# version 7.20
 
 sys.path.insert(0, '/data/project/checkdictation-fa/www/python/src/compat/')
 BotAdress = u'/data/project/checkdictation-fa/www/python/src/'
@@ -611,9 +611,20 @@ def main(faTitle,word):
         pass
     # if a wrong word is repaeted at the article more than 2 times
     for aitem in Fourth_step_words:
-        if txt_list2.count(aitem)>2:
+        if not aitem.strip():
             Fourth_step_words.remove(aitem)
-            
+            continue
+        if txt_list2.count(aitem)>4:
+            Fourth_step_words.remove(aitem)
+        if u'‌' in aitem:# if the word has zwnj
+            if (not u'‌‌' in aitem) and (aitem[0]!=u'‌') and (aitem[-1]!=u'‌'):
+                aitemlist=aitem.split(u'‌')
+                if check_grammer(aitemlist,most_words_list):
+                    if not check_grammer(aitemlist,Persian_words_list):
+                        Fourth_step_words.remove(aitem)
+                else:
+                    Fourth_step_words.remove(aitem)
+
     htmltxt=disambig_get(faTitle)
     result = result + checkdisambig(htmltxt)
     Finall_rexult={u"result": result + sorted(regex_maker(Fourth_step_words, 1, faNewText, False,hun_suggest,faTitle), key=itemgetter('word')) ,
