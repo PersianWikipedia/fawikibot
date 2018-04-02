@@ -615,11 +615,11 @@ def tem_cleaner(text,page):
     if not templates:
         return old_text
     for i in templates:
-        if u'{{'+i.replace(u'الگو:',u'') in text or u'-خرد' in i:
+        if u'{{'+i.replace(u'الگو:',u'') in text:
             temp_braket=u'{{'+i.replace(u'الگو:',u'')+text.split(u'{{'+i.replace(u'الگو:',u''))[1].split(u'}}')[0]+u'}}'
             template_sub=templatequery(i,'fa')
             if template_sub:    
-                if u'الگو:الگوی خرد' in template_sub:
+                if u'الگو:الگوی خرد' in template_sub or u'-خرد' in i:
                         khord+=temp_braket+u'\n'
                         text=text.replace(temp_braket,u'').replace(u'}}\n\n{{',u'}}\n{{')
                 for b in [u'الگو:DEFAULTSORT', u'الگو:ترتیب رده', u'الگو:تنظیم رده', u'الگو:Defaultsort', u'الگو:ترتیب پیش‌فرض']:
