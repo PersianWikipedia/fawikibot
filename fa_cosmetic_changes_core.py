@@ -615,7 +615,7 @@ def tem_cleaner(text,page):
     if not templates:
         return old_text
     for i in templates:
-        if u'{{'+i.replace(u'الگو:',u'') in text:
+        if u'{{'+i.replace(u'الگو:',u'') in text or u'-خرد' in i:
             temp_braket=u'{{'+i.replace(u'الگو:',u'')+text.split(u'{{'+i.replace(u'الگو:',u''))[1].split(u'}}')[0]+u'}}'
             template_sub=templatequery(i,'fa')
             if template_sub:    
