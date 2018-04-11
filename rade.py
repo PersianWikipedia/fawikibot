@@ -23,7 +23,7 @@ fa_site = pywikibot.Site('fa', 'wikipedia')
 en_site = pywikibot.Site('en', 'wikipedia')
 versionpage = pywikibot.Page(fa_site, u'کاربر:Rezabot/رده‌دهی مقالات همسنگ/نسخه')
 lastversion = versionpage.get().strip()
-version = u'۳۰'
+version = u'۳۰.۱'
 new_edition = u'۱'
 if lastversion != version:
     pywikibot.output(u"\03{lightred}Your bot dosen't use the last verion please update me!\03{default}")
@@ -422,7 +422,7 @@ def run(gen):
             templateblacklist = [u'Wikipedia category', u'sockpuppet', u'Empty category', u'tracking category',
                                  u'container category', u'hiddencat', u'backlog subcategories', u'Stub category']
             nameblcklist = [u'Current events', u'Tracking', u'articles‎', u'Surnames', u'Loanword',
-                            u'Words and phrases', u'Given names', u'Human names', u'stubs‎', u'Nicknames']
+                            u'Words and phrases', u'Given names', u'Human names', u'stubs‎', u'stub‎', u'Nicknames']
             for cat in catsen:
                 passport = True
                 temples = str(templatequery(cat, 'en')).replace(u'_', u' ').strip()
