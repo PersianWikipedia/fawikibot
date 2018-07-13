@@ -30,11 +30,11 @@ from scripts import category
 
 class CatMoveBot:
 
-    def __init__(self, logPage=None):
+    def __init__(self, logPage=None, project='wikipedia'):
         if logPage is None:
             raise ValueError('Log page must be specified')
         self.logPage = logPage
-        self.site = pywikibot.Site('fa')
+        self.site = pywikibot.Site('fa', project)
         self.redirTemplate = u'رده بهتر'
         self.summary = u'[[وپ:دار|ربات: انتقال رده]] به درخواست [[User:' + \
             '%s|%s]] از [[:%s]] به [[:%s]]'
@@ -59,7 +59,7 @@ class CatMoveBot:
     pages to reflect this move.
 
     @param task: A list with two elements; the first element is the name of the
-        origin category, and the second is the name of the destination category
+        origin category, and the second is the name of, family=project the destination category
     @param user: Name of the user on whose behalf the category move is done
     """
     def run(self, task, user):
@@ -110,16 +110,16 @@ class CatMoveInput:
     """
     @param cacheFile: path to the local cache of previously validated users
     """
-    def __init__(self, cacheFile=None):
+    def __init__(self, cacheFile=None, project='wikipedia', threshold=3000):
         if cacheFile is None:
             raise ValueError('Cache file location must be specified')
         else:
             self.cacheFile = cacheFile
         self.cache = self.loadCache()
-        self.site = pywikibot.Site('fa')
+        self.site = pywikibot.Site('fa', project)
         self.tasksPageDefault = u'{{/بالا}}'
         self.moverBots = [u'Dexbot', u'HujiBot', u'rezabot']
-        self.threshold = 3000
+        self.threshold = threshold
         self.successSummary = u'ربات: انتقال رده انجام شد!'
 
     def loadCache(self):
@@ -196,7 +196,6 @@ class CatMoveInput:
     """
     def processInput(self, tasksPageName):
         tasksPage = pywikibot.Page(self.site, tasksPageName)
-
         try:
             pageText = tasksPage.get()
             pageHistory = tasksPage.getVersionHistory()
@@ -271,12 +270,22 @@ class CatMoveInput:
 def main():
     cacheFile = '/data/project/dexbot/cache_dar.txt'
 
-    vBot = CatMoveInput(cacheFile)
-    req = vBot.processInput(u'ویکی‌پدیا:درخواست انتقال رده')
+    if 'wikiquote' in sys.argv:
+        project = 'wikiquote'
+        page_name = u'ویکی‌گفتاورد:درخواست انتقال رده'
+        limit = 750
+    else:
+        project = 'wikipedia'
+        page_name = u'ویکی‌پدیا:درخواست انتقال رده'
+        limit = 3000
+
+    vBot = CatMoveInput(cacheFile, project, limit)
+    req = vBot.processInput(page_name)
 
     for task in req['tasks']:
-        mBot = CatMoveBot(u'ویکی‌پدیا:درخواست انتقال رده')
+        mBot = CatMoveBot(page_name, project)
         mBot.run(task, req['user'])
 
 if __name__ == '__main__':
     main()
+
