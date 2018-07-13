@@ -21,6 +21,7 @@ from __future__ import absolute_import, unicode_literals
 
 import pywikibot
 from pywikibot import pagegenerators
+from pywikibot import config
 import sys
 import json
 import codecs
@@ -274,6 +275,7 @@ def main():
         project = 'wikiquote'
         page_name = u'ویکی‌گفتاورد:درخواست انتقال رده'
         limit = 750
+        config.family = project
     else:
         project = 'wikipedia'
         page_name = u'ویکی‌پدیا:درخواست انتقال رده'
