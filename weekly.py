@@ -518,7 +518,7 @@ WHERE
   page_namespace = 0
   AND page_is_redirect = 0
   AND rev_timestamp <
-    concat(DATE_FORMAT(DATE_SUB(NOW(), interval 4 year), '%Y%m%d'), '000000')
+    CONCAT(DATE_FORMAT(DATE_SUB(NOW(), interval 4 year), '%Y%m%d'), '000000')
   AND cl_to IS NULL
 ORDER BY rev_timestamp
 LIMIT 5000
@@ -2084,7 +2084,7 @@ JOIN page
 SELECT
   CASE
     WHEN page_namespace = 0 THEN page_title
-    ELSE concat(':{{ns:', page_namespace, '}}:', page_title)
+    ELSE CONCAT(':{{ns:', page_namespace, '}}:', page_title)
   END AS page_title,
   cl_to
 FROM (
