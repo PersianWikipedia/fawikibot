@@ -165,7 +165,7 @@ def main(sqlnum):
         {
             "sqlnum":10,
             "sql":
-            "SELECT /* SLOW OK */ CONCAT(page_namespace, ':', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
+            "SELECT /* SLOW OK */ CONCAT(':{{ns:', page_namespace, '}}:', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
             "out": 'وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها',
             "cols": [u'ردیف',  u'صفحه',  u'تعداد ویرایش'],
             "summary": u'به روز کردن آمار',
@@ -335,6 +335,100 @@ ORDER BY 2 ASC, 1 DESC
                     "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] || {{formatnum:%s}} " +
 		            "|| %s%% || %s%% || %s%% || %s%% || %s%% ",
+            "sign": True
+        },
+        {
+            "sqlnum": 18,
+            "sql": """
+SELECT
+  user_name,
+  MAX(iwlinks) AS h_index
+FROM
+(
+  SELECT
+    t1.rev_user,
+    t1.iwlinks,
+    SUM(t2.freq) AS total
+  FROM
+  (
+    SELECT
+      rev_user,
+      iwlinks,
+      COUNT(*) AS freq
+    FROM
+    (
+      SELECT
+        rev_user,
+        rev_page,
+        COUNT(ll_lang) AS iwlinks
+      FROM revision
+      JOIN page
+        ON rev_page = page_id
+        AND page_namespace = 0
+      JOIN langlinks
+        ON ll_FROM = rev_page
+      WHERE
+        rev_parent_id = 0
+        AND rev_user <> 0
+      GROUP BY rev_page
+    ) t
+    GROUP BY
+      rev_user,
+      iwlinks
+  ) t1
+  JOIN
+  (
+    SELECT
+      rev_user,
+      iwlinks,
+      COUNT(*) AS freq
+    FROM
+    (
+      SELECT
+        rev_user,
+        rev_page,
+        COUNT(ll_lang) AS iwlinks
+      FROM revision
+      JOIN page
+        ON rev_page = page_id
+        AND page_namespace = 0
+      JOIN langlinks
+        ON ll_FROM = rev_page
+      WHERE
+        rev_parent_id = 0
+        AND rev_user <> 0
+      GROUP BY rev_page
+    ) t
+    GROUP BY rev_user, iwlinks
+  ) t2
+    ON t2.rev_user = t1.rev_user
+    AND t2.iwlinks >= t1.iwlinks
+  GROUP BY
+    t1.rev_user,
+    t1.iwlinks
+) h
+JOIN user
+  ON rev_user = user_id
+LEFT JOIN user_groups
+  ON ug_user = rev_user
+  AND ug_group = 'bot'
+WHERE
+  total >= iwlinks
+  AND iwlinks > 5
+  AND ug_user IS NULL
+GROUP BY rev_user
+ORDER BY h_index DESC
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه شاخص اچ",
+            "cols": [
+                "ردیف",
+                "کاربر",
+                "شاخص اچ"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "این صفحه فهرستی از کاربران غیر ربات است به انضمام «شاخص اچ» برای هر کدامشان. در اینجا شاخص اچ بر اساس تعداد میان‌ویکی محاسبه شده‌است. برای اطلاعات بیشتر [[ویکی‌پدیا:شاخص اچ]] را ببینید. این صفحه فقط کاربرانی را فهرست می‌کند که شاخص اچ بالای ۵ دارند.\n[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] || {{formatnum:%s}} ",
             "sign": True
         },
     ]
