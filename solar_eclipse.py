@@ -53,6 +53,9 @@ class EclipseBot(
         # Assign the generator to the bot
         self.generator = generator
 
+        # Save edits without asking
+        self.options['always'] = True
+
     def _handle_dry_param(self, **kwargs):
         if 'dry' in kwargs:
             issue_deprecation_warning('dry argument',
