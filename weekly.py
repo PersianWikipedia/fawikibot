@@ -50,7 +50,7 @@ WHERE
   log_type = 'delete'
   AND ar_namespace = 6
   AND log_timestamp >=
-    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
   AND ug2.ug_user IS NULL
 UNION
 SELECT DISTINCT
@@ -80,7 +80,7 @@ WHERE
     'rollbacker'
   )
   AND log_timestamp >=
-    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
 UNION
 SELECT DISTINCT
   log_id,
@@ -100,7 +100,7 @@ WHERE
   AND log_action = 'protect'
   AND log_params LIKE '%level%sysop%'
   AND log_timestamp >=
-    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
 UNION
 SELECT
   log_id,
@@ -120,7 +120,7 @@ WHERE
   AND log_type='delete'
   AND log_action='revision'
   AND log_timestamp >=
-    DATE_FORMAT(DATE_SUB(NOW(), interval 30 day), '%Y%m%d000000')
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
 ORDER BY log_id DESC
 """,
             "out": "وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها",
@@ -518,7 +518,7 @@ WHERE
   page_namespace = 0
   AND page_is_redirect = 0
   AND rev_timestamp <
-    CONCAT(DATE_FORMAT(DATE_SUB(NOW(), interval 4 year), '%Y%m%d'), '000000')
+    CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 4 YEAR), '%Y%m%d'), '000000')
   AND cl_to IS NULL
 ORDER BY rev_timestamp
 LIMIT 5000
@@ -2213,6 +2213,38 @@ ORDER BY
                     "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[:en:Module:%s]] " +
                     "|| {{formatnum:%s}} ",
+            "sign": True
+        },
+        {
+            "sqlnum": 53,
+            "sql": """
+SELECT
+  page_title,
+  COUNT(*) reverts
+FROM revision
+JOIN page
+  ON page_id = rev_page
+WHERE
+  rev_comment LIKE '%واگردانده شد'
+  AND rev_timestamp >
+    CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
+  AND page_namespace = 0
+GROUP BY rev_page
+HAVING COUNT(*) > 10
+ORDER BY reverts DESC
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌های دارای بیشترین واگردانی",
+            "cols": ["ردیف", "پودمان", "تعداد میان‌ویکی"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌های را نشان می‌دهد که در یکسال اخیر دست کم ۱۰ بار واگردانی
+شده‌اند. ممکن است این مقاله‌ها نامزدهای خوبی برای محافظت یا
+پی‌گیری توسط مدیران باشند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}} ",
             "sign": True
         },
     ]
