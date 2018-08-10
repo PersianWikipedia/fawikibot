@@ -104,8 +104,12 @@ class WebCiteBot(
 
     def archive(self, URL):
         pywikibot.output("Requesting URL %s" % URL)
-        archiveURL = webcitation.capture(URL)
-        pywikibot.output(u"\03{lightgreen}Successfully archived at %s" % archiveURL)
+        try:
+            archiveURL = webcitation.capture(URL)
+        except:
+            pywikibot.output(u"\03{red}Archive attempt failed!\03{default}")
+            return False
+        pywikibot.output(u"\03{lightgreen}Successfully archived at %s\03{default}" % archiveURL)
         self.counter += 1
         return archiveURL
 
@@ -137,6 +141,9 @@ class WebCiteBot(
                             continue
                         
                         arc = self.archive(url[0][1])
+                        if not arc:
+                            # Archiving failed
+                            continue
                         # Remove any blank archiveurl parameters
                         newCitation = re.sub(faBlankArchivePattern, "", citation)
                         # Add archiveurl and archivedate
@@ -165,6 +172,9 @@ class WebCiteBot(
                             continue
                         
                         arc = self.archive(url[0][1])
+                        if not arc:
+                            # Archiving failed
+                            continue
                         # Remove any blank archiveurl parameters
                         newCitation = re.sub(enBlankArchivePattern, "", citation)
                         # Add archiveurl and archivedate
@@ -196,14 +206,7 @@ def main(*args):
     else:
         pywikibot.bot.suggest_help(missing_generator=True)
         return False
-
-    """
-    page=wikipedia.Page(wikipedia.getSite('fa'), wikipedia.input('Page: '))
-    if page.namespace()==0:
-        status=bot.run(page)
-        pywikibot.output(u'Commenting on Talk page....')    
-        page_talk(page,status)    
-    """
  
 if __name__ == "__main__":
     main()
+
