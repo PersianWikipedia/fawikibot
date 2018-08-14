@@ -2247,6 +2247,35 @@ ORDER BY reverts DESC
             "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}} ",
             "sign": True
         },
+        {
+            "sqlnum": 54,
+            "sql": """
+SELECT page_title
+FROM page
+WHERE page_id IN (
+        SELECT cl_from
+        FROM categorylinks
+        WHERE cl_to  LIKE 'درگذشتگان%'
+        )
+    and page_id IN (
+        SELECT cl_from
+        FROM categorylinks
+        WHERE cl_to LIKE '%افراد_زنده%'
+    )
+    AND page_is_redirect = 0;
+""",
+            "out": "وپ:گزارش دیتابیس/مقاله‌‌های دارای رده‌های درگذشتگان و افراد زنده",
+            "cols": ["ردیف", "مقاله"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست مقاله‌های را نشان می‌دهد که دارای رده‌های درگذشتگان و افراد زنده هستند و باید یکی از رده‌ها بر پایهٔ متن  مقاله حذف شوند. 
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] ",
+            "sign": True
+        },
     ]
 
     for t in tasks:

@@ -66,7 +66,7 @@ class EclipseBot(
 
     def treat_page(self):
         text = self.current_page.text
-        ListPattern = r'\* \[\[(فهرست خورشیدگرفتگی‌های قرن .+ (میلادی|پیش از میلاد))\]\]'
+        ListPattern = r'\* \[\[(فهرست خورشیدگرفتگی‌های قرن .+ میلادی|فهرست خورشیدگرفتگی‌های قرن .+ پیش از میلاد|فهرست خورشیدگرفتگی‌های دوران باستان)\]\]'
 
         hasListPattern = re.search(ListPattern, text)
         if hasListPattern:
