@@ -122,10 +122,10 @@ class WebCiteBot(
 
         # Persian Citations
         persianDate = self.persianDate()
-        faCitationPattern = ur'\{\{\s*یادکرد(?:\{\{.*?\}\}|.)*?\}\}'
-        faArchivePattern = ur'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
-        faBlankArchivePattern = ur'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
-        faUrlPattern = ur'\| *(نشانی|پیوند) *= *([^|]+) *\|'
+        faCitationPattern = u'\{\{\s*یادکرد(?:\{\{.*?\}\}|.)*?\}\}'
+        faArchivePattern = u'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
+        faBlankArchivePattern = u'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
+        faUrlPattern = u'\| *(نشانی|پیوند) *= *([^|]+) *\|'
         faCitations = re.findall(faCitationPattern, text, re.S)
         if not faCitations:
             pywikibot.output(u"\03{lightpurple}No Persian citations!\03{default}")
@@ -153,10 +153,10 @@ class WebCiteBot(
 
         # English Citations
         englishDate = datetime.today().strftime("%-d %B %Y")
-        enCitationPattern = ur'\{\{\s*cite(?:\{\{.*?\}\}|.)*?\}\}'
-        enArchivePattern = ur'\| *(archiveurl|archive-url) *= *[^ |}]'
-        enBlankArchivePattern = ur'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
-        enUrlPattern = ur'\| *(url) *= *([^|]+) *\|'
+        enCitationPattern = u'\{\{\s*cite(?:\{\{.*?\}\}|.)*?\}\}'
+        enArchivePattern = u'\| *(archiveurl|archive-url) *= *[^ |}]'
+        enBlankArchivePattern = u'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
+        enUrlPattern = u'\| *(url) *= *([^|]+) *\|'
         enCitations = re.findall(enCitationPattern, text, re.S)
         if not enCitations:
             pywikibot.output(u"\03{lightpurple}No English citations!\03{default}")
