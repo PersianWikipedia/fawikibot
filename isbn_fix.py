@@ -115,7 +115,7 @@ class ISBNBot(
         newtext = u''
         lines = text.split('\n')
         anyISBN = False
-        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13,17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9])'
+        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13,17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9]|(?=[-0-9xX ]{10,17}))'
 
         for line in lines:
             # Add a space before ISBN to make it easier for the pattern to detect it
@@ -150,6 +150,7 @@ class ISBNBot(
             newtext += line + '\n'
 
         if anyISBN:
+            pywikibot.output('An ISBN was found')
             self.put_current(newtext, summary=self.getOption('summary'))
 
 
