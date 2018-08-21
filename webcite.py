@@ -148,7 +148,7 @@ class WebCiteBot(
                         newCitation = re.sub(faBlankArchivePattern, "", citation)
                         # Add archiveurl and archivedate
                         newParams = "| پیوند بایگانی = %s | تاریخ بایگانی = %s }}" % (arc, persianDate)
-                        newCitation = re.sub("}}", newParams, newCitation)
+                        newCitation = re.sub("}}$", newParams, newCitation)
                         text = text.replace(citation, newCitation)
 
         # English Citations
@@ -179,7 +179,7 @@ class WebCiteBot(
                         newCitation = re.sub(enBlankArchivePattern, "", citation)
                         # Add archiveurl and archivedate
                         newParams = "| archive-url = %s | archive-date = %s }}" % (arc, englishDate)
-                        newCitation = re.sub("}}", newParams, newCitation)
+                        newCitation = re.sub("}}$", newParams, newCitation)
                         text = text.replace(citation, newCitation)
 
         self.put_current(text, summary=self.getOption('summary'))
