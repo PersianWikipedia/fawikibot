@@ -119,13 +119,14 @@ class WebCiteBot(
             return True
         
         text = self.current_page.text
+        failures = []
 
         # Persian Citations
         persianDate = self.persianDate()
-        faCitationPattern = u'\{\{\s*یادکرد(?:\{\{.*?\}\}|.)*?\}\}'
-        faArchivePattern = u'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
-        faBlankArchivePattern = u'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
-        faUrlPattern = u'\| *(نشانی|پیوند) *= *([^|]+) *\|'
+        faCitationPattern = r'\{\{\s*یادکرد(?:\{\{.*?\}\}|.)*?\}\}'
+        faArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
+        faBlankArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
+        faUrlPattern = r'\| *(نشانی|پیوند) *= *([^|]+) *\|'
         faCitations = re.findall(faCitationPattern, text, re.S)
         if not faCitations:
             pywikibot.output(u"\03{lightpurple}No Persian citations!\03{default}")
@@ -143,6 +144,7 @@ class WebCiteBot(
                         arc = self.archive(url[0][1])
                         if not arc:
                             # Archiving failed
+                            failures.append(url[0][1])
                             continue
                         # Remove any blank archiveurl parameters
                         newCitation = re.sub(faBlankArchivePattern, "", citation)
@@ -153,10 +155,10 @@ class WebCiteBot(
 
         # English Citations
         englishDate = datetime.today().strftime("%-d %B %Y")
-        enCitationPattern = u'\{\{\s*cite(?:\{\{.*?\}\}|.)*?\}\}'
-        enArchivePattern = u'\| *(archiveurl|archive-url) *= *[^ |}]'
-        enBlankArchivePattern = u'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
-        enUrlPattern = u'\| *(url) *= *([^|]+) *\|'
+        enCitationPattern = r'\{\{ *[Cc]ite(?:\{\{.*?\}\}|.)*?\}\}'
+        enArchivePattern = r'\| *(archiveurl|archive-url) *= *[^ |}]'
+        enBlankArchivePattern = r'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
+        enUrlPattern = r'\| *(url) *= *([^|]+) *\|'
         enCitations = re.findall(enCitationPattern, text, re.S)
         if not enCitations:
             pywikibot.output(u"\03{lightpurple}No English citations!\03{default}")
@@ -173,6 +175,7 @@ class WebCiteBot(
                         
                         arc = self.archive(url[0][1])
                         if not arc:
+                            failures.append(url[0][1])
                             # Archiving failed
                             continue
                         # Remove any blank archiveurl parameters
@@ -183,6 +186,19 @@ class WebCiteBot(
                         text = text.replace(citation, newCitation)
 
         self.put_current(text, summary=self.getOption('summary'))
+
+        talk_page = self.current_page.toggleTalkPage()
+        talk_text = talk_page.text
+        talk_text += """
+== بایگانی منابع برخط ==
+{{شد}} بایگانی همه منابع برخط انجام شد."""
+        if len(failures) > 0:
+            talk_text += '\nموارد زیر ناموفق بود:'
+            for f in failures:
+                talk_text += '\n* [' + f + ' ]'
+        talk_text += '\n~~~~'
+        talk_page.text = talk_text
+        talk_page.save(summary=self.getOption('summary'))
 
 def main(*args):
     options = {}
