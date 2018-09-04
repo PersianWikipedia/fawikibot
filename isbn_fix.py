@@ -115,7 +115,7 @@ class ISBNBot(
         newtext = u''
         lines = text.split('\n')
         anyISBN = False
-        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13,17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9]|(?=[-0-9xX ]{10,17}))'
+        ISBNpat = u' ISBN\s((?=[-0-9xX ]{13,17})(?:[0-9]+[- ]){3,4}[0-9]*[xX0-9]))'
 
         for line in lines:
             # Add a space before ISBN to make it easier for the pattern to detect it
