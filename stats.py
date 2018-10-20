@@ -63,6 +63,34 @@ page_namespace={u'0':u'',u'1':u'بحث:',
                 u'118':u'پیش‌نویس:',u'119':u'بحث پیش‌نویس:',
                 u'828':u'پودمان:',u'829':u'بحث پودمان:'
 }
+user_groups={u'uploader':u'بارگذار',
+            u'transwiki':u'درون ریز بین‌ویکی‌ها',
+            u'templateeditor':u'ویرایشگر الگو',
+            u'sysop':u'مدیر',
+            u'rollbacker':u'واگردان',
+            u'registered':u'ثبت‌نام‌کرده',
+            u'patroller':u'گشت‌زن',
+            u'oversight':u'پنهانگر',
+            u'OTRS-member':u'عضو OTRS',
+            u'ipblock-exempt':u'استثنای قطع دسترسی',
+            u'interface-admin':u'مدیر رابط کاربری',
+            u'import':u'درون‌ریز',
+            u'Image-reviewer':u'بازبین تصویر',
+            u'extendedconfirmed':u'تأییدشده پایدار',
+            u'eponline':u'داوطلب دورهٔ برخط',
+            u'epinstructor':u'استاد دوره',
+            u'epcoordinator':u'هماهنگ‌کنندهٔ دوره',
+            u'epcampus':u'داوطلب دورهٔ پردیس',
+            u'eliminator':u'ویکی‌بان',
+            u'confirmed':u'کاربر تائیدشده',
+            u'checkuser':u'بازرس کاربر',
+            u'bureaucrat':u'دیوانسالار',
+            u'botadmin':u'مدیر رباتیک',
+            u'autoreviewer':u'بازبینی‌خودکار',
+            u'autopatrolled':u'گشت خودکار',
+            u'accountcreator':u'سازنده حساب',
+            u'abusefilter':u'تنظیم‌کنندهٔ پالایهٔ خرابکاری'
+}
 
 class StatsBot:
 
@@ -133,6 +161,8 @@ class StatsBot:
         #Conevrt Namespace number to text for queries like weekly-slow.py #12 and #13
         for ns in page_namespace:
             text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns])
+        for user_grp in user_groups:
+            text=text.replace(u' '+user_grp+,u' '+user_groups[user_grp])
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
 
