@@ -2279,8 +2279,12 @@ WHERE page_id IN (
         {
             "sqlnum": 55,
             "sql": """
+USE fawiki_p;
+select users.user_name, REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' '),'(uploader|autopatrolled|ipblock\-exempt)','') AS groups,active_days
+from
+(
 SELECT
-  user_name,
+  user_id,user_name,
   COUNT(*) AS active_days
 FROM
 (
@@ -2298,19 +2302,21 @@ LEFT JOIN user_groups
   AND ug_group = 'bot'
 WHERE
    ug_user IS NULL
-   AND user_id NOT IN (
-      374638, -- پیام_به_کاربر_جدید
-      285515 -- FawikiPatroller
-    )
+   AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
 GROUP BY
   rev_user
 HAVING
   COUNT(*) > 100
+) as users
+join user_groups
+ON users.user_id = ug_user
+GROUP BY
+  user_id
 ORDER BY
-  active_days DESC;
+ users.active_days DESC;
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد روزهای فعال در سال اخیر",
-            "cols": ["ردیف", "کاربر", "روزهای فعال"],
+            "cols": ["ردیف", "گروه کاربری","کاربر", "روزهای فعال"],
             "summary": "به روز کردن آمار",
             "pref": """
 [[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
