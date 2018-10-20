@@ -2280,7 +2280,7 @@ WHERE page_id IN (
             "sqlnum": 55,
             "sql": """
 SELECT
-  user_name
+  user_name,
   COUNT(*) AS active_days
 FROM
 (
