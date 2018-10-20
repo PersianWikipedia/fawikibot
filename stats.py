@@ -163,6 +163,7 @@ class StatsBot:
             text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns])
         for user_grp in user_groups:
             text=text.replace(u' '+user_grp,u' '+user_groups[user_grp])
+        text=text.replace(u'||  ،',u'|| ').replace(u'،   ||',u' ||').replace(u'، ،',u'،')                        
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
 
