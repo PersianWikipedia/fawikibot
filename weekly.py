@@ -2323,7 +2323,7 @@ ORDER BY
 
 آخرین به روز رسانی: ~~~~~
 """,
-            "frmt": "| {{formatnum:%d}} || [[User:%s|]] || {{formatnum:%s}} ",
+            "frmt": "| {{formatnum:%d}} ||[[User:%s|]] || %s || {{formatnum:%s}} ",
             "sign": True
         },
     ]
