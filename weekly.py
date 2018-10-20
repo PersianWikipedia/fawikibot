@@ -2298,7 +2298,10 @@ LEFT JOIN user_groups
   AND ug_group = 'bot'
 WHERE
    ug_user IS NULL
-   AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
+   AND user_id NOT IN (
+      374638, -- پیام_به_کاربر_جدید
+      285515 -- FawikiPatroller
+    )
 GROUP BY
   rev_user
 HAVING
