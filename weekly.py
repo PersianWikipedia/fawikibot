@@ -2280,7 +2280,7 @@ WHERE page_id IN (
             "sqlnum": 55,
             "sql": """
 SELECT
-  user_name,
+  user_name
   COUNT(*) AS active_days
 FROM
 (
@@ -2298,6 +2298,7 @@ LEFT JOIN user_groups
   AND ug_group = 'bot'
 WHERE
    ug_user IS NULL
+   AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
 GROUP BY
   rev_user
 HAVING
