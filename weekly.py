@@ -2279,8 +2279,7 @@ WHERE page_id IN (
         {
             "sqlnum": 55,
             "sql": """
-USE fawiki_p;
-select users.user_name, REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' '),'(uploader|autopatrolled|ipblock\-exempt)','') AS groups,active_days
+select users.user_name, CONCAT(' ',REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR '، '),'(uploader|autopatrolled|ipblock\-exempt)',''),' ') AS groups,active_days
 from
 (
 SELECT
