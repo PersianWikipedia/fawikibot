@@ -2276,6 +2276,47 @@ WHERE page_id IN (
             "frmt": "| {{formatnum:%d}} || [[%s]] ",
             "sign": True
         },
+        {
+            "sqlnum": 55,
+            "sql": """
+SELECT
+  user_name,
+  COUNT(*) AS active_days
+FROM
+(
+  SELECT DISTINCT
+    rev_user,
+    LEFT(rev_timestamp, 8)
+  FROM revision
+  WHERE
+    rev_timestamp > CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
+) AS rev_days
+JOIN user
+  ON rev_user = user_id
+LEFT JOIN user_groups
+  ON user_id = ug_user
+  AND ug_group = 'bot'
+WHERE
+   ug_user IS NULL
+GROUP BY
+  rev_user
+HAVING
+  COUNT(*) > 100
+ORDER BY
+  active_days DESC;
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد روزهای فعال در سال اخیر",
+            "cols": ["ردیف", "کاربر", "روزهای فعال"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این فهرست کاربران را نشان می‌دهد که در یکسال اخیر بیش  از صد روز را در ویکی‌پدیا ویرایش کرده‌اند.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[User:%s|]] || {{formatnum:%s}} ",
+            "sign": True
+        },
     ]
 
     for t in tasks:
