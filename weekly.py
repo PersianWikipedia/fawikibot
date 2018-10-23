@@ -2279,40 +2279,43 @@ WHERE page_id IN (
         {
             "sqlnum": 55,
             "sql": """
-select users.user_name, CONCAT(' ',REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR '، '),'(uploader|autopatrolled|ipblock\-exempt)',''),' ') AS groups,active_days
-from
-(
 SELECT
-  user_id,user_name,
-  COUNT(*) AS active_days
+  users.user_name,
+  CONCAT(' ',REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR '، '),'(uploader|autopatrolled|ipblock\-exempt)',''),' ') AS groups,
+  active_days
 FROM
 (
-  SELECT DISTINCT
-    rev_user,
-    LEFT(rev_timestamp, 8)
-  FROM revision
+  SELECT
+    user_id,user_name,
+    COUNT(*) AS active_days
+  FROM
+  (
+    SELECT DISTINCT
+      rev_user,
+      LEFT(rev_timestamp, 8)
+    FROM revision
+    WHERE
+      rev_timestamp > CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
+  ) AS rev_days
+  JOIN user
+    ON rev_user = user_id
+  LEFT JOIN user_groups
+    ON user_id = ug_user
+    AND ug_group = 'bot'
   WHERE
-    rev_timestamp > CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
-) AS rev_days
-JOIN user
-  ON rev_user = user_id
-LEFT JOIN user_groups
-  ON user_id = ug_user
-  AND ug_group = 'bot'
-WHERE
-   ug_user IS NULL
-   AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
-GROUP BY
-  rev_user
-HAVING
-  COUNT(*) > 100
+    ug_user IS NULL
+    AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
+  GROUP BY
+    rev_user
+  HAVING
+    COUNT(*) > 100
 ) as users
-join user_groups
-ON users.user_id = ug_user
+JOIN user_groups
+  ON user_id = ug_user
 GROUP BY
   user_id
 ORDER BY
- users.active_days DESC;
+ active_days DESC;
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد روزهای فعال در سال اخیر",
             "cols": ["ردیف", "گروه کاربری","کاربر", "روزهای فعال"],
