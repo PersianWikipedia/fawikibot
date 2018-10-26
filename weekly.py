@@ -815,6 +815,7 @@ LEFT JOIN (
 WHERE log_type = 'thanks'
 GROUP BY log_title
 ORDER BY cnt DESC
+LIMIT 1000
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بر پایه تعداد تشکر",
             "cols":
