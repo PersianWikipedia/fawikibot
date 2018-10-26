@@ -53,11 +53,11 @@ import timeit
 page_namespace={u'0':u'',u'1':u'بحث:',
                 u'2':u'کاربر:',u'3':u'بحث کاربر:',
                 u'4':u'ویکی‌پدیا:',u'5':u'بحث ویکی‌پدیا:',
-                u'6':u':پرونده:',u'7':u'بحث پرونده:',#Should has : at the first of NS 6
+                u'6':u':پرونده:',u'7':u'بحث پرونده:',
                 u'8':u'مدیاویکی:',u'9':u'بحث مدیاویکی:',
                 u'10':u'الگو:',u'11':u'بحث الگو:',
                 u'12':u'راهنما:',u'13':u'بحث راهنما:',
-                u'14':u':رده:',u'15':u'بحث رده:',#Should has : at the first of NS 14
+                u'14':u':رده:',u'15':u'بحث رده:',
                 u'100':u'درگاه:',u'101':u'بحث درگاه:',
                 u'102':u'کتاب:',u'103':u'بحث کتاب:',
                 u'118':u'پیش‌نویس:',u'119':u'بحث پیش‌نویس:',
@@ -109,6 +109,8 @@ class StatsBot:
 
     def run(self):
         print "Stats bot started ..."
+        print "Process number: %s" % self.sqlnum
+        pywikibot.output("Process number: %s" % self.sqlnum)
         bot_start = timeit.timeit()
 
         site = pywikibot.Site()
@@ -158,7 +160,7 @@ class StatsBot:
                 for item in row:
                     text += u'| ' + item + u'\n'
         text += u'|}'
-        #Conevrt Namespace number to text for queries like weekly-slow.py #12 and #13
+        #Convert Namespace number to text for queries like weekly-slow.py #12 and #13
         for ns in page_namespace:
             text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns])
         for user_grp in user_groups:
@@ -180,7 +182,7 @@ class StatsBot:
         try:
             page.text = text
             # Save the page
-            page.save(summary=comment or self.comment,
+            page.save(summary=comment or self.summary,
                       minor=minorEdit, botflag=botflag)
         except pywikibot.LockedPage:
             pywikibot.output(u"Page %s is locked; skipping."
@@ -213,6 +215,7 @@ def main(*args):
     summary = None
     pref = 'آخرین به روز رسانی: ~~~~~\n\n'
     frmt = None
+    sqlnum = 0
     for arg in local_args:
         if arg.startswith('-sql:'):
             sql = arg[len('-sql:'):]
