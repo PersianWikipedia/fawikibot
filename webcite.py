@@ -127,7 +127,7 @@ class WebCiteBot(
         faArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
         faBlankArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
         faUrlPattern = r'\| *(نشانی|پیوند) *= *([^|]+) *\|'
-        faCitations = re.findall(faCitationPattern, text, re.S)
+        faCitations = set(re.findall(faCitationPattern, text, re.S))
         if not faCitations:
             pywikibot.output(u"\03{lightpurple}No Persian citations!\03{default}")
         else:
@@ -159,7 +159,7 @@ class WebCiteBot(
         enArchivePattern = r'\| *(archiveurl|archive-url) *= *[^ |}]'
         enBlankArchivePattern = r'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
         enUrlPattern = r'\| *(url) *= *([^|]+) *\|'
-        enCitations = re.findall(enCitationPattern, text, re.S)
+        enCitations = set(re.findall(enCitationPattern, text, re.S))
         if not enCitations:
             pywikibot.output(u"\03{lightpurple}No English citations!\03{default}")
         else:
@@ -225,4 +225,3 @@ def main(*args):
  
 if __name__ == "__main__":
     main()
-
