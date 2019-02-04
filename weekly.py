@@ -2330,6 +2330,37 @@ ORDER BY
             "frmt": "| {{formatnum:%d}} ||[[User:%s|]] || %s || {{formatnum:%s}} ",
             "sign": True
         },
+        {
+            "sqlnum": 56,
+            "sql": """
+SELECT
+  CONCAT(':{{ns:', page_namespace, '}}:', page_title)
+FROM templatelinks
+JOIN page
+  ON page_id = tl_from
+LEFT JOIN categorylinks
+  ON cl_to = page_title
+WHERE
+  tl_title = 'رده_خالی'
+  AND cl_to is null
+  AND page_title NOT LIKE 'بازبینی_گمر%'
+  AND page_title NOT LIKE 'درگذشتگان%'
+  AND page_title NOT LIKE 'زادگان%'
+ORDER BY page_title;
+""",
+            "out": "وپ:گزارش دیتابیس/کاربرد مشکوک الگوی رده خالی",
+            "cols": ["ردیف", "صفحه"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه فهرستی از صفحه‌هایی را نشان می‌دهد که برچسب {{الگوی|رده خالی}} دارند اما ممکن است
+این برچسب برایشان مناسب نباشد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[%s]] ",
+            "sign": True
+        },
     ]
 
     for t in tasks:
