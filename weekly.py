@@ -2361,6 +2361,35 @@ ORDER BY page_title;
             "frmt": "| {{formatnum:%d}} || [[%s]] ",
             "sign": True
         },
+        {
+            "sqlnum": 57,
+            "sql": """
+SELECT
+  page_title,
+  COUNT(*) pages
+FROM page
+JOIN categorylinks c1
+  ON page_id = c1.cl_from
+  AND c1.cl_to = 'بحث‌های_نبح'
+JOIN categorylinks c2
+  ON c2.cl_to = page_title
+WHERE page_namespace = 14
+GROUP BY page_title
+ORDER BY page_title;
+""",
+            "out": "وپ:گزارش دیتابیس/آمار طبقه‌بندی شدهٔ نبح‌های باز",
+            "cols": ["ردیف", "صفحه", "تعداد"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه فهرستی از صفحه‌هایی را نشان می‌دهد که برچسب {{الگوی|رده خالی}} دارند اما ممکن است
+این برچسب برایشان مناسب نباشد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[:رده:%s]] || {{formatnum:%s}} ",
+            "sign": True
+        },
     ]
 
     for t in tasks:
