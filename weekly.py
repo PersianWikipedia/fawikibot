@@ -579,7 +579,8 @@ WHERE
   page_namespace = 0
   AND page_is_redirect = 0
   AND cl_to IS NULL
-  AND page_len < 500
+  AND page_len < 500 AND not page_title LIKE "(میلادی)" AND not page_title LIKE "(خورشیدی)" AND not page_title LIKE "(قمری)" 
+  AND not page_title LIKE "%_میلاد)"
 ORDER BY page_len
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های کم‌حجم",
