@@ -579,7 +579,7 @@ WHERE
   page_namespace = 0
   AND page_is_redirect = 0
   AND cl_to IS NULL
-  AND page_len < 500 AND  page_title NOT LIKE "(میلادی)" AND  page_title NOT LIKE "(خورشیدی)" AND  page_title NOT LIKE "(قمری)" 
+  AND page_len < 500 AND  page_title NOT LIKE "%_(میلادی)" AND  page_title NOT LIKE "%_(خورشیدی)" AND  page_title NOT LIKE "%_(قمری)" 
   AND page_title NOT LIKE "%_میلاد)"
 ORDER BY page_len
 """,
