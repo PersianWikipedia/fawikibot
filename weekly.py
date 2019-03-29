@@ -220,8 +220,10 @@ SELECT
   ipb_address,
   ipb_by_text,
   STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
-  ipb_reason
+  comment_text
 FROM ipblocks
+JOIN comment
+  ON ipb_reason_id = comment_id
 WHERE
   ipb_expiry = 'infinity'
   AND ipb_user = 0
@@ -1382,8 +1384,10 @@ SELECT
   ipb_by_text,
   STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
   STR_TO_DATE(LEFT(ipb_expiry,8), '%Y%m%d'),
-  ipb_reason
+  comment_text
 FROM ipblocks
+JOIN comment
+  ON ipb_reason_id = comment_id
 WHERE ipb_address LIKE '%/%'
 """,
             "out": "ویکی‌پدیا:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده",
@@ -1583,8 +1587,10 @@ SELECT
   u2.user_name blocker,
   REPLACE(STR_TO_DATE(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime,
   REPLACE(STR_TO_DATE(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend,
-  ipb_reason
+  comment_text
 FROM ipblocks
+JOIN comment
+  ON ipb_reason_id = comment_id
 JOIN user u1
   ON ipb_user = u1.user_id
 JOIN user u2
@@ -1651,8 +1657,10 @@ SELECT
   ipb_by_text,
   STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'),
   STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
-  ipb_reason
+  comment_text
 FROM ipblocks
+JOIN comment
+  ON ipb_reason_id = comment_id
 WHERE
   STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d') >
     DATE_ADD(STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'), INTERVAL 2 YEAR)
