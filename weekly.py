@@ -2245,8 +2245,10 @@ SELECT
 FROM revision
 JOIN page
   ON page_id = rev_page
+JOIN comment
+  ON rev_comment_id = comment_id
 WHERE
-  rev_comment LIKE '%واگردانده شد'
+  comment_text LIKE '%واگردانده شد'
   AND rev_timestamp >
     CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
   AND page_namespace = 0
