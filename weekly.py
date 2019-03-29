@@ -32,10 +32,12 @@ SELECT DISTINCT
   log_id,
   user_name,
   CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) AS link,
-  log_comment,
+  comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'حذف تصویر' AS issue
 FROM logging
+JOIN comment
+  ON log_comment_id = comment_id
 JOIN user_groups ug
   ON log_user = ug.ug_user
   AND ug.ug_group = 'eliminator'
@@ -57,10 +59,12 @@ SELECT DISTINCT
   log_id,
   u.user_name,
   CONCAT('کاربر:', log_title) AS link,
-  log_comment,
+  comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'بستن غیرمجاز' AS issue
 FROM logging
+JOIN comment
+  ON log_comment_id = comment_id
 JOIN user_groups ug
   ON log_user = ug.ug_user
 JOIN user u
@@ -86,10 +90,12 @@ SELECT DISTINCT
   log_id,
   user_name,
   log_title AS link,
-  log_comment,
+  comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'محافظت کامل' AS issue
 FROM logging
+JOIN comment
+  ON log_comment_id = comment_id
 JOIN user_groups
   ON log_user = ug_user
 JOIN user
@@ -106,10 +112,12 @@ SELECT
   log_id,
   user_name,
   CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
-  log_comment,
+  comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'احیای نسخهٔ حذف‌شده' AS issue
 FROM logging
+JOIN comment
+  ON log_comment_id = comment_id
 JOIN user_groups
   ON log_user = ug_user
 JOIN user
