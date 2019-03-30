@@ -21,9 +21,11 @@
 #############################################
  
 from __future__ import absolute_import, unicode_literals
- 
+
+import json
 import re
 import time
+import requests
 import webcitation
 import pywikibot
 
@@ -76,7 +78,7 @@ class WebCiteBot(
             .replace(u'8',u'۸') \
             .replace(u'9',u'۹')
 
-    def persianDate(self):
+    def persianDate(self, date = False):
         monthNames = [
             u"ژانویه",
             u"فوریه",
@@ -92,10 +94,11 @@ class WebCiteBot(
             u"دسامبر"
             ]
 
-        today = datetime.today()
-        y = today.year
-        m = monthNames[today.month - 1]
-        d = today.day
+        if date == False:
+            date = datetime.today()
+        y = date.year
+        m = monthNames[date.month - 1]
+        d = date.day
 
         d = self.persianDigits(d)
         y = self.persianDigits(y)
@@ -112,6 +115,24 @@ class WebCiteBot(
         pywikibot.output(u"\03{lightgreen}Successfully archived at %s\03{default}" % archiveURL)
         self.counter += 1
         return archiveURL
+
+    def find_archive(self, URL):
+        query = 'https://archive.org/wayback/available?url=' + URL
+        res = requests.get(query)
+        if res.status_code == 200:
+            j = json.loads(res.text)
+            if 'archived_snapshots' in j and 'closest' in j['archived_snapshots']:
+                if j['archived_snapshots']['closest']['status'] == '200':
+                    archive_url = j['archived_snapshots']['closest']['url']
+                    archive_ts = j['archived_snapshots']['closest']['timestamp']
+                    archive_ts = datetime.strptime(archive_ts, "%Y%m%d%H%M%S")
+                    now = datetime.now()
+                    archive_age = now - archive_ts
+                    if archive_age.days < 365:
+                        pywikibot.output(u"\03{lightgreen}Found archive at %s\03{default}" % archive_url)
+                        self.counter += 1
+                        return [archive_url, archive_ts]
+        return False
 
     def treat_page(self):
         if (self.current_page.namespace() != 0):
@@ -141,7 +162,12 @@ class WebCiteBot(
                             pywikibot.output(u"\03{red}WebCitation quota is used up!\03{default}")
                             continue
                         
-                        arc = self.archive(url[0][1])
+                        found = self.find_archive(url[0][1])
+                        if found:
+                            arc = found[0]
+                            persianDate = self.persianDate(found[1])
+                        else:
+                            arc = self.archive(url[0][1])
                         if not arc:
                             # Archiving failed
                             failures.append(url[0][1])
@@ -173,7 +199,12 @@ class WebCiteBot(
                             pywikibot.output(u"\03{red}WebCitation quota is used up!\03{default}")
                             continue
                         
-                        arc = self.archive(url[0][1])
+                        found = self.find_archive(url[0][1])
+                        if found:
+                            arc = found[0]
+                            englishDate = found[1].strftime("%-d %B %Y")
+                        else:
+                            arc = self.archive(url[0][1])
                         if not arc:
                             failures.append(url[0][1])
                             # Archiving failed
