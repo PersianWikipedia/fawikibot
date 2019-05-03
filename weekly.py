@@ -2451,7 +2451,7 @@ LIMIT 500
             "sql": """
 SELECT
   rev_user_text,
-  count(rev_id) AS freq
+  COUNT(rev_id) AS freq
 FROM revision_userindex
 JOIN user_groups
   ON rev_user = ug_user
@@ -2460,7 +2460,7 @@ WHERE
   rev_page = 147882
   AND rev_timestamp > DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL -7 DAY), "%Y%m%d000000")
 GROUP BY rev_user_text
-ORDER BY freq desc
+ORDER BY freq DESC
 """,
             "out": "وپ:گزارش دیتابیس/ویرایش‌های مدیران در تام",
             "cols": ["ردیف", "کاربر", "تعداد"],
