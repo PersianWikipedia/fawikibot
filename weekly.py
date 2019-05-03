@@ -2446,6 +2446,34 @@ LIMIT 500
             "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} ",
             "sign": True
         },
+        {
+            "sqlnum": 59,
+            "sql": """
+SELECT
+  rev_user_text,
+  count(rev_id) AS freq
+FROM revision_userindex
+JOIN user_groups
+  ON rev_user = ug_user
+  AND ug_group = 'sysop'
+WHERE
+  rev_page = 147882
+  AND rev_timestamp > DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL -7 DAY), "%Y%m%d000000")
+GROUP BY rev_user_text
+ORDER BY freq desc
+""",
+            "out": "وپ:گزارش دیتابیس/ویرایش‌های مدیران در تام",
+            "cols": ["ردیف", "کاربر", "تعداد"],
+            "summary": "به روز کردن آمار",
+            "pref": """
+[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
+این صفحه تعداد ویرایش‌های کاربران [[وپ:مدیر|]] ظرف هفتهٔ گذشته در [[وپ:تام]] را نشان می‌دهد.
+
+آخرین به روز رسانی: ~~~~~
+""",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}} ",
+            "sign": True
+        },
     ]
 
     for t in tasks:
