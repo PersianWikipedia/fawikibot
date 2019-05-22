@@ -326,19 +326,26 @@ WHERE
             "sql": """
 SELECT
   page_title,
-  pl_title
+  pl_title,
+  CASE
+    WHEN c2.cl_to IS NULL THEN NULL
+    ELSE '{{yes}}'
+  END AS under_construction
 FROM page JOIN pagelinks
   ON page_id = pl_from
-LEFT JOIN categorylinks
-  ON page_id = cl_from
-  AND cl_to = 'مقاله‌های_نامزد_حذف_سریع'
+LEFT JOIN categorylinks c1
+  ON page_id = c1.cl_from
+  AND c1.cl_to = 'مقاله‌های_نامزد_حذف_سریع'
+LEFT JOIN categorylinks c2
+  ON page_id = c2.cl_from
+  AND c2.cl_to = 'صفحه‌های_گسترده_در_دست_ساخت'
 WHERE
   page_namespace = 0
   AND pl_namespace IN (2, 3)
-  AND cl_to IS NULL
+  AND c1.cl_to IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به صفحه کاربری",
-            "cols": ["ردیف", "مقاله", "پیوند به صفحه (بحث) کاربر"],
+            "cols": ["ردیف", "مقاله", "پیوند به صفحه (بحث) کاربر", "الگوی در دست ساخت؟"],
             "summary": "به روز کردن آمار",
             "pref": """
 [[رده:گزارش‌های دیتابیس ویکی‌پدیا]]
@@ -347,7 +354,7 @@ WHERE
 
 آخرین به روز رسانی: ~~~~~
 """,
-            "frmt": "| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]]",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[کاربر:%s]] || %s",
             "sign": True
         },
         {
