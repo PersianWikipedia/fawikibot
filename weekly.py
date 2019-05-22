@@ -328,8 +328,8 @@ SELECT
   page_title,
   pl_title,
   CASE
-    WHEN c2.cl_to IS NULL THEN 0
-    ELSE 1
+    WHEN c2.cl_to IS NULL THEN NULL
+    ELSE '{{yes}}'
   END AS under_construction
 FROM page JOIN pagelinks
   ON page_id = pl_from
