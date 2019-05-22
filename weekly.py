@@ -328,21 +328,24 @@ SELECT
   page_title,
   pl_title,
   CASE
-    WHEN c2.cl_to IS NULL THEN NULL
-    ELSE '{{yes}}'
+    WHEN c2.cl_to IS NULL THEN 0
+    ELSE 1
   END AS under_construction
 FROM page JOIN pagelinks
   ON page_id = pl_from
-LEFT JOIN categorylinks c1
-  ON page_id = c1.cl_from
-  AND c1.cl_to = 'مقاله‌های_نامزد_حذف_سریع'
 LEFT JOIN categorylinks c2
   ON page_id = c2.cl_from
   AND c2.cl_to = 'صفحه‌های_گسترده_در_دست_ساخت'
 WHERE
   page_namespace = 0
   AND pl_namespace IN (2, 3)
-  AND c1.cl_to IS NULL
+  AND NOT EXISTS (
+    SELECT c1.cl_to
+    FROM categorylinks c1
+    WHERE
+      page_id = c1.cl_from
+      AND c1.cl_to = 'مقاله‌های_نامزد_حذف_سریع'
+  )
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به صفحه کاربری",
             "cols": ["ردیف", "مقاله", "پیوند به صفحه (بحث) کاربر", "الگوی در دست ساخت؟"],
