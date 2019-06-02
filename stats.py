@@ -49,7 +49,7 @@ import pywikibot
 import sys
 import re
 import MySQLdb as mysqldb
-import timeit
+import time
 page_namespace={u'0':u'',u'1':u'بحث:',
                 u'2':u'کاربر:',u'3':u'بحث کاربر:',
                 u'4':u'ویکی‌پدیا:',u'5':u'بحث ویکی‌پدیا:',
@@ -111,7 +111,7 @@ class StatsBot:
         print "Stats bot started ..."
         print "Process number: %s" % self.sqlnum
         pywikibot.output("Process number: %s" % self.sqlnum)
-        bot_start = timeit.timeit()
+        bot_start = time.time()
 
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
@@ -121,16 +121,16 @@ class StatsBot:
         text += u'{| class="wikitable sortable"\n'
         for col in self.cols:
             text += u'!' + col + u'\n'
-        query_start = timeit.timeit()
+        query_start = time.time()
         conn = mysqldb.connect("fawiki.labsdb", db="fawiki_p",
                                read_default_file="~/replica.my.cnf")
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
         cursor.execute(self.sql)
         results = cursor.fetchall()
-        query_end = timeit.timeit()
-        print "Query time: %f" % (1000.0 * abs(query_start - query_end))
-        timer = '<!-- Query time: %f-->\n' % (1000.0 * abs(query_start - query_end))
+        query_end = time.time()
+        print "Query time: %d seconds" % int(query_end - query_start)
+        timer = '<!-- Query time: %d seconds -->\n' % int(query_end - query_start)
         text = timer + text
         text = u'<!-- SQL Number = ' + str(self.sqlnum) + u' -->\n' + text
         print len(results), ' rows will be processed'
@@ -143,12 +143,10 @@ class StatsBot:
                 try:
                    row[idx] = str(row[idx]).decode('utf-8')
                 except:
-                    try:#error on cut by GROUP_CONCAT()
+                    try:
                        row[idx] = str(row[idx])[:-1].decode('utf-8')
-                       #row[idx]=u'، [['.join(row[idx].split(u'، [[').pop())
                     except:
                         row[idx] = str(row[idx])[:-2].decode('utf-8')
-                        #row[idx]=u'، [['.join(row[idx].split(u'، [[').pop())
             
             if self.frmt:
                 row = tuple(row)
@@ -160,7 +158,7 @@ class StatsBot:
                 for item in row:
                     text += u'| ' + item + u'\n'
         text += u'|}'
-        #Convert Namespace number to text for queries like weekly-slow.py #12 and #13
+        # Convert Namespace number to text for queries like weekly-slow.py #12 and #13
         for ns in page_namespace:
             text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns])
         for user_grp in user_groups:
@@ -173,8 +171,8 @@ class StatsBot:
             if not self.save('~~~~~', sign, self.summary):
                 pywikibot.outout(u'Signature note saved in %s.' %
                                  sign.title(asLink=True))
-        bot_end = timeit.timeit()
-        print "Total time: %f" % (1000.0 * abs(bot_start - bot_end))
+        bot_end = time.time()
+        print "Total time: %d seconds" % int(bot_end - bot_start)
         print "Stats bot out ..."
 
     def save(self, text, page, comment=None, minorEdit=True,
