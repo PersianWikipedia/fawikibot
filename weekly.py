@@ -218,12 +218,14 @@ WHERE
             "sql": """
 SELECT
   ipb_address,
-  ipb_by_text,
+  actor_name,
   STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
   comment_text
 FROM ipblocks
 JOIN comment
   ON ipb_reason_id = comment_id
+JOIN actor
+  ON ipb_by_actor = actor_id
 WHERE
   ipb_expiry = 'infinity'
   AND ipb_user = 0
@@ -257,26 +259,6 @@ GROUP BY up_value
             "pref": u'',
             "frmt": "| %s || {{formatnum:%s}}",
             "sign": False
-        },
-        {
-            "sqlnum": 7,
-            "sql": """
-SELECT
-  (mid(up_value, 10, locate('|', mid(up_value,10))-1) / 60) AS offset,
-  COUNT(up_value)
-FROM user_properties
-WHERE up_property = 'timecorrection'
-GROUP BY offset
-ORDER BY offset
-""",
-            "out": "وپ:گزارش دیتابیس/ترجیحات کاربران",
-            "cols": ["اختلاف ساعت", "تعداد"],
-            "summary": "به روز کردن آمار",
-            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
-                    "\nآخرین به روز رسانی: ~~~~~\n\n==جنسیت==\n\n{{/جنسیت}}" +
-                    "\n\n==منطقه زمانی==\n\n",
-            "frmt": "| {{formatnum:%s}} || {{formatnum:%s}}",
-            "sign": True
         },
         {
             "sqlnum": 8,
@@ -390,7 +372,7 @@ FROM page
 JOIN (
   SELECT
     rev_page,
-    COUNT(DISTINCT rev_user) AS cnt
+    COUNT(DISTINCT rev_actor) AS cnt
   FROM revision
   GROUP BY rev_page
   HAVING cnt = 1
@@ -399,7 +381,7 @@ JOIN (
 LEFT JOIN pagelinks
   ON pl_title = page_title
   AND pl_namespace = 4
-  AND pl_from <> 1171408
+  AND pl_from <> 1171408 /* The report itself */
 LEFT JOIN templatelinks
   ON tl_title = page_title
   AND tl_namespace = 4
