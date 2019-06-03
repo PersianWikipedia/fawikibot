@@ -662,7 +662,7 @@ LEFT JOIN categorylinks
 JOIN (
   SELECT
     rev_page,
-    COUNT(DISTINCT rev_user) cnt
+    COUNT(DISTINCT rev_actor) cnt
   FROM revision
   GROUP BY rev_page
   HAVING cnt = 1
@@ -734,10 +734,12 @@ SELECT
   user_name,
   COUNT(log_id) cnt
 FROM user
+JOIN actor
+  ON actor_user = user_id
 JOIN logging
-  ON log_user = user_id
+  ON log_actor = actor_id
 LEFT JOIN user_groups
-  ON log_user = ug_user
+  ON user_id = ug_user
   AND ug_group = 'bot'
 WHERE
   log_type ='patrol'
@@ -748,7 +750,7 @@ WHERE
   )
   AND ug_group IS NULL
 GROUP BY
-  log_user,
+  log_actor,
   log_action
 ORDER BY cnt DESC
 """,
@@ -812,8 +814,11 @@ LEFT JOIN (
   SELECT
     user_name,
     COUNT(log_id) thankback
-  FROM logging JOIN user
-    ON user_id = log_user
+  FROM logging
+  JOIN actor
+    on log_user = actor_id
+  JOIN user
+    ON user_id = actor_user
   WHERE log_type = 'thanks'
   GROUP BY user_name
 ) back
@@ -873,133 +878,157 @@ FROM user JOIN user_groups
   AND ug_group = 'sysop'
 LEFT JOIN (
   SELECT
-   log_user,
+   actor_user,
    COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'delete'
     AND log_action='delete'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) del
-  ON user_id = del.log_user
+  ON user_id = del.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'delete'
     AND log_action='restore'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) res
-  ON user_id = res.log_user
+  ON user_id = res.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'delete'
     AND log_action='revision'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) revdel
-  ON user_id = revdel.log_user
+  ON user_id = revdel.actor_user
 LEFT JOIN (
   SELECT
-    log_user,\
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'delete'
     AND log_action = 'event'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) logdel
-  ON user_id = logdel.log_user
+  ON user_id = logdel.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'protect'
     AND log_action = 'protect'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) prot
-  ON user_id = prot.log_user
+  ON user_id = prot.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'protect'
     AND log_action = 'unprotect'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) unprot
-  ON user_id = unprot.log_user
+  ON user_id = unprot.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'protect'
     AND log_action = 'modify'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) editprot
-  ON user_id = editprot.log_user
+  ON user_id = editprot.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'block'
     AND log_action = 'block'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) block
-  ON user_id = block.log_user
+  ON user_id = block.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'block'
     AND log_action = 'unblock'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) unblock
-  ON user_id = unblock.log_user
+  ON user_id = unblock.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE
     log_type = 'block'
     AND log_action = 'reblock'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) editblock
-  ON user_id = editblock.log_user
+  ON user_id = editblock.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE log_type = 'renameuser'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) renames
-  ON user_id = renames.log_user
+  ON user_id = renames.actor_user
 LEFT JOIN (
   SELECT
-    log_user,
+    actor_user,
     COUNT(log_id) cnt
   FROM logging
+  JOIN actor
+    ON log_actor = actor_id
   WHERE log_type = 'rights'
   AND log_action = 'rights'
-  GROUP BY log_user
+  GROUP BY actor_user
 ) rights
-  ON user_id = rights.log_user
+  ON user_id = rights.actor_user
 ORDER BY tot DESC
 """,
             "out": "وپ:گزارش دیتابیس/فعالیت‌ مدیران کنونی",
@@ -1068,134 +1097,158 @@ FROM (
   FROM user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'delete'
       AND log_action='delete'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) del
-    ON user_id = del.log_user
+    ON user_id = del.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'delete'
       AND log_action='restore'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) res
-    ON user_id = res.log_user
+    ON user_id = res.actor_user
   LEFT JOIN (
     SELECT
-     log_user,
-     COUNT(log_id) cnt
+      actor_user,
+      COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'delete'
       AND log_action='revision'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) revdel
-    ON user_id = revdel.log_user
+    ON user_id = revdel.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'delete'
       AND log_action = 'event'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) logdel
-    ON user_id = logdel.log_user
+    ON user_id = logdel.actor_user
   LEFT JOIN (
     SELECT
      log_user,
      COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'protect'
       AND log_action = 'protect'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) prot
-    ON user_id = prot.log_user
+    ON user_id = prot.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'protect'
       AND log_action = 'unprotect'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) unprot
-    ON user_id = unprot.log_user
+    ON user_id = unprot.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'protect'
       AND log_action = 'modify'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) editprot
-    ON user_id = editprot.log_user
+    ON user_id = editprot.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'block'
       AND log_action = 'block'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) block
-    ON user_id = block.log_user
+    ON user_id = block.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'block'
       AND log_action = 'unblock'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) unblock
-    ON user_id = unblock.log_user
+    ON user_id = unblock.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'block'
       AND log_action = 'reblock'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) editblock
-    ON user_id = editblock.log_user
+    ON user_id = editblock.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE log_type = 'renameuser'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) renames
-    ON user_id = renames.log_user
+    ON user_id = renames.actor_user
   LEFT JOIN (
     SELECT
-      log_user,
+      actor_user,
       COUNT(log_id) cnt
     FROM logging
+    JOIN actor
+      ON log_actor = actor_id
     WHERE
       log_type = 'rights'
       AND log_action = 'rights'
-    GROUP BY log_user
+    GROUP BY actor_user
   ) rights
-    ON user_id = rights.log_user
+    ON user_id = rights.actor_user
 ) withzeros
 WHERE tot > 0
 ORDER BY tot DESC
@@ -1373,11 +1426,13 @@ JOIN page
 SELECT
   ipb_address,
   MID(ipb_address, INSTR(ipb_address, '/') + 1) AS cnt,
-  ipb_by_text,
+  actor_name,
   STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
   STR_TO_DATE(LEFT(ipb_expiry,8), '%Y%m%d'),
   comment_text
 FROM ipblocks
+JOIN actor
+  ON ipb_by_actor = actor_id
 JOIN comment
   ON ipb_reason_id = comment_id
 WHERE ipb_address LIKE '%/%'
@@ -1547,12 +1602,12 @@ HAVING imagelinks + links <= 1
             "sqlnum": 39,
             "sql": """
 SELECT
-  user_name,
+  actor_name,
   sum(img_size) AS tot
 FROM image
-JOIN user
-  ON img_user = user_id
-GROUP BY img_user
+JOIN actor
+  ON img_actor = actor_id
+GROUP BY img_actor
 ORDER BY tot DESC
 LIMIT 500
 """,
@@ -1575,18 +1630,18 @@ LIMIT 500
             "sqlnum": 40,
             "sql": """
 SELECT
-  u1.user_name blockee,
-  u2.user_name blocker,
+  user_name blockee,
+  actor_name blocker,
   REPLACE(STR_TO_DATE(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime,
   REPLACE(STR_TO_DATE(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend,
   comment_text
 FROM ipblocks
 JOIN comment
   ON ipb_reason_id = comment_id
-JOIN user u1
-  ON ipb_user = u1.user_id
-JOIN user u2
-  ON ipb_by = u2.user_id
+JOIN user
+  ON ipb_user = user_id
+JOIN actor
+  ON ipb_by_actor = actor_id
 WHERE
   ipb_user <> 0
   AND ipb_expiry NOT IN ('infinity', 'indefinite')
@@ -1630,7 +1685,7 @@ WHERE
   log_action = 'delete'
   AND page_id IS NULL
 GROUP BY cl_to
-ORDER BY CNT DESC
+ORDER BY cnt DESC
 """,
             "out": "وپ:گزارش دیتابیس/رده‌های حذف شده مورد نیاز",
             "cols": ["ردیف", "رده", "تعداد کاربردها"],
@@ -1646,11 +1701,13 @@ ORDER BY CNT DESC
             "sql": """
 SELECT
   ipb_address,
-  ipb_by_text,
+  actor_name,
   STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'),
   STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
   comment_text
 FROM ipblocks
+JOIN actor
+  ON ipb_by_actor = actor_id
 JOIN comment
   ON ipb_reason_id = comment_id
 WHERE
@@ -1975,7 +2032,7 @@ ORDER BY fap.page_title;
             "sqlnum": 48,
             "sql": """
 SELECT
-  rev_user_text,
+  actor_name,
   STR_TO_DATE(LEFT(min(rev_timestamp), 8), '%Y%m%d') AS sunrise,
   STR_TO_DATE(LEFT(min(sunset), 8), '%Y%m%d') AS sunset,
   old_edits,
@@ -1986,38 +2043,44 @@ SELECT
     ELSE '{{بله}}'
   END AS blocked
 FROM revision
+JOIN actor
+  ON rev_actor = actor_id
 JOIN (
   SELECT
-    rev_user old_user,
+    actor_user old_user,
     max(rev_timestamp) sunset,
     COUNT(rev_id) AS old_edits
   FROM revision
+  JOIN actor
+    ON rev_actor = actor_id
   WHERE
-    rev_user <> 0
+    actor_user <> 0
     AND rev_timestamp < CONCAT(
       YEAR(CURDATE()) - 3,
       LPAD(MONTH(CURDATE()) , 2, 0),
       '01000000'
     )
-  GROUP BY rev_user
+  GROUP BY actor_user
 ) old
-  ON old_user = rev_user
+  ON old_user = actor_user
 LEFT JOIN user_groups
-  ON rev_user = ug_user
+  ON actor_user = ug_user
 LEFT JOIN ipblocks
-  ON ipb_user = rev_user
+  ON actor_user = ipb_user
 WHERE
-  rev_user <> 0
+  actor_user <> 0
   AND rev_timestamp > CONCAT(
     YEAR(CURDATE()),
     LPAD(MONTH(CURDATE()) , 2, 0),
     '01000000'
   )
-  AND rev_user NOT IN (
-    SELECT rev_user
+  AND actor_user NOT IN (
+    SELECT actor_user
     FROM revision
+    JOIN actor
+      ON rev_actor = actor_id
     WHERE
-      rev_user <> 0
+      actor_user <> 0
       AND rev_timestamp < CONCAT(
         YEAR(CURDATE()),
         LPAD(MONTH(CURDATE()) , 2, 0),
@@ -2028,7 +2091,7 @@ WHERE
         '01000000'
       )
 )
-GROUP BY rev_user_text
+GROUP BY actor_name
 """,
             "out": "وپ:گزارش دیتابیس/حساب‌های از آب‌نمک درآمده",
             "cols": [
@@ -2140,8 +2203,10 @@ SELECT DISTINCT
     ELSE '{{خیر|بله}}'
   END AS lostautopatrol
 FROM revision
+JOIN actor
+  ON rev_actor = actor_id
 LEFT JOIN user_former_groups
-  ON rev_user = ufg_user
+  ON actor_user = ufg_user
   AND ufg_group IN ('autopatrolled', 'autopatrol')
 LEFT JOIN page
   ON rev_page = page_id
@@ -2164,15 +2229,15 @@ WHERE
         '000000'
       )
     END
-  AND rev_user NOT IN (
+  AND actor_user NOT IN (
     SELECT ug_user
     FROM user_groups
     WHERE ug_group IN ('autopatrolled', 'sysop', 'bot')
   )
-  AND rev_user <> 0 /* anonymous users */
-  AND rev_user <> 374638 /* پیام به کاربر جدید */
+  AND actor_user <> 0 /* anonymous users */
+  AND actor_user <> 374638 /* پیام به کاربر جدید */
 GROUP BY
-  rev_user_text,
+  actor_name,
   ufg_group
 HAVING cnt > 20
 ORDER BY cnt DESC
@@ -2295,42 +2360,52 @@ WHERE page_id IN (
             "sqlnum": 55,
             "sql": """
 SELECT
-  users.user_name,
-  CONCAT(' ',REGEXP_REPLACE(GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR '، '),'(uploader|autopatrolled|ipblock\-exempt)',''),' ') AS groups,
+  actor_name,
+  GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR '، ') AS groups,
   active_days
 FROM
 (
   SELECT
-    user_id,user_name,
+    actor_user,
+    actor_name,
     COUNT(*) AS active_days
   FROM
   (
     SELECT DISTINCT
-      rev_user,
+      actor_user,
+      actor_name,
       LEFT(rev_timestamp, 8)
     FROM revision
+    JOIN actor
+      ON rev_actor = actor_id
     WHERE
       rev_timestamp > CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y%m%d'), '000000')
   ) AS rev_days
-  JOIN user
-    ON rev_user = user_id
   LEFT JOIN user_groups
-    ON user_id = ug_user
+    ON actor_user = ug_user
     AND ug_group = 'bot'
   WHERE
     ug_user IS NULL
-    AND user_id NOT IN ('374638','285515')# پیام_به_کاربر_جدید and FawikiPatroller
+    AND actor_user NOT IN (
+      374638, /* پیام به کاربر جدید */
+      285515 /* FawikiPatroller */
+    )
   GROUP BY
-    rev_user
+    actor_user
   HAVING
     COUNT(*) > 100
 ) as users
-JOIN user_groups
-  ON user_id = ug_user
+LEFT JOIN user_groups
+  ON actor_user = ug_user
+  AND ug_group NOT IN (
+    'uploader',
+    'autopatrolled',
+    'ipblock-exempt'
+  )
 GROUP BY
-  user_id
+  actor_user
 ORDER BY
- active_days DESC;
+  active_days DESC
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد روزهای فعال در سال اخیر",
             "cols": ["ردیف", "گروه کاربری","کاربر", "روزهای فعال"],
@@ -2408,20 +2483,20 @@ ORDER BY page_title;
             "sqlnum": 58,
             "sql": """
 SELECT
-  user_name,
+  actor_name,
   COUNT(*)
 FROM logging_userindex
-JOIN user
-  ON log_user = user_id
+JOIN actor
+  ON log_actor = actor_id
 WHERE
   log_type = 'move'
-  AND log_user <> 0
-  AND log_user NOT IN (
+  AND actor_user <> 0
+  AND actor_user NOT IN (
     SELECT ug_user
     FROM user_groups
     WHERE ug_group = 'bot'
   )
-GROUP BY user_name
+GROUP BY actor_name
 ORDER BY COUNT(*) DESC
 LIMIT 500
 """,
@@ -2442,16 +2517,18 @@ LIMIT 500
             "sqlnum": 59,
             "sql": """
 SELECT
-  rev_user_text,
+  actor_name,
   COUNT(rev_id) AS freq
 FROM revision_userindex
+JOIN actor
+  ON rev_actor = actor_id
 JOIN user_groups
-  ON rev_user = ug_user
+  ON actor_user = ug_user
   AND ug_group = 'sysop'
 WHERE
   rev_page = 147882
   AND rev_timestamp > DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL -7 DAY), "%Y%m%d000000")
-GROUP BY rev_user_text
+GROUP BY actor_name
 ORDER BY freq DESC
 """,
             "out": "وپ:گزارش دیتابیس/ویرایش‌های مدیران در تام",
