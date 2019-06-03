@@ -393,41 +393,6 @@ WHERE page_len > 300 * 1024
             "sign": True
         },
         {
-            "sqlnum": 12,
-            "sql": """
-SELECT page_title
-FROM page
-JOIN (
-  SELECT
-    rev_page,
-    COUNT(DISTINCT rev_actor) AS cnt
-  FROM revision
-  GROUP BY rev_page
-  HAVING cnt = 1
-) singleauth
-  ON page_id = rev_page
-LEFT JOIN pagelinks
-  ON pl_title = page_title
-  AND pl_namespace = 4
-  AND pl_from <> 1171408 /* The report itself */
-LEFT JOIN templatelinks
-  ON tl_title = page_title
-  AND tl_namespace = 4
-WHERE
-  page_namespace = 4
-  AND page_is_redirect = 0
-  AND pl_title IS NULL
-  AND tl_title IS NULL
-""",
-            "out": "وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده",
-            "cols": ["ردیف", "صفحه"],
-            "summary": "به روز کردن آمار",
-            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
-                    "\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d}} || [[{{ns:4}}:%s]]",
-            "sign": True
-        },
-        {
             "sqlnum": 13,
             "sql": """
 SELECT
