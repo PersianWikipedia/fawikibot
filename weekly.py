@@ -36,17 +36,19 @@ SELECT DISTINCT
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'حذف تصویر' AS issue
 FROM logging
+JOIN actor
+  ON log_actor = actor_id
 JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups ug
-  ON log_user = ug.ug_user
+  ON actor_user = ug.ug_user
   AND ug.ug_group = 'eliminator'
 JOIN user
-  ON log_user = user_id
+  ON actor_user = user_id
 JOIN archive
   ON log_page = ar_page_id
 LEFT JOIN user_groups ug2
-  ON log_user = ug2.ug_user
+  ON actor_user = ug2.ug_user
   AND ug2.ug_group = 'Image-reviewer'
 WHERE
   log_type = 'delete'
@@ -63,12 +65,14 @@ SELECT DISTINCT
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'بستن غیرمجاز' AS issue
 FROM logging
+JOIN actor
+  ON log_actor = actor_id
 JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups ug
-  ON log_user = ug.ug_user
+  ON actor_user = ug.ug_user
 JOIN user u
-  ON log_user = u.user_id
+  ON actor_user = u.user_id
 JOIN user u2
   ON log_title = u2.user_name
 JOIN user_groups ug2
@@ -94,12 +98,14 @@ SELECT DISTINCT
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'محافظت کامل' AS issue
 FROM logging
+JOIN actor
+  ON log_actor = actor_id
 JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups
-  ON log_user = ug_user
+  ON actor_user = ug_user
 JOIN user
-  ON log_user = user_id
+  ON actor_user = user_id
 WHERE
   ug_group = 'eliminator'
   AND log_type = 'protect'
@@ -116,12 +122,14 @@ SELECT
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
   'احیای نسخهٔ حذف‌شده' AS issue
 FROM logging
+JOIN actor
+  ON log_actor = actor_id
 JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups
-  ON log_user = ug_user
+  ON actor_user = ug_user
 JOIN user
-  ON user_id = log_user
+  ON user_id = actor_user
 WHERE
   ug_group = 'eliminator'
   AND log_params LIKE '%nfield";i:0%'
