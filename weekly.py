@@ -249,6 +249,26 @@ WHERE
             "sign": True
         },
         {
+            "sqlnum": 7,
+            "sql": """
+SELECT
+  (mid(up_value, 10, locate('|', mid(up_value,10))-1) / 60) AS offset,
+  COUNT(up_value)
+FROM user_properties
+WHERE up_property = 'timecorrection'
+GROUP BY offset
+ORDER BY offset
+""",
+            "out": "وپ:گزارش دیتابیس/ترجیحات کاربران",
+            "cols": ["اختلاف ساعت", "تعداد"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~\n\n==جنسیت==\n\n{{/جنسیت}}" +
+                    "\n\n==منطقه زمانی==\n\n",
+            "frmt": "| {{formatnum:%s}} || {{formatnum:%s}}",
+            "sign": True
+        },
+        {
             "sqlnum": 6,
             "sql": """
 SELECT
