@@ -4,7 +4,7 @@
 weekly-slow.py - a wrapper for stats.py to be called every week.
 
 usage:
-    <sqlnum>: For testing specifice sql you can use it's sqlnum argument. it is optional
+    <sqlnum>: Optional argument to run only one of the tasks
     python pwb.py weekly-slow <sqlnum>
     Like:
     python pwb.py weekly-slow.py 2
@@ -29,235 +29,979 @@ import stats
 def main(sqlnum):
     tasks = [
         {
-            "sqlnum":1,
-            "sql":
-            "select /* SLOW_OK */ page_title, cat_pages, cat_subcats, cat_files, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_id = cl_from left join langlinks on page_id = ll_from where page_namespace = 14 and page_is_redirect = 0 and cl_from is null group by page_title, cat_pages, cat_subcats, cat_files limit 5000;",
-            "out": 'وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده',
+            "sqlnum": 1,
+            "sql": """
+SELECT
+  page_title,
+  cat_pages,
+  cat_subcats,
+  cat_files,
+  COUNT(ll_lang)
+FROM page
+JOIN category
+  ON page_title = cat_title
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+LEFT JOIN langlinks
+  ON page_id = ll_from
+WHERE
+  page_namespace = 14
+  AND page_is_redirect = 0
+  AND cl_from IS NULL
+GROUP BY
+  page_title,
+  cat_pages,
+  cat_subcats,
+  cat_files
+LIMIT 5000
+""",
+            "out": "وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده",
             "cols":
-            [u'ردیف',
-             u'رده',
-             u'تعداد صفحه‌ها',
-             u'تعداد زیررده‌ها',
-             u'تعداد پرونده‌ها',
-             u'تعداد میان‌ویکی'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || %s || %s || %s || %s',
+            [
+              "ردیف",
+              "رده",
+              "تعداد صفحه‌ها",
+              "تعداد زیررده‌ها",
+              "تعداد پرونده‌ها",
+              "تعداد میان‌ویکی"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || %s || %s " +
+                    "|| %s || %s",
             "sign": True
         },
         {
-            "sqlnum":2,
-            "sql":
-            "select /* SLOW_OK */ page_title, str_to_date(left(rev_timestamp,8), '%Y%m%d') from page join revision on page_latest = rev_id left join categorylinks on page_id = cl_from where page_namespace = 10 and cl_to is null and page_is_redirect = 0 order by page_latest limit 5000",
-            "out": 'وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده',
-            "cols": [u'ردیف', u'الگو', u'آخرین ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt": u'| %d || [[الگو:%s]] || %s',
+            "sqlnum": 2,
+            "sql": """
+SELECT
+  page_title,
+  STR_TO_DATE(LEFT(rev_timestamp, 8), '%Y%m%d')
+FROM page
+JOIN revision
+  ON page_latest = rev_id
+LEFT JOIN categorylinks
+  ON page_id = cl_from
+WHERE
+  page_namespace = 10
+  AND cl_to IS NULL
+  AND page_is_redirect = 0
+ORDER BY page_latest
+LIMIT 5000
+""",
+            "out": "وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده",
+            "cols": [
+              "ردیف",
+              "الگو",
+              "آخرین ویرایش"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| %d || [[الگو:%s]] || %s",
             "sign": True
         },
         {
-            "sqlnum":3,
-            "sql":
-            "select /* SLOW OK */ user_name, count(rev_id) cnt from revision join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where ug_group is null group by rev_user order by cnt desc limit 500",
-            "out": 'وپ:گزارش دیتابیس/کاربران بر اساس تعداد ویرایش‌ها',
-            "cols": [u'ردیف', u'کاربر', u'تعداد ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست ۵۰۰ کاربر دارای بیشترین ویرایش در ویکی‌پدیای فارسی را نشان می‌دهد (شامل ربات‌ها نمی‌شود).\n\nآخرین به روز رسانی: ~~~~~',
+            "sqlnum": 3,
+            "sql": """
+SELECT
+  actor_name,
+  COUNT(rev_id) cnt
+FROM revision
+JOIN actor
+  ON rev_actor = actor_id
+LEFT JOIN user_groups
+  ON actor_user = ug_user
+  AND ug_group = "bot"
+WHERE
+  actor_user <> 0
+  AND ug_group IS NULL
+GROUP BY actor_user
+ORDER BY cnt DESC
+LIMIT 500
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد ویرایش‌ها",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "تعداد ویرایش"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}',
+            "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":4,
-            "sql":
-            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 300",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها',
-            "cols": [u'ردیف', u'کاربر', u'مقاله جدید', u'الگوی جدید',
-                     u'راهنمای جدید', u'رده جدید', u'درگاه جدید', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 4,
+            "sql": """
+SELECT
+  actor_name,
+  SUM(
+    CASE
+      WHEN page_namespace = 0 THEN 1
+      ELSE 0
+    END
+  ) article,
+  SUM(
+    CASE
+      WHEN page_namespace = 10 THEN 1
+      ELSE 0
+    END
+  ) tpl,
+  SUM(
+    CASE
+      WHEN page_namespace = 12 THEN 1
+      ELSE 0
+    END
+  ) helppage,
+  SUM(
+    CASE
+      WHEN page_namespace = 14 THEN 1
+      ELSE 0
+    END
+  ) cat,
+  SUM(
+    CASE
+      WHEN page_namespace = 100 THEN 1
+      ELSE 0
+    END
+  ) portal,
+  COUNT(rev_first) tot
+FROM revision r
+JOIN (
+  select
+    MIN(rev_id) rev_first,
+    rev_page
+  FROM revision
+  GROUP BY rev_page
+) f
+  ON r.rev_id = f.rev_first
+JOIN page
+  ON page_id = r.rev_page
+JOIN actor
+  ON rev_actor = actor_id
+LEFT JOIN user_groups
+  ON actor_user = ug_user
+  AND ug_group = "bot"
+WHERE
+  actor_user <> 0
+  AND ug_group IS NULL
+  AND page_namespace IN (
+    0,
+    10,
+    12,
+    14,
+    100
+  )
+GROUP BY rev_actor
+ORDER BY tot desc
+LIMIT 300
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "مقاله جدید",
+              "الگوی جدید",
+              "راهنمای جدید",
+              "رده جدید",
+              "درگاه جدید",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":5,
-            "sql":
-            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=100, 1, 0)) portal, count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace in (0, 10, 12, 14, 100) group by rev_user order by tot desc limit 200",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها/ربات',
-            "cols": [u'ردیف', u'کاربر', u'مقاله جدید', u'الگوی جدید',
-                     u'راهنمای جدید', u'رده جدید', u'درگاه جدید', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 5,
+            "sql": """
+SELECT
+  actor_name,
+  SUM(
+    CASE
+      WHEN page_namespace = 0 THEN 1
+      ELSE 0
+    END
+  ) article,
+  SUM(
+    CASE
+      WHEN page_namespace = 10 THEN 1
+      ELSE 0
+    END
+  ) tpl,
+  SUM(
+    CASE
+      WHEN page_namespace = 12 THEN 1
+      ELSE 0
+    END
+  ) helppage,
+  SUM(
+    CASE
+      WHEN page_namespace = 14 THEN 1
+      ELSE 0
+    END
+  ) cat,
+  SUM(
+    CASE
+      WHEN page_namespace = 100 THEN 1
+      ELSE 0
+    END
+  ) portal,
+  COUNT(rev_first) tot
+FROM revision r
+JOIN (
+  SELECT
+    MIN(rev_id) rev_first,
+    rev_page
+  FROM revision
+  GROUP BY rev_page
+) f
+  ON r.rev_id = f.rev_first
+JOIN page
+  ON page_id = r.rev_page
+JOIN actor
+  ON rev_actor = actor_id
+where
+  actor_user > 0
+  AND page_namespace IN (
+    0,
+    10,
+    12,
+    14,
+    100
+  )
+GROUP BY rev_actor
+ORDER BY tot DESC
+limit 200
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ایجاد صفحه‌ها/ربات",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "مقاله جدید",
+              "الگوی جدید",
+              "راهنمای جدید",
+              "رده جدید",
+              "درگاه جدید",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]]  " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":6,
-            "sql":
-            "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله',
-            "cols": [u'ردیف', u'کاربر', u'اولین ایجاد مقاله', u'مقاله ۰ تا ۲ کیلوبایت',
-                     u'مقاله ۲ تا ۱۵ کیلوبایت', u'مقاله ۱۵ تا ۷۰ کیلوبایت', u'مقاله بالای ۷۰ کیلوبایت', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست بر حسب حجم مقاله در زمان ایجاد آن تنظیم شده‌است.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 6,
+            "sql": """
+SELECT
+  actor_name,
+  STR_TO_DATE(LEFT(MIN(rev_timestamp), 8), '%Y%m%d'),
+  SUM(
+    CASE
+      WHEN rev_len BETWEEN 0 AND 2048 THEN 1
+      ELSE 0
+    END
+  ),
+  SUM(
+    CASE
+      WHEN rev_len BETWEEN 2048 AND 15 * 1024 THEN 1
+      ELSE 0
+    END
+  ),
+  SUM(
+    CASE
+      WHEN rev_len BETWEEN 15 * 1024 AND 70 * 1024 THEN 1
+      ELSE 0
+    END
+  ),
+  SUM(
+    CASE
+      WHEN rev_len > 70 * 1024 THEN 1
+      ELSE 0
+    END
+  ),
+  COUNT(rev_first) tot
+FROM revision r
+JOIN (
+  SELECT
+    MIN(rev_id) rev_first,
+    rev_page
+  FROM revision
+  GROUP BY rev_page
+) f
+  ON r.rev_id = f.rev_first
+JOIN page
+  ON page_id = r.rev_page
+JOIN actor
+  ON rev_actor = actor_id
+LEFT JOIN user_groups
+  on actor_user = ug_user
+  AND ug_group = "bot"
+WHERE
+  actor_user <> 0
+  AND ug_group IS NULL
+  AND page_namespace = 0
+  AND page_is_redirect = 0
+GROUP BY actor_user
+ORDER BY tot DESC
+LIMIT 200
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "اولین ایجاد مقاله",
+              "مقاله ۰ تا ۲ کیلوبایت",
+              "مقاله ۲ تا ۱۵ کیلوبایت",
+              "مقاله ۱۵ تا ۷۰ کیلوبایت",
+              "مقاله بالای ۷۰ کیلوبایت",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":7,
-            "sql":
-            "select /* SLOW OK */ user_name, str_to_date(left(min(rev_timestamp), 8), '%Y%m%d'), sum(if(rev_len between 0 and 2048, 1, 0)), sum(if(rev_len between 2048 and 15 * 1024, 1, 0)), sum(if(rev_len between 15 * 1024 and 70 * 1024, 1, 0)), sum(if(rev_len > 70 * 1024, 1, 0)), count(rev_first) tot from revision r join (select min(rev_id) rev_first, rev_page from revision group by rev_page) f on r.rev_id = f.rev_first join page on page_id = r.rev_page join user on rev_user = user_id where rev_user > 0 and page_namespace = 0 and page_is_redirect = 0 group by rev_user order by tot desc limit 200",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله/ربات',
-            "cols": [u'ردیف', u'کاربر', u'اولین ایجاد مقاله', u'مقاله ۰ تا ۲ کیلوبایت',
-                     u'مقاله ۲ تا ۱۵ کیلوبایت', u'مقاله ۱۵ تا ۷۰ کیلوبایت', u'مقاله بالای ۷۰ کیلوبایت', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست بر حسب حجم مقاله در زمان ایجاد آن تنظیم شده‌است.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 7,
+            "sql": """
+SELECT
+  actor_name,
+  STR_TO_DATE(LEFT(MIN(rev_timestamp), 8), '%Y%m%d'),
+  SUM(CASE
+    WHEN rev_len BETWEEN 0 AND 2048 THEN 1
+    ELSE 0
+  END),
+  SUM(CASE
+    WHEN rev_len BETWEEN 2048 AND 15 * 1024 THEN 1
+    ELSE 0
+  END),
+  SUM(CASE
+    WHEN rev_len BETWEEN 15 * 1024 AND 70 * 1024 THEN 1
+    ELSE 0
+  END),
+  SUM(CASE
+    WHEN rev_len > 70 * 1024 THEN 1
+    ELSE 0
+  END),
+  COUNT(rev_first) tot
+FROM revision r
+JOIN actor
+  ON rev_actor = actor_id
+JOIN (
+  select min(rev_id) rev_first, rev_page from revision group by rev_page
+) f
+  ON r.rev_id = f.rev_first
+JOIN page
+  ON page_id = r.rev_page
+WHERE
+  actor_user <> 0
+  AND page_namespace = 0
+  AND page_is_redirect = 0
+GROUP BY actor_user
+ORDER BY tot desc
+LIMIT 200
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ایجاد مقاله و حجم مقاله/" +
+                   "ربات",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "اولین ایجاد مقاله",
+              "مقاله ۰ تا ۲ کیلوبایت",
+              "مقاله ۲ تا ۱۵ کیلوبایت",
+              "مقاله ۱۵ تا ۷۰ کیلوبایت",
+              "مقاله بالای ۷۰ کیلوبایت",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":8,
-            "sql":
-            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id left join user_groups on rev_user = ug_user and ug_group = 'bot' where rev_user > 0 and ug_group is null and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام',
-            "cols": [u'ردیف', u'کاربر', u'مقاله', u'بحث', u'کاربر', u'بحث کاربر', u'ویکی‌پدیا', u'بحث ویکی‌پدیا', u'پرونده', u'بحث پرونده', u'مدیاویکی',
-                     u'بحث مدیاویکی', u'الگو', u'بحث الگو', u'راهنما', u'بحث راهنما', u'رده', u'بحث رده', u'درگاه', u'بحث درگاه', u'پودمان', u'بحث پودمان', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 8,
+            "sql": """
+SELECT
+  actor_name,
+  SUM(CASE
+    WHEN page_namespace = 0 THEN 1
+    ELSE 0
+  END) AS article,
+  SUM(CASE
+    WHEN page_namespace = 1 THEN 1
+    ELSE 0
+  END) AS articletalk,
+  SUM(CASE
+    WHEN page_namespace = 2 THEN 1
+    ELSE 0
+  END) AS usr,
+  SUM(CASE
+    WHEN page_namespace = 3 THEN 1
+    ELSE 0
+  END) AS usrtalk,
+  SUM(CASE
+    WHEN page_namespace = 4 THEN 1
+    ELSE 0
+  END) AS proj,
+  SUM(CASE
+    WHEN page_namespace = 5 THEN 1
+    ELSE 0
+  END) AS projtalk,
+  SUM(CASE
+    WHEN page_namespace = 6 THEN 1
+    ELSE 0
+  END) AS file,
+  SUM(CASE
+    WHEN page_namespace = 7 THEN 1
+    ELSE 0
+  END) AS filetalk,
+  SUM(CASE
+    WHEN page_namespace = 8 THEN 1
+    ELSE 0
+  END) AS mw,
+  SUM(CASE
+    WHEN page_namespace = 89 THEN 1
+    ELSE 0
+  END) AS mwtalk,
+  SUM(CASE
+    WHEN page_namespace = 10 THEN 1
+    ELSE 0
+  END) AS tpl,
+  SUM(CASE
+    WHEN page_namespace = 11 THEN 1
+    ELSE 0
+  END) AS tpltalk,
+  SUM(CASE
+    WHEN page_namespace = 12 THEN 1
+    ELSE 0
+  END) AS helppage,
+  SUM(CASE
+    WHEN page_namespace = 13 THEN 1
+    ELSE 0
+  END) AS helptalk,
+  SUM(CASE
+    WHEN page_namespace = 14 THEN 1
+    ELSE 0
+  END) AS cat,
+  SUM(CASE
+    WHEN page_namespace = 15 THEN 1
+    ELSE 0
+  END) AS cattalk,
+  SUM(CASE
+    WHEN page_namespace = 100 THEN 1
+    ELSE 0
+  END) AS portal,
+  SUM(CASE
+    WHEN page_namespace = 101 THEN 1
+    ELSE 0
+  END) AS portaltalk,
+  SUM(CASE
+    WHEN page_namespace = 828 THEN 1
+    ELSE 0
+  END) AS module,
+  SUM(CASE
+    WHEN page_namespace = 829 THEN 1
+    ELSE 0
+  END) AS moduletalk,
+  COUNT(*) AS tot
+FROM revision
+JOIN actor
+  ON rev_actor = actor_id
+JOIN page
+  ON page_id = rev_page
+JOIN user
+  ON actor_user = user_id
+LEFT JOIN user_groups
+  ON actor_user = ug_user
+  AND ug_group = 'bot'
+WHERE
+  actor_user <> 0
+  AND actor_user <> 374638 /* پیام به کاربر جدید */
+  AND ug_group IS NULL
+GROUP BY actor_name
+ORDER BY tot DESC
+LIMIT 100
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "مقاله",
+              "بحث",
+              "کاربر",
+              "بحث کاربر",
+              "ویکی‌پدیا",
+              "بحث ویکی‌پدیا",
+              "پرونده",
+              "بحث پرونده",
+              "مدیاویکی",
+              "بحث مدیاویکی",
+              "الگو",
+              "بحث الگو",
+              "راهنما",
+              "بحث راهنما",
+              "رده",
+              "بحث رده",
+              "درگاه",
+              "بحث درگاه",
+              "پودمان",
+              "بحث پودمان",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":9,
-            "sql":
-            "select /* SLOW OK */ user_name, sum(if(page_namespace = 0, 1, 0)) article, sum(if(page_namespace = 1, 1, 0)) articletalk, sum(if(page_namespace = 2, 1, 0)) usr, sum(if(page_namespace = 3, 1, 0)) usrtalk, sum(if(page_namespace = 4, 1, 0)) proj, sum(if(page_namespace = 5, 1, 0)) projtalk, sum(if(page_namespace = 6, 1, 0)) file, sum(if(page_namespace = 7, 1, 0)) filetalk, sum(if(page_namespace=8, 1, 0)) mw, sum(if(page_namespace=89, 1, 0)) mwtalk, sum(if(page_namespace=10, 1, 0)) tpl, sum(if(page_namespace=11, 1, 0)) tpltalk, sum(if(page_namespace=12, 1, 0)) helppage, sum(if(page_namespace=13, 1, 0)) helptalk, sum(if(page_namespace=14, 1, 0)) cat, sum(if(page_namespace=15, 1, 0)) cattalk, sum(if(page_namespace=100, 1, 0)) portal, sum(if(page_namespace=101, 1, 0)) portaltalk, sum(if(page_namespace=828, 1, 0)) module, sum(if(page_namespace=829, 1, 0)) moduletalk, count(rev_id) tot from revision join page on page_id = rev_page join user on rev_user = user_id where rev_user > 0 and rev_user <> 374638 /* welcome messenger */ group by rev_user order by tot desc limit 100",
-            "out":
-            'وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام/ربات',
-            "cols": [u'ردیف', u'کاربر', u'مقاله', u'بحث', u'کاربر', u'بحث کاربر', u'ویکی‌پدیا', u'بحث ویکی‌پدیا', u'پرونده', u'بحث پرونده', u'مدیاویکی',
-                     u'بحث مدیاویکی', u'الگو', u'بحث الگو', u'راهنما', u'بحث راهنما', u'رده', u'بحث رده', u'درگاه', u'بحث درگاه', u'پودمان', u'بحث پودمان', u'جمع کل'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}} || {{formatnum:%s}}',
+            "sqlnum": 9,
+            "sql": """
+SELECT
+  actor_name,
+  SUM(CASE
+    WHEN page_namespace = 0 THEN 1
+    ELSE 0
+  END) AS article,
+  SUM(CASE
+    WHEN page_namespace = 1 THEN 1
+    ELSE 0
+  END) AS articletalk,
+  SUM(CASE
+    WHEN page_namespace = 2 THEN 1
+    ELSE 0
+  END) AS usr,
+  SUM(CASE
+    WHEN page_namespace = 3 THEN 1
+    ELSE 0
+  END) AS usrtalk,
+  SUM(CASE
+    WHEN page_namespace = 4 THEN 1
+    ELSE 0
+  END) AS proj,
+  SUM(CASE
+    WHEN page_namespace = 5 THEN 1
+    ELSE 0
+  END) AS projtalk,
+  SUM(CASE
+    WHEN page_namespace = 6 THEN 1
+    ELSE 0
+  END) AS file,
+  SUM(CASE
+    WHEN page_namespace = 7 THEN 1
+    ELSE 0
+  END) AS filetalk,
+  SUM(CASE
+    WHEN page_namespace = 8 THEN 1
+    ELSE 0
+  END) AS mw,
+  SUM(CASE
+    WHEN page_namespace = 89 THEN 1
+    ELSE 0
+  END) AS mwtalk,
+  SUM(CASE
+    WHEN page_namespace = 10 THEN 1
+    ELSE 0
+  END) AS tpl,
+  SUM(CASE
+    WHEN page_namespace = 11 THEN 1
+    ELSE 0
+  END) AS tpltalk,
+  SUM(CASE
+    WHEN page_namespace = 12 THEN 1
+    ELSE 0
+  END) AS helppage,
+  SUM(CASE
+    WHEN page_namespace = 13 THEN 1
+    ELSE 0
+  END) AS helptalk,
+  SUM(CASE
+    WHEN page_namespace = 14 THEN 1
+    ELSE 0
+  END) AS cat,
+  SUM(CASE
+    WHEN page_namespace = 15 THEN 1
+    ELSE 0
+  END) AS cattalk,
+  SUM(CASE
+    WHEN page_namespace = 100 THEN 1
+    ELSE 0
+  END) AS portal,
+  SUM(CASE
+    WHEN page_namespace = 101 THEN 1
+    ELSE 0
+  END) AS portaltalk,
+  SUM(CASE
+    WHEN page_namespace = 828 THEN 1
+    ELSE 0
+  END) AS module,
+  SUM(CASE
+    WHEN page_namespace = 829 THEN 1
+    ELSE 0
+  END) AS moduletalk,
+  COUNT(rev_id) AS tot
+FROM revision
+JOIN actor
+  ON rev_actor = actor_id
+JOIN page
+  ON page_id = rev_page
+WHERE
+  actor_user <> 0
+  and actor_user <> 374638 /* پیام به کاربر جدید */
+GROUP BY actor_name
+ORDER BY tot DESC
+LIMIT 100
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "کاربران ویکی‌پدیا بر پایه تعداد ویرایش در فضاهای نام/ربات",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "مقاله",
+              "بحث",
+              "کاربر",
+              "بحث کاربر",
+              "ویکی‌پدیا",
+              "بحث ویکی‌پدیا",
+              "پرونده",
+              "بحث پرونده",
+              "مدیاویکی",
+              "بحث مدیاویکی",
+              "الگو",
+              "بحث الگو",
+              "راهنما",
+              "بحث راهنما",
+              "رده",
+              "بحث رده",
+              "درگاه",
+              "بحث درگاه",
+              "پودمان",
+              "بحث پودمان",
+              "جمع کل"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":10,
-            "sql":
-            "SELECT /* SLOW OK */ CONCAT(CASE WHEN page_namespace = 0 THEN '' ELSE ':' END, '{{ns:', page_namespace, '}}:', page_title), COUNT(*) FROM revision JOIN page ON page_id = rev_page GROUP BY page_namespace, page_title ORDER BY COUNT(*) DESC, page_title ASC LIMIT 1000;",
-            "out": 'وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها',
-            "cols": [u'ردیف',  u'صفحه',  u'تعداد ویرایش'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nاین فهرست پر ویرایش‌ترین صفحات ویکی‌پدیای فارسی را نشان می‌دهد.\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}',
+            "sqlnum": 10,
+            "sql": """
+SELECT
+  CONCAT(
+    CASE
+      WHEN page_namespace = 0 THEN ''
+      ELSE ":"
+    END,
+    "{{ns:", page_namespace, "}}:",
+    page_title
+  ),
+  COUNT(*)
+FROM revision
+JOIN page ON page_id = rev_page
+GROUP BY
+  page_namespace,
+  page_title
+ORDER BY
+  COUNT(*) DESC,
+  page_title ASC
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/پرویرایش‌ترین صفحه‌ها",
+            "cols": [
+              "ردیف",
+              "صفحه",
+              "تعداد ویرایش"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":11,
-            "sql":
-            "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') as lastedit, count(rev_id) cnt from revision join user on rev_user = user_id  left join user_groups on rev_user = ug_user where ug_group = 'autopatrolled'  group by rev_user order by cnt limit 1000",
-            "out": u'ویکی‌پدیا:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش',
-            "cols": [u'ردیف', u'کاربر', u'آخرین ویرایش', u'تعداد کل ویرایش‌ها'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || {{formatnum:%s}}',
+            "sqlnum": 11,
+            "sql": """
+SELECT
+  actor_name,
+  STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS lastedit,
+  COUNT(rev_id) cnt
+FROM revision
+JOIN actor
+  ON rev_actor = actor_id
+LEFT JOIN user_groups
+  ON actor_user = ug_user
+  AND ug_group = 'autopatrolled'
+GROUP BY actor_user
+ORDER BY cnt
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران گشت خودکار بر پایه تعداد ویرایش",
+            "cols": [
+              'ردیف',
+              'کاربر',
+              'آخرین ویرایش',
+              'تعداد کل ویرایش‌ها'
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s}}",
             "sign": True
         },
         {
-            "sqlnum":12,
-            "sql":
-            "SELECT /* SLOW OK */ pl_title, COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ')  FROM pagelinks LEFT JOIN page AS p1 ON p1.page_namespace = pl_namespace AND p1.page_title = pl_title JOIN logging ON pl_namespace = log_namespace AND pl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON pl_from = p2.page_id WHERE p1.page_id IS NULL AND pl_namespace = 0 GROUP BY pl_title ORDER BY 2 DESC LIMIT 1000;",
-            "out": u'ویکی‌پدیا:گزارش دیتابیس/پیوند به مقاله‌های حذف شده',
-            "cols": [u'ردیف', u'مقاله', u'تعداد پیوند به', u'صفحات به کار رفته'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}}||%s',
+            "sqlnum": 12,
+            "sql": """
+SELECT
+  pl_title,
+  COUNT(*),
+  GROUP_CONCAT(
+    CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]')
+    SEPARATOR "، "
+  )
+FROM pagelinks
+LEFT JOIN page AS p1
+  ON p1.page_namespace = pl_namespace
+  AND p1.page_title = pl_title
+JOIN logging
+  ON pl_namespace = log_namespace
+  AND pl_title = log_title
+  AND log_type = 'delete'
+JOIN page AS p2
+  ON pl_from = p2.page_id
+WHERE
+  p1.page_id IS NULL
+  AND pl_namespace = 0
+GROUP BY pl_title
+ORDER BY 2 DESC
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/پیوند به مقاله‌های حذف شده",
+            "cols": [
+              'ردیف',
+              'مقاله',
+              'تعداد پیوند به',
+              'صفحات به کار رفته'
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}} " +
+                    "|| %s",
             "sign": True
         },
         {
-            "sqlnum":13,
-            "sql":
-            "SELECT /* SLOW_OK */ CONCAT ('الگو:',tl_title), COUNT(*),GROUP_CONCAT(CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]') SEPARATOR '، ') FROM templatelinks LEFT JOIN page AS p1 ON p1.page_namespace = tl_namespace AND p1.page_title = tl_title JOIN logging ON tl_namespace = log_namespace AND tl_title = log_title AND log_type = 'delete' JOIN page AS p2 ON tl_from = p2.page_id WHERE p1.page_id IS NULL AND tl_namespace = 10 GROUP BY tl_title ORDER BY COUNT(*) DESC LIMIT 1000;",
-            "out": u'ویکی‌پدیا:گزارش دیتابیس/پیوند به الگوهای حذف شده',
-            "cols": [u'ردیف', u'الگو', u'تعداد پیوند به', u'صفحات به کار رفته'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}}||%s',
+            "sqlnum": 13,
+            "sql": """
+SELECT
+  CONCAT('الگو:', tl_title),
+  COUNT(*),
+  GROUP_CONCAT(
+    CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]')
+    SEPARATOR "، "
+  )
+FROM templatelinks
+JOIN logging
+  ON tl_namespace = log_namespace
+  AND tl_title = log_title
+  AND log_type = "delete"
+JOIN page AS p2
+  ON tl_from = p2.page_id
+LEFT JOIN page AS p1
+  ON p1.page_namespace = tl_namespace
+  AND p1.page_title = tl_title
+WHERE
+  p1.page_id IS NULL
+  AND tl_namespace = 10
+GROUP BY tl_title
+ORDER BY COUNT(*) DESC
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/پیوند به الگوهای حذف شده",
+            "cols": [
+              "ردیف",
+              "الگو",
+              "تعداد پیوند به",
+              "صفحات به کار رفته"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}} " +
+                    "|| %s",
             "sign": True
         },
         {
-            "sqlnum":14,
-            "sql":
-            "select page_title, count(ll_lang) from page join category on page_title = cat_title left join categorylinks on page_title = cl_to left join templatelinks on tl_from = page_id and tl_title in ('رده_خالی' , 'رده_بهتر', 'رده_ابهام‌زدایی', 'رده_ردیابی‌کردن') left join langlinks on page_id = ll_from where page_namespace = 14 and page_is_redirect = 0 and cl_to is null and tl_title is null group by page_title order by 2, 1 limit 5000",
-            "out": 'وپ:گزارش دیتابیس/رده‌های خالی',
-            "cols": [u'ردیف', u'رده', u'تعداد میان‌ویکی'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:رده:%s]] || {{formatnum:%s|}}',
+            "sqlnum": 14,
+            "sql": """
+SELECT
+  page_title,
+  COUNT(ll_lang)
+FROM page
+JOIN category
+  ON page_title = cat_title
+LEFT JOIN categorylinks
+  ON page_title = cl_to
+LEFT JOIN templatelinks
+  ON tl_from = page_id
+  AND tl_title IN (
+    'رده_خالی',
+    'رده_بهتر',
+    'رده_ابهام‌زدایی',
+    'رده_ردیابی‌کردن'
+  )
+LEFT JOIN langlinks
+  ON page_id = ll_from
+WHERE
+  page_namespace = 14
+  AND page_is_redirect = 0
+  AND cl_to IS NULL
+  AND tl_title IS NULL
+GROUP BY page_title
+ORDER BY 2, 1
+LIMIT 5000
+""",
+            "out": "وپ:گزارش دیتابیس/رده‌های خالی",
+            "cols": [
+              "ردیف",
+              "رده",
+              "تعداد میان‌ویکی"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:رده:%s]] " +
+                    "|| {{formatnum:%s|}}",
             "sign": True
         },
         {
-            "sqlnum":15,
-            "sql":
-            "SELECT i.img_name, c.img_name ,CASE WHEN i.img_name = c.img_name THEN 'بله' ELSE '-' END AS ourcase FROM image AS i INNER JOIN commonswiki_p.image AS c ON i.img_sha1 = c.img_sha1 limit 5000",
-            "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های موجود در ویکی‌انبار',
-            "cols": [u'ردیف', u'پرونده در ویکی‌فا' ,u'پرونده در ویکی‌انبار',u'نام همسان؟'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] || [[:commons:file:%s]] || %s ',
+            "sqlnum": 15,
+            "sql": """
+SELECT
+  i.img_name,
+  c.img_name,
+  CASE
+    WHEN i.img_name = c.img_name THEN 'بله'
+    ELSE '-'
+  END
+FROM image AS i
+JOIN commonswiki_p.image AS c
+  ON i.img_sha1 = c.img_sha1
+LIMIT 500
+""",
+            "out": "وپ:گزارش دیتابیس/پرونده‌های موجود در ویکی‌انبار",
+            "cols": [
+              "ردیف",
+              "پرونده در ویکی‌فا",
+              "پرونده در ویکی‌انبار",
+              "نام همسان؟"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:file:%s]] " +
+                    "|| [[:commons:file:%s]] || %s ",
             "sign": True
         },
         {
-            "sqlnum":16,
-            "sql":
-            "SELECT faimage.img_name FROM fawiki_p.image as faimage where faimage.img_name in (SELECT DISTINCT log_title FROM enwiki_p.logging WHERE log_type = 'delete' AND log_action = 'delete' AND log_namespace = 6 GROUP BY log_timestamp) and faimage.img_name not in (SELECT img_name FROM enwiki_p.image)and faimage.img_name in (SELECT page_title FROM page INNER JOIN categorylinks WHERE cl_from = page_id AND cl_to = 'محتویات_غیر_آزاد' GROUP BY page_title) limit 5000;",
-            "out": 'ویکی‌پدیا:گزارش دیتابیس/پرونده‌های غیر آزاد حذف شده از ویکی‌انگلیسی که در ویکی‌فا موجودند',
-            "cols": [u'ردیف', u'پرونده در ویکی‌فا'],
-            "summary": u'به روز کردن آمار',
-            "pref":
-            u'[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n<b>{{قلم رنگ|قرمز|تعدادی از تصویرهای زیر با نام دیگر یا پسوند دیگر در ویکی‌انگلیسی موجودند در حذف آنها دقت کنید.}}</b>\nدر این فهرست پرونده‌هایی غیرآزاد برگرفته از ویکی‌انگلیسی که در ویکی‌انگلیسی حذف شده‌اند ولی در ویکی‌فا هنوز هستند قرار دارند. لطفاً بعد از حذف، پیوند آنها را از مقالات بزدائید.\nآخرین به روز رسانی: ~~~~~',
-            "frmt":
-            u'| {{formatnum:%d|NOSEP}} || [[:file:%s]] ',
+            "sqlnum": 16,
+            "sql": """
+SELECT
+  faimage.img_name
+FROM fawiki_p.image AS faimage
+WHERE
+  faimage.img_name IN (
+    SELECT DISTINCT log_title
+    FROM enwiki_p.logging
+    WHERE
+      log_type = 'delete'
+      AND log_action = 'delete'
+      AND log_namespace = 6
+    GROUP BY log_timestamp
+  )
+  AND faimage.img_name NOT IN (
+    SELECT img_name
+    FROM enwiki_p.image
+  )
+  AND faimage.img_name IN (
+    SELECT page_title
+    FROM page
+    JOIN categorylinks
+    WHERE
+      cl_from = page_id
+      AND cl_to = 'محتویات_غیر_آزاد'
+    GROUP BY page_title
+  )
+LIMIT 1000
+""",
+            "out": "وپ:گزارش دیتابیس/" +
+                   "پرونده‌های غیر آزاد حذف شده از ویکی‌انگلیسی که در " +
+                   "ویکی‌فا موجودند",
+            "cols": [
+              "ردیف",
+              "پرونده در ویکی‌فا"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[:file:%s]] ",
             "sign": True
         },
         {
             "sqlnum": 17,
             "sql": """
 SELECT
-  user_name,
+  actor_name,
   SUM(freq) TotalEdits,
   FORMAT(100 * SUM(
     CASE
@@ -285,41 +1029,61 @@ SELECT
   ) / SUM(freq), 1) OtherDiscussionEdits,
   FORMAT(100 * SUM(
     CASE
-      WHEN page_namespace NOT IN (0, 1, 3, 4, 5, 7, 8, 9, 10, 11, 13) THEN freq
+      WHEN page_namespace NOT IN (
+        0,
+        1,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13
+      ) THEN freq
       ELSE 0
     END
   ) / SUM(freq), 1) AllOtherEdits
 FROM (
   SELECT
-    user_name,
+    actor_name,
     page_namespace,
     COUNT(*) freq
   FROM revision
-  JOIN user
-    ON user_id = rev_user
+  JOIN actor
+    ON actor_id = rev_actor
   JOIN page
     ON rev_page = page_id
-  WHERE rev_user IN
+  WHERE actor_user IN
   (
-    SELECT rev_user
+    SELECT actor_user
     FROM revision
+    JOIN actor
+      ON rev_actor = actor_id
     LEFT JOIN user_groups
-      ON rev_user = ug_user
+      ON actor_user = ug_user
       AND ug_group = 'bot'
     WHERE
-      rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
-      AND rev_user <> 0
-      AND rev_user_text NOT IN ('FawikiPatroller', 'پیام به کاربر جدید')
+      rev_timestamp > DATE_FORMAT(
+        DATE_SUB(NOW(), INTERVAL 30 DAY),
+        '%Y%m%d000000'
+      )
+      AND actor_user <> 0
+      AND actor_user NOT IN (
+        374638, /* پیام به کاربر جدید */
+        285515 /* FawikiPatroller */
+      )
       AND ug_user IS NULL
   )
   GROUP BY
-    rev_user,
+    actor_user,
     page_namespace
 ) last30days
-GROUP BY user_name
+GROUP BY actor_name
 ORDER BY
   SUM(freq) DESC,
-  user_name DESC
+  actor_name DESC
 LIMIT 1000
 """,
             "out": "وپ:گزارش دیتابیس/کاربران فعال در یک ماه اخیر",
@@ -334,10 +1098,11 @@ LIMIT 1000
                 "سایر ویرایش‌ها"
             ],
             "summary": "به روز کردن آمار",
-            "pref": "این صفحه فهرستی از کاربران غیر رباتی است که در یک ماه اخیر ویرایش داشته‌اند؛ برای هر کاربر نسبت کل ویرایش‌هایش (از ابتدای ایجاد حساب) در فضاهای نام مختلف هم نشان داده شده‌است. فهرست محدود به هزار کاربری که بیشترین ویرایش را دارند شده‌است.\n[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] || {{formatnum:%s}} " +
-		            "|| %s%% || %s%% || %s%% || %s%% || %s%% ",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] " +
+                    "|| {{formatnum:%s}} || %s%% || %s%% || %s%% || %s%% " +
+                    "|| %s%% ",
             "sign": True
         },
         {
@@ -410,11 +1175,9 @@ FROM
     t1.rev_user,
     t1.iwlinks
 ) h
-JOIN user
-  ON rev_user = user_id
 LEFT JOIN user_groups
   ON ug_user = rev_user
-  AND ug_group = 'bot'
+  AND ug_group = "bot"
 WHERE
   total >= iwlinks
   AND iwlinks > 5
@@ -429,7 +1192,7 @@ ORDER BY h_index DESC
                 "شاخص اچ"
             ],
             "summary": "به روز کردن آمار",
-            "pref": "این صفحه فهرستی از کاربران غیر ربات است به انضمام «شاخص اچ» برای هر کدامشان. در اینجا شاخص اچ بر اساس تعداد میان‌ویکی محاسبه شده‌است. برای اطلاعات بیشتر [[ویکی‌پدیا:شاخص اچ]] را ببینید. این صفحه فقط کاربرانی را فهرست می‌کند که شاخص اچ بالای ۵ دارند.\n[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[کاربر:%s|]] || {{formatnum:%s}} ",
             "sign": True
@@ -458,12 +1221,15 @@ LEFT JOIN templatelinks
 WHERE
   page_namespace = 4
   AND page_is_redirect = 0
-  AND page_title NOT LIKE 'اشتباه‌یاب/موارد_درست/%'
+  AND page_title NOT LIKE "اشتباه‌یاب/موارد_درست/%"
   AND pl_title IS NULL
   AND tl_title IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده",
-            "cols": ["ردیف", "صفحه"],
+            "cols": [
+              "ردیف",
+              "صفحه"
+            ],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
                     "\nآخرین به روز رسانی: ~~~~~",
@@ -474,7 +1240,7 @@ WHERE
 
     for t in tasks:
         if sqlnum:
-            if sqlnum!=t["sqlnum"]:
+            if sqlnum != t["sqlnum"]:
                 continue
         bot = stats.StatsBot(
             t["sql"],
@@ -485,16 +1251,12 @@ WHERE
             t["frmt"],
             t["sqlnum"],
             t["sign"])
-        #try:
-        #    bot.run()
-        #except:
-        #    print sys.exc_info()[0]
         bot.run()
 
 if __name__ == "__main__":
 
     try:
-        sqlnum=int(sys.argv[1])
+        sqlnum = int(sys.argv[1])
     except:
-        sqlnum=0
+        sqlnum = 0
     main(sqlnum)
