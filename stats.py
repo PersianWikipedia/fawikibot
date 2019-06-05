@@ -122,11 +122,19 @@ class StatsBot:
         for col in self.cols:
             text += u'!' + col + u'\n'
         query_start = time.time()
-        conn = mysqldb.connect("fawiki.labsdb", db="fawiki_p",
-                               read_default_file="~/replica.my.cnf")
+        conn = mysqldb.connect(
+            host = "fawiki.labsdb",
+            db = "fawiki_p",
+            read_default_file = "~/replica.my.cnf"
+        )
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
-        cursor.execute(self.sql)
+        cursor.execute("SET SESSION MAX_STATEMENT_TIME = 60 * 30;")
+        try:
+            cursor.execute(self.sql)
+        except:
+            print("Query took too long therefore StatBot was stopped!")
+            return
         results = cursor.fetchall()
         query_end = time.time()
         print "Query time: %d seconds" % int(query_end - query_start)
