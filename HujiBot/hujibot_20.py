@@ -107,5 +107,6 @@ ORDER BY rev_timestamp
 
         return True
 
+
 if __name__ == '__main__':
     main()
