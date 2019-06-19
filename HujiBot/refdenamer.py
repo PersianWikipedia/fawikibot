@@ -54,7 +54,7 @@ class RefDenamerBot(
             fullform = '<ref ' + m.group(1) + m.group(5) + '>' + \
                        m.group(6) + '</ref>'
             fullform = fullform.replace('<ref >', '<ref>')
-            reuse_pat = '<ref ([^>/]* )*name=["\']?' + name + \
+            reuse_pat = '<ref ([^>/]* )*name=["\']?' + re.escape(name) + \
                         '["\']?( [^>/]*)*/>'
 
             text = re.sub(reuse_pat, fullform, text)
