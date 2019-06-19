@@ -44,8 +44,8 @@ class RefDenamerBot(
         text = self.current_page.text
 
         def_pat = '<ref ([^>]*)name=(["\']?)([^>\'"]+)(["\']?)([^>]*)>' + \
-                  '({{پک\|[^<]+\}\})' + \
-                  '<\/ref>'
+                  '({{پک\\|[^<]+\\}\\})' + \
+                  '<\\/ref>'
 
         while re.search(def_pat, text) is not None:
             m = re.search(def_pat, text)
@@ -90,6 +90,7 @@ def main(*args):
     else:
         pywikibot.bot.suggest_help(missing_generator=True)
         return False
+
 
 if __name__ == '__main__':
     main()
