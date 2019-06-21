@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #############################################
- 
+
 from __future__ import absolute_import, unicode_literals
 
 import json
@@ -34,6 +34,7 @@ from pywikibot.bot import (
     SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
 from datetime import (
     timedelta, datetime)
+
 
 class WebCiteBot(
     SingleSiteBot,
@@ -52,7 +53,7 @@ class WebCiteBot(
         # Call constructor of the super class
         super(WebCiteBot, self).__init__(site=True, **kwargs)
 
-       # Assign the generator to the bot
+        # Assign the generator to the bot
         self.generator = generator
 
         # Save edits without asking
@@ -67,18 +68,18 @@ class WebCiteBot(
         })
 
     def persianDigits(self, s):
-        return str(s).replace(u'0',u'۰') \
-            .replace(u'1',u'۱') \
-            .replace(u'2',u'۲') \
-            .replace(u'3',u'۳') \
-            .replace(u'4',u'۴') \
-            .replace(u'5',u'۵') \
-            .replace(u'6',u'۶') \
-            .replace(u'7',u'۷') \
-            .replace(u'8',u'۸') \
-            .replace(u'9',u'۹')
+        return str(s).replace(u'0', u'۰') \
+            .replace(u'1', u'۱') \
+            .replace(u'2', u'۲') \
+            .replace(u'3', u'۳') \
+            .replace(u'4', u'۴') \
+            .replace(u'5', u'۵') \
+            .replace(u'6', u'۶') \
+            .replace(u'7', u'۷') \
+            .replace(u'8', u'۸') \
+            .replace(u'9', u'۹')
 
-    def persianDate(self, date = False):
+    def persianDate(self, date=False):
         monthNames = [
             u"ژانویه",
             u"فوریه",
@@ -94,7 +95,7 @@ class WebCiteBot(
             u"دسامبر"
             ]
 
-        if date == False:
+        if date is False:
             date = datetime.today()
         y = date.year
         m = monthNames[date.month - 1]
@@ -109,10 +110,11 @@ class WebCiteBot(
         pywikibot.output("Requesting URL %s" % URL)
         try:
             archiveURL = webcitation.capture(URL)
-        except:
+        except Exception:
             pywikibot.output(u"\03{red}Archive attempt failed!\03{default}")
             return False
-        pywikibot.output(u"\03{lightgreen}Successfully archived at %s\03{default}" % archiveURL)
+        pywikibot.output(u"\03{lightgreen}Successfully archived at " +
+                         u"%s\03{default}" % archiveURL)
         self.counter += 1
         return archiveURL
 
@@ -121,15 +123,18 @@ class WebCiteBot(
         res = requests.get(query)
         if res.status_code == 200:
             j = json.loads(res.text)
-            if 'archived_snapshots' in j and 'closest' in j['archived_snapshots']:
-                if j['archived_snapshots']['closest']['status'] == '200':
-                    archive_url = j['archived_snapshots']['closest']['url']
-                    archive_ts = j['archived_snapshots']['closest']['timestamp']
+            section = 'archived_snapshots'
+            item = 'closest'
+            if section in j and item in j[section]:
+                if j[section][section]['status'] == '200':
+                    archive_url = j[section][item]['url']
+                    archive_ts = j[section][item]['timestamp']
                     archive_ts = datetime.strptime(archive_ts, "%Y%m%d%H%M%S")
                     now = datetime.now()
                     archive_age = now - archive_ts
                     if archive_age.days < 365:
-                        pywikibot.output(u"\03{lightgreen}Found archive at %s\03{default}" % archive_url)
+                        pywikibot.output(u"\03{lightgreen}Found archive at " +
+                                         u"%s\03{default}" % archive_url)
                         self.counter += 1
                         return [archive_url, archive_ts]
         return False
@@ -138,7 +143,7 @@ class WebCiteBot(
         if (self.current_page.namespace() != 0):
             pywikibot.output("Not an article; skipped...")
             return True
-        
+
         text = self.current_page.text
         failures = []
 
@@ -146,11 +151,15 @@ class WebCiteBot(
         persianDate = self.persianDate()
         faCitationPattern = r'\{\{\s*یادکرد(?:\{\{.*?\}\}|.)*?\}\}'
         faArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی) *= *[^ |}]'
-        faBlankArchivePattern = r'\| *(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی) *= *(?=[|}])'
+        faBlankPattern = r'\| *' + \
+                         r'(پیوند بایگانی|نشانی بایگانی|تاریخ بایگانی)' + \
+                         r' *= *(?=[|}])'
         faUrlPattern = r'\| *(نشانی|پیوند) *= *([^|]+) *\|'
         faCitations = set(re.findall(faCitationPattern, text, re.S))
         if not faCitations:
-            pywikibot.output(u"\03{lightpurple}No Persian citations!\03{default}")
+            pywikibot.output(
+                u"\03{lightpurple}No Persian citations!\03{default}"
+            )
         else:
             for citation in faCitations:
                 if not re.findall(faArchivePattern, citation, re.S):
@@ -159,9 +168,12 @@ class WebCiteBot(
                     if url and url[0][1].strip() != "":
                         # Try archiving it
                         if self.counter + 1 > self.getOption('maxlinks'):
-                            pywikibot.output(u"\03{red}WebCitation quota is used up!\03{default}")
+                            pywikibot.output(
+                                u"\03{red}WebCitation quota is used up!" +
+                                u"\03{default}"
+                            )
                             continue
-                        
+
                         found = self.find_archive(url[0][1])
                         if found:
                             arc = found[0]
@@ -173,9 +185,11 @@ class WebCiteBot(
                             failures.append(url[0][1])
                             continue
                         # Remove any blank archiveurl parameters
-                        newCitation = re.sub(faBlankArchivePattern, "", citation)
+                        newCitation = re.sub(faBlankPattern, "", citation)
                         # Add archiveurl and archivedate
-                        newParams = "| پیوند بایگانی = %s | تاریخ بایگانی = %s }}" % (arc, persianDate)
+                        newParams = (
+                            "| پیوند بایگانی = %s | تاریخ بایگانی = %s }}"
+                            ) % (arc, persianDate)
                         newCitation = re.sub("}}$", newParams, newCitation)
                         text = text.replace(citation, newCitation)
 
@@ -183,11 +197,17 @@ class WebCiteBot(
         englishDate = datetime.today().strftime("%-d %B %Y")
         enCitationPattern = r'\{\{ *[Cc]ite(?:\{\{.*?\}\}|.)*?\}\}'
         enArchivePattern = r'\| *(archiveurl|archive-url) *= *[^ |}]'
-        enBlankArchivePattern = r'\| *(archiveurl|archive-url|archivedate|archive-date) *= *(?=[|}])'
+        enBlankPattern = (
+            r'\| *' +
+            r'(archiveurl|archive-url|archivedate|archive-date)' +
+            r' *= *(?=[|}])'
+        )
         enUrlPattern = r'\| *(url) *= *([^|]+) *\|'
         enCitations = set(re.findall(enCitationPattern, text, re.S))
         if not enCitations:
-            pywikibot.output(u"\03{lightpurple}No English citations!\03{default}")
+            pywikibot.output(
+                u"\03{lightpurple}No English citations!\03{default}"
+            )
         else:
             for citation in enCitations:
                 if not re.findall(enArchivePattern, citation, re.S):
@@ -196,9 +216,12 @@ class WebCiteBot(
                     if url and url[0][1].strip() != "":
                         # Try archiving it
                         if self.counter + 1 > self.getOption('maxlinks'):
-                            pywikibot.output(u"\03{red}WebCitation quota is used up!\03{default}")
+                            pywikibot.output(
+                                u"\03{red}WebCitation quota is used up!" +
+                                u"\03{default}"
+                            )
                             continue
-                        
+
                         found = self.find_archive(url[0][1])
                         if found:
                             arc = found[0]
@@ -210,9 +233,11 @@ class WebCiteBot(
                             # Archiving failed
                             continue
                         # Remove any blank archiveurl parameters
-                        newCitation = re.sub(enBlankArchivePattern, "", citation)
+                        newCitation = re.sub(enBlankPattern, "", citation)
                         # Add archiveurl and archivedate
-                        newParams = "| archive-url = %s | archive-date = %s }}" % (arc, englishDate)
+                        newParams = (
+                            "| archive-url = %s | archive-date = %s }}"
+                        ) % (arc, englishDate)
                         newCitation = re.sub("}}$", newParams, newCitation)
                         text = text.replace(citation, newCitation)
 
@@ -230,6 +255,7 @@ class WebCiteBot(
         talk_text += '\n~~~~'
         talk_page.text = talk_text
         talk_page.save(summary=self.getOption('summary'))
+
 
 def main(*args):
     options = {}
@@ -253,6 +279,7 @@ def main(*args):
     else:
         pywikibot.bot.suggest_help(missing_generator=True)
         return False
- 
+
+
 if __name__ == "__main__":
     main()
