@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 """
-inactiveusers.py - a script to collect statistics about inactive users of the wiki.
+inactiveusers.py - a script to collect statistics about inactive users of the
+wiki.
 
 usage:
 
@@ -121,16 +122,49 @@ def main(*args):
     @param args: command line arguments
     @type args: list of unicode
     """
-    local_args = pywikibot.handle_args(args)
-    sql = "select /* SLOW OK */ user_name, str_to_date(left(max(rev_timestamp), 8), '%Y%m%d') latest, group_concat(distinct ug.ug_group) from user join user_groups ug on ug.ug_user = user_id join revision on rev_user = user_id left join user_groups ug2 on ug2.ug_user = user_id and ug2.ug_group in ('bot') where ug2.ug_group is null and ug.ug_group in ('rollbacker', 'patroller', 'eliminator', 'sysop', 'bureaucrat', 'Image-reviewer', 'templateeditor', 'oversight') group by user_name having latest < date_format(date_sub(now(), interval 6 month),'%Y%m%d%H%i%s')"
+    sql = """
+SELECT
+  actor_name,
+  STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS latest,
+  group_concat(distinct ug.ug_group)
+FROM revision
+JOIN actor
+  ON rev_actor = actor_id
+  AND actor_user <> 0
+JOIN user_groups AS ug
+  ON ug_user = actor_user
+LEFT JOIN user_groups AS ug2
+  ON ug2.ug_user = actor_user
+  AND ug2.ug_group = 'bot'
+WHERE
+  ug2.ug_group IS NULL
+  AND ug.ug_group IN (
+    'rollbacker',
+    'patroller',
+    'eliminator',
+    'sysop',
+    'bureaucrat',
+    'Image-reviewer',
+    'templateeditor',
+    'oversight'
+  )
+GROUP BY actor_name
+HAVING latest < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 6 MONTH),'%Y%m%d%H%i%s')
+"""
     out = u'وپ:گزارش دیتابیس/کاربران غیر فعال در گروه‌های کاربری'
-    cols = [u'ردیف', u'کاربر', u'آخرین ویرایش', u'گروه‌ها']
+    cols = [
+      u'ردیف',
+      u'کاربر',
+      u'آخرین ویرایش',
+      u'گروه‌ها'
+    ]
     summary = u'به روز کردن آمار'
     pref = '[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\nآخرین به روز رسانی: ~~~~~\n\n'
-    frmt = u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s|NOSEP}} || %s'
+    frmt = u'| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] ' + \
+           u'|| {{formatnum:%s|NOSEP}} || %s'
     bot = InactiveUsersBot(sql, out, cols, summary, pref, frmt, True)
     bot.run()
 
+
 if __name__ == "__main__":
     main()
-
