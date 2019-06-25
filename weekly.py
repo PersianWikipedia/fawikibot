@@ -517,6 +517,7 @@ WHERE
   page_namespace = 0
   AND page_len > 20 * 1024
 ORDER BY page_len DESC
+LIMIT 1000
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های پرحجم",
             "cols": ["ردیف", "صفحه", "حجم"],
@@ -551,6 +552,7 @@ WHERE
   AND page_title NOT LIKE '%_(قمری)'
   AND page_title NOT LIKE '%_میلاد)'
 ORDER BY page_len
+LIMIT 1000
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های کم‌حجم",
             "cols": ["ردیف", "مقاله", "حجم"],
