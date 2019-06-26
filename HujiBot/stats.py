@@ -50,47 +50,62 @@ import sys
 import re
 import MySQLdb as mysqldb
 import time
-page_namespace={u'0':u'',u'1':u'بحث:',
-                u'2':u'کاربر:',u'3':u'بحث کاربر:',
-                u'4':u'ویکی‌پدیا:',u'5':u'بحث ویکی‌پدیا:',
-                u'6':u':پرونده:',u'7':u'بحث پرونده:',
-                u'8':u'مدیاویکی:',u'9':u'بحث مدیاویکی:',
-                u'10':u'الگو:',u'11':u'بحث الگو:',
-                u'12':u'راهنما:',u'13':u'بحث راهنما:',
-                u'14':u':رده:',u'15':u'بحث رده:',
-                u'100':u'درگاه:',u'101':u'بحث درگاه:',
-                u'102':u'کتاب:',u'103':u'بحث کتاب:',
-                u'118':u'پیش‌نویس:',u'119':u'بحث پیش‌نویس:',
-                u'828':u'پودمان:',u'829':u'بحث پودمان:'
+page_namespace = {
+    u'0': u'',
+    u'1': u'بحث:',
+    u'2': u'کاربر:',
+    u'3': u'بحث کاربر:',
+    u'4': u'ویکی‌پدیا:',
+    u'5': u'بحث ویکی‌پدیا:',
+    u'6': u':پرونده:',
+    u'7': u'بحث پرونده:',
+    u'8': u'مدیاویکی:',
+    u'9': u'بحث مدیاویکی:',
+    u'10': u'الگو:',
+    u'11': u'بحث الگو:',
+    u'12': u'راهنما:',
+    u'13': u'بحث راهنما:',
+    u'14': u':رده:',
+    u'15': u'بحث رده:',
+    u'100': u'درگاه:',
+    u'101': u'بحث درگاه:',
+    u'102': u'کتاب:',
+    u'103': u'بحث کتاب:',
+    u'118': u'پیش‌نویس:',
+    u'119': u'بحث پیش‌نویس:',
+    u'828': u'پودمان:',
+    u'829': u'بحث پودمان:'
 }
-user_groups={u'uploader':u'بارگذار',
-            u'transwiki':u'درون ریز بین‌ویکی‌ها',
-            u'templateeditor':u'ویرایشگر الگو',
-            u'sysop':u'مدیر',
-            u'rollbacker':u'واگردان',
-            u'registered':u'ثبت‌نام‌کرده',
-            u'patroller':u'گشت‌زن',
-            u'oversight':u'پنهانگر',
-            u'OTRS-member':u'عضو OTRS',
-            u'ipblock-exempt':u'استثنای قطع دسترسی',
-            u'interface-admin':u'مدیر رابط کاربری',
-            u'import':u'درون‌ریز',
-            u'Image-reviewer':u'بازبین تصویر',
-            u'extendedconfirmed':u'تأییدشده پایدار',
-            u'eponline':u'داوطلب دورهٔ برخط',
-            u'epinstructor':u'استاد دوره',
-            u'epcoordinator':u'هماهنگ‌کنندهٔ دوره',
-            u'epcampus':u'داوطلب دورهٔ پردیس',
-            u'eliminator':u'ویکی‌بان',
-            u'confirmed':u'کاربر تائیدشده',
-            u'checkuser':u'بازرس کاربر',
-            u'bureaucrat':u'دیوانسالار',
-            u'botadmin':u'مدیر رباتیک',
-            u'autoreviewer':u'بازبینی‌خودکار',
-            u'autopatrolled':u'گشت خودکار',
-            u'accountcreator':u'سازنده حساب',
-            u'abusefilter':u'تنظیم‌کنندهٔ پالایهٔ خرابکاری'
+user_groups = {
+    u'uploader': u'بارگذار',
+    u'transwiki': u'درون ریز بین‌ویکی‌ها',
+    u'templateeditor': u'ویرایشگر الگو',
+    u'sysop': u'مدیر',
+    u'rollbacker': u'واگردان',
+    u'registered': u'ثبت‌نام‌کرده',
+    u'patroller': u'گشت‌زن',
+    u'oversight': u'پنهانگر',
+    u'OTRS-member': u'عضو OTRS',
+    u'ipblock-exempt': u'استثنای قطع دسترسی',
+    u'interface-admin': u'مدیر رابط کاربری',
+    u'import': u'درون‌ریز',
+    u'Image-reviewer': u'بازبین تصویر',
+    u'extendedconfirmed': u'تأییدشده پایدار',
+    u'eponline': u'داوطلب دورهٔ برخط',
+    u'epinstructor': u'استاد دوره',
+    u'epcoordinator': u'هماهنگ‌کنندهٔ دوره',
+    u'epcampus': u'داوطلب دورهٔ پردیس',
+    u'eliminator': u'ویکی‌بان',
+    u'confirmed': u'کاربر تائیدشده',
+    u'checkuser': u'بازرس کاربر',
+    u'bureaucrat': u'دیوانسالار',
+    u'botadmin': u'مدیر رباتیک',
+    u'autoreviewer': u'بازبینی‌خودکار',
+    u'autopatrolled': u'گشت خودکار',
+    u'accountcreator': u'سازنده حساب',
+    u'abusefilter': u'تنظیم‌کنندهٔ پالایهٔ خرابکاری'
 }
+
 
 class StatsBot:
 
@@ -112,6 +127,7 @@ class StatsBot:
         print "Process number: %s" % self.sqlnum
         pywikibot.output("Process number: %s" % self.sqlnum)
         bot_start = time.time()
+        pywikibot.output("Start time: %s" % bot_start)
 
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
@@ -123,39 +139,40 @@ class StatsBot:
             text += u'!' + col + u'\n'
         query_start = time.time()
         conn = mysqldb.connect(
-            host = "fawiki.labsdb",
-            db = "fawiki_p",
-            read_default_file = "~/replica.my.cnf"
+            host="fawiki.labsdb",
+            db="fawiki_p",
+            read_default_file="~/replica.my.cnf"
         )
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
         cursor.execute("SET SESSION MAX_STATEMENT_TIME = 60 * 30;")
         try:
             cursor.execute(self.sql)
-        except:
+        except Exception:
             print("Query took too long therefore StatBot was stopped!")
             return
         results = cursor.fetchall()
         query_end = time.time()
-        print "Query time: %d seconds" % int(query_end - query_start)
-        timer = '<!-- Query time: %d seconds -->\n' % int(query_end - query_start)
+        delta = int(query_end - query_start)
+        print "Query time: %d seconds" % delta
+        timer = '<!-- Query time: %d seconds -->\n' % delta
         text = timer + text
         text = u'<!-- SQL Number = ' + str(self.sqlnum) + u' -->\n' + text
         print len(results), ' rows will be processed'
-        
+
         for rowid in range(len(results)):
             row = results[rowid]
             text += u'|-\n'
             row = list(row)
             for idx in range(len(row)):
                 try:
-                   row[idx] = str(row[idx]).decode('utf-8')
-                except:
+                    row[idx] = str(row[idx]).decode('utf-8')
+                except Exception:
                     try:
-                       row[idx] = str(row[idx])[:-1].decode('utf-8')
-                    except:
+                        row[idx] = str(row[idx])[:-1].decode('utf-8')
+                    except Exception:
                         row[idx] = str(row[idx])[:-2].decode('utf-8')
-            
+
             if self.frmt:
                 row = tuple(row)
                 if '%d' in self.frmt:
@@ -166,12 +183,27 @@ class StatsBot:
                 for item in row:
                     text += u'| ' + item + u'\n'
         text += u'|}'
-        # Convert Namespace number to text for queries like weekly-slow.py #12 and #13
+        # Convert Namespace number to their names
         for ns in page_namespace:
-            text=text.replace(u'[['+ns+u':',u'[['+page_namespace[ns])
+            text = text.replace(
+                u'[[' + ns + u':',
+                u'[[' + page_namespace[ns]
+            )
         for user_grp in user_groups:
-            text=text.replace(u' '+user_grp,u' '+user_groups[user_grp])
-        text=text.replace(u'||  ،',u'|| ').replace(u'،   ||',u' ||').replace(u'، ،',u'،')                        
+            text = text.replace(
+                u' ' + user_grp,
+                u' ' + user_groups[user_grp]
+            )
+        text = text.replace(
+            u'||  ،',
+            u'|| '
+        ).replace(
+            u'،   ||',
+            u' ||'
+        ).replace(
+            u'، ،',
+            u'،'
+        )
         if not self.save(text, page, self.summary):
             pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
 
@@ -180,7 +212,10 @@ class StatsBot:
                 pywikibot.outout(u'Signature note saved in %s.' %
                                  sign.title(asLink=True))
         bot_end = time.time()
-        print "Total time: %d seconds" % int(bot_end - bot_start)
+        delta = int(bot_end - bot_start)
+        print "Total time: %d seconds" % delta
+        pywikibot.output("Total time: %d seconds" % delta)
+        pywikibot.output("End time: %s" % bot_end)
         print "Stats bot out ..."
 
     def save(self, text, page, comment=None, minorEdit=True,
@@ -239,6 +274,7 @@ def main(*args):
             sign = False
     bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign)
     bot.run()
+
 
 if __name__ == "__main__":
     main()

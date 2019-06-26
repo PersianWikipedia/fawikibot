@@ -2416,9 +2416,10 @@ ORDER BY freq DESC
             t["sign"])
         bot.run()
 
+
 if __name__ == "__main__":
     try:
         sqlnum = int(sys.argv[1])
-    except:
+    except Exception:
         sqlnum = 0
     main(sqlnum)
