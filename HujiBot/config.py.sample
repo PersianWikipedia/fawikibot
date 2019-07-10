@@ -1,0 +1,10 @@
+"""
+This is a template for the config file.
+
+The actual config file should be called config.py and should follow this file's
+general format. The file config.py will be ignoerd by git as it will contain
+sensitive information such as actual API keys.
+"""
+findproxy = {
+    'apikey': '827bcf64-fd4a-4329-b6f0-5a0344617c64'
+}
