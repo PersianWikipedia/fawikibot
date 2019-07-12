@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This bot retreives a list of anonymous editors on the wiki in the
-last 24 hours and tries to identify proxies within that list.
+last few hours and tries to identify proxies within that list.
 
 """
 #
@@ -28,8 +28,11 @@ class FindProxyBot():
 
     def __init__(self):
         self.site = pywikibot.Site()
-        self.ipcheck_url = 'https://tools.wmflabs.org/ipcheck-dev/index.php'
-        self.apikey = config.findproxy['apikey']
+        self.target = 'User:Mensis Mirabilis/کشف پروکسی'
+        self.summary = 'روزآمدسازی نتایج'
+        self.IPQSkey = config.findproxy['IPQSkey']
+        self.PCkey = config.findproxy['PCkey']
+        self.GIIemail = config.findproxy['GIIemail']
 
     def get_ip_list(self, max_number, max_hours):
         """
@@ -87,50 +90,109 @@ class FindProxyBot():
             'end_address': end
         }
 
-    def query_ipcheck(self, ip):
+    def query_IPQualityScore(self, ip):
         """
-        Query User:SQL's ipcheck tool to determine if an IP is likely a proxy
-
-        TODO: Ideally, we should use pywikibot.data.api's _http_request method
-        to make the webservice call, so that we would not need the dependency
-        to json and requests modules.
+        Queries the IPQualityScore API to check if an IP is a proxy
         """
-        session = requests.Session()
-        params = {
-            'ip': ip,
-            'api': True,
-            'key': self.apikey
-        }
-        request = session.get(url=self.ipcheck_url, params=params)
-        print(request.text)
+        url = 'https://www.ipqualityscore.com/api/json/ip/%s/%s'
+        request = requests.get(url % (self.IPQSkey, ip))
         result = request.json()
+        if 'proxy' in result.keys():
+            return 1 if result['proxy'] is True else 0
+        else:
+            return False
 
-        result_getipintel = result['getIpIntel']['result']['chance']
-        result_proxycheck = result['proxycheck']['result']['proxy']
-        result_ipQualityScore = result['ipQualityScore']['result']['proxy']
+    def query_proxycheck(self, ip):
+        """
+        Queries the proxycheck.io API to check if an IP is a proxy
+        """
+        url = 'http://proxycheck.io/v2/%s?key=%s&vpn=1'
+        request = requests.get(url % (ip, self.PCkey))
+        result = request.json()
+        if ip in result.keys() and 'proxy' in result[ip]:
+            return 1 if result[ip]['proxy'] is True else 0
+        else:
+            return False
 
-        if not result['teohio']['error']:
-            result_teohio = result['teohio']['result']['vpnOrProxy']
+    def query_GetIPIntel(self, ip):
+        """
+        Queries the GetIPIntel API to check if an IP is a proxy
+        """
+        url = 'http://check.getipintel.net/check.php' + \
+              '?ip=%s&contact=%s&format=json&flags=m'
+        request = requests.get(url % (ip, self.GIIemail))
+        result = request.json()
+        if 'result' in result.keys():
+            return 1 if result['result'] == 1 else 0
+        else:
+            return False
 
-        numerator = (
-            float(result_getipintel) / 100 +
-                 (result_proxycheck is True) +
-                 (result_ipQualityScore is True) +
-                 (result_teohio is True))
-        denominator = 3 if result_teohio is None else 4
-        return numerator / denominator
+    def query_teoh_io(self, ip):
+        """
+        Queries the teoh.io API to check if an IP is a proxy
+        """
+        url = 'https://ip.teoh.io/api/vpn/%s'
+        request = requests.get(url % ip)
+        """
+        Sadly, teoh.io sometimes generates PHP notices before the JSON output.
+        Therefore, we will have to find the actual JSON output and parse it.
+        """
+        result = request.text
+        if result[0] != '{':
+            result = result[result.find('{'):]
+        result = json.loads(result)
+
+        if 'vpn_or_proxy' in result.keys():
+            return 1 if result['vpn_or_proxy'] == 'yes' else 0
+        else:
+            return False
+
+    def run_queries(self, ip):
+        return [
+            self.query_IPQualityScore(ip),
+            self.query_proxycheck(ip),
+            self.query_GetIPIntel(ip),
+            self.query_teoh_io(ip)
+        ]
+
+    def format_result(self, res):
+        if res == 1:
+            return '{{yes}}'
+        elif res == 0:
+            return '{{no}}'
+        else:
+            return '{{yes-no|}}'
 
     def find_proxies(self):
-        iplist = self.get_ip_list(10, 24)
-        """
-        TODO: Loop over the IPs and check if each of them is a proxy or not.
-        TODO: Add exception handling for above functions
-        """
+        out = '{| class="wikitable sortable"\n'
+        out += '! IP !! IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir'
 
-        ip = iplist[0]
-        print(ip)
-        print(self.get_ip_info(ip))
-        print(self.query_ipcheck(ip))
+        iplist = self.get_ip_list(1000, 24)
+
+        for ip in iplist:
+            pywikibot.output('Checking %s' % ip)
+            ipinfo = self.get_ip_info(ip)
+            if ipinfo['country_code'] == 'IR':
+                """
+                IPs from Iran are almost never proxies, skip the checks
+                """
+                pass
+            else:
+                IPQS, PC, GII, TEOH = self.run_queries(ip)
+                row = '\n|-\n| %s || %s || %s || %s || %s' % (
+                    ip,
+                    self.format_result(IPQS),
+                    self.format_result(PC),
+                    self.format_result(GII),
+                    self.format_result(TEOH)
+                )
+                out += row
+
+        out += '\n|}'
+
+        page = pywikibot.Page(self.site, self.target)
+        page.text = out
+        page.save(self.summary)
 
 
 robot = FindProxyBot()
