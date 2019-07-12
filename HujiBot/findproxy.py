@@ -9,7 +9,7 @@ last few hours and tries to identify proxies within that list.
 # (C) User:Mensis Mirabilis, 2019
 # (C) User:Huji, 2019
 #
-# Distributed under the terms of the CC-BY-SA 3.0 license.
+# Distributed under the terms of the CC-BY-SA license.
 #
 from __future__ import absolute_import
 #
@@ -182,7 +182,7 @@ class FindProxyBot():
                 IPQS, PC, GII, TEOH = self.run_queries(ip)
                 row = '\n|-\n| %s || %s || %s || %s || %s || %s || %s' % (
                     ip,
-                    ipinfo['CIDR'],
+                    ipinfo['cidr'],
                     ipinfo['country_code'],
                     self.format_result(IPQS),
                     self.format_result(PC),
