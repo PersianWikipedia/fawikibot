@@ -9,7 +9,7 @@ last few hours and tries to identify proxies within that list.
 # (C) User:Mensis Mirabilis, 2019
 # (C) User:Huji, 2019
 #
-# Distributed under the terms of the CC-BY-SA license.
+# Distributed under the terms of the CC-BY-SA 3.0 license.
 #
 from __future__ import absolute_import
 #
