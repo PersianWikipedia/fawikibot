@@ -110,7 +110,7 @@ class FindProxyBot():
         request = requests.get(url % (ip, self.PCkey))
         result = request.json()
         if ip in result.keys() and 'proxy' in result[ip]:
-            return 1 if result[ip]['proxy'] is True else 0
+            return 1 if result[ip]['proxy'] == 'yes' else 0
         else:
             return False
 
@@ -123,7 +123,7 @@ class FindProxyBot():
         request = requests.get(url % (ip, self.GIIemail))
         result = request.json()
         if 'result' in result.keys():
-            return 1 if result['result'] == 1 else 0
+            return 1 if result['result'] == '1' else 0
         else:
             return False
 
@@ -165,7 +165,8 @@ class FindProxyBot():
 
     def find_proxies(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! IP !! IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir'
+        out += '! IP !! CIDR !! Country Code !! ' +\
+               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir'
 
         iplist = self.get_ip_list(1000, 24)
 
@@ -179,8 +180,10 @@ class FindProxyBot():
                 pass
             else:
                 IPQS, PC, GII, TEOH = self.run_queries(ip)
-                row = '\n|-\n| %s || %s || %s || %s || %s' % (
+                row = '\n|-\n| %s || %s || %s || %s || %s || %s || %s' % (
                     ip,
+                    ipinfo['CIDR'],
+                    ipinfo['country_code'],
                     self.format_result(IPQS),
                     self.format_result(PC),
                     self.format_result(GII),
