@@ -22,6 +22,8 @@ from iptools import IpRange
 import config
 import json
 import requests
+import re
+from cidr_trie import PatriciaTrie
 
 
 class FindProxyBot():
@@ -33,6 +35,8 @@ class FindProxyBot():
         self.IPQSkey = config.findproxy['IPQSkey']
         self.PCkey = config.findproxy['PCkey']
         self.GIIemail = config.findproxy['GIIemail']
+        self.IPv4cache = PatriciaTrie()
+        self.IPv6cache = PatriciaTrie()
 
     def get_ip_list(self, max_number, max_hours):
         """
@@ -59,35 +63,44 @@ class FindProxyBot():
         iplist = {x['user'] for x in data['query']['recentchanges']}
         return list(set(iplist))
 
-    def get_cidr_ends(self, cidr):
-        """
-        Returns the start and end IP address for a given CIDR
-        """
-        ipr = IpRange(cidr)
-        start = ipr[0]
-        end = ipr[ipr.__len__() - 1]
-        return [start, end]
+    def get_cache(self, ip):
+        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        if re.match(pat, ip) is None:
+            """
+            Temporary fix for https://github.com/Figglewatts/cidr-trie/issues/2
+            """
+            if self.IPv6cache.size == 0:
+                return []
+            return self.IPv6cache.find_all(ip)
+        else:
+            return self.IPv4cache.find_all(ip)
+
+    def set_cache(self, ip, cidr, country):
+        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        if re.match(pat, ip) is None:
+            self.IPv6cache.insert(cidr, country)
+        else:
+            self.IPv4cache.insert(cidr, country)
 
     def get_ip_info(self, ip):
         """
-        TODO: Use caching so that if we already queried an IP from the same
-        CIDR then we would not actually run WHOIS again
+        Retrieves pertinent fields from IP WHOIS information
         """
-        request = IPWhois(ip)
-        result = request.lookup_rdap(depth=1)
-        cidr = result['asn_cidr']
-        country = result['asn_country_code']
-        if 'start_address' in result.keys():
-            start = result['start_address']
-            end = result['end_address']
+        cached_info = self.get_cache(ip)
+
+        if len(cached_info) == 0:
+            request = IPWhois(ip)
+            result = request.lookup_rdap(depth=1)
+            cidr = result['asn_cidr']
+            country = result['asn_country_code']
+            self.set_cache(ip, cidr, country)
         else:
-            start, end = self.get_cidr_ends(cidr)
+            cidr = cached_info[0][0]
+            country = cached_info[0][1]
 
         return {
             'cidr': cidr,
-            'country_code': country,
-            'start_address': start,
-            'end_address': end
+            'country_code': country
         }
 
     def query_IPQualityScore(self, ip):
