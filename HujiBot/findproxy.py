@@ -32,6 +32,7 @@ class FindProxyBot():
         self.site = pywikibot.Site()
         self.target = 'User:Mensis Mirabilis/کشف پروکسی'
         self.summary = 'روزآمدسازی نتایج'
+        self.blocksummary = '{{پروکسی باز}}'
         self.IPQSkey = config.findproxy['IPQSkey']
         self.PCkey = config.findproxy['PCkey']
         self.GIIemail = config.findproxy['GIIemail']
@@ -178,10 +179,12 @@ class FindProxyBot():
 
     def find_proxies(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! IP !! CIDR !! Country Code !! ' +\
-               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir'
+        out += '! آی‌پی !! CIDR !! کد کشور !! ' +\
+               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir !! ' +\
+               'بسته شد'
 
         iplist = self.get_ip_list(1000, 24)
+        rowtemplate = '\n|-\n| %s || %s || %s || %s || %s || %s || %s || %s'
 
         for ip in iplist:
             pywikibot.output('Checking %s' % ip)
@@ -193,14 +196,23 @@ class FindProxyBot():
                 pass
             else:
                 IPQS, PC, GII, TEOH = self.run_queries(ip)
-                row = '\n|-\n| %s || %s || %s || %s || %s || %s || %s' % (
+                if IPQS + PC + GII + TEOH == 4:
+                    target = target = pywikibot.User(self.site, ip)
+                    self.site.blockuser(
+                        target, '1 year', self.blocksummary,
+                        anononly=False, allowusertalk=True)
+                    blocked = 1
+                else:
+                    blocked = 0
+                row = rowtemplate % (
                     ip,
                     ipinfo['cidr'],
                     ipinfo['country_code'],
                     self.format_result(IPQS),
                     self.format_result(PC),
                     self.format_result(GII),
-                    self.format_result(TEOH)
+                    self.format_result(TEOH),
+                    self.format_result(blocked)
                 )
                 out += row
 
