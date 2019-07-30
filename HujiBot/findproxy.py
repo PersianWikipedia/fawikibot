@@ -90,11 +90,15 @@ class FindProxyBot():
         cached_info = self.get_cache(ip)
 
         if len(cached_info) == 0:
-            request = IPWhois(ip)
-            result = request.lookup_rdap(depth=1)
-            cidr = result['asn_cidr']
-            country = result['asn_country_code']
-            self.set_cache(ip, cidr, country)
+            try:
+                request = IPWhois(ip)
+                result = request.lookup_rdap(depth=1)
+                cidr = result['asn_cidr']
+                country = result['asn_country_code']
+                self.set_cache(ip, cidr, country)
+            except Exception:
+                cidr = ''
+                country = ''
         else:
             cidr = cached_info[0][0]
             country = cached_info[0][1]
@@ -197,11 +201,14 @@ class FindProxyBot():
             else:
                 IPQS, PC, GII, TEOH = self.run_queries(ip)
                 if IPQS + PC + GII + TEOH == 4:
-                    target = target = pywikibot.User(self.site, ip)
-                    self.site.blockuser(
-                        target, '1 year', self.blocksummary,
-                        anononly=False, allowusertalk=True)
-                    blocked = 1
+                    target = pywikibot.User(self.site, ip)
+                    if target.isBlocked():
+                        blocked = 2
+                    else:
+                        self.site.blockuser(
+                            target, '1 year', self.blocksummary,
+                            anononly=False, allowusertalk=True)
+                        blocked = 1
                 else:
                     blocked = 0
                 row = rowtemplate % (
