@@ -30,8 +30,8 @@ class FindProxyBot():
 
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'User:Mensis Mirabilis/کشف پروکسی'
-        self.summary = 'روزآمدسازی نتایج'
+        self.target = 'ویکی‌پدیا:گزارش دیتابیس/کشف پروکسی'
+        self.summary = 'روزآمدسازی نتایج (و ۲۱)'
         self.blocksummary = '{{پروکسی باز}}'
         self.IPQSkey = config.findproxy['IPQSkey']
         self.PCkey = config.findproxy['PCkey']
@@ -227,6 +227,10 @@ class FindProxyBot():
 
         page = pywikibot.Page(self.site, self.target)
         page.text = out
+        page.save(self.summary)
+
+        page = pywikibot.Page(self.site, self.target + '/امضا')
+        page.text = '~~~~~'
         page.save(self.summary)
 
 
