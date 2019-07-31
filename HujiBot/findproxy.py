@@ -184,7 +184,7 @@ class FindProxyBot():
     def find_proxies(self):
         out = '{| class="wikitable sortable"\n'
         out += '! آی‌پی !! CIDR !! کد کشور !! ' +\
-               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.ir !! ' +\
+               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.io !! ' +\
                'بسته شد'
 
         iplist = self.get_ip_list(1000, 24)
