@@ -169,8 +169,7 @@ class FindProxyBot():
         return [
             self.query_IPQualityScore(ip),
             self.query_proxycheck(ip),
-            self.query_GetIPIntel(ip),
-            self.query_teoh_io(ip)
+            self.query_GetIPIntel(ip)
         ]
 
     def format_result(self, res):
@@ -183,12 +182,12 @@ class FindProxyBot():
 
     def find_proxies(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! آی‌پی !! CIDR !! کد کشور !! ' +\
-               'IPQualityScore !! proxycheck !! GetIPIntel !! teoh.io !! ' +\
+        out += '! آی‌پی !! بازه !! کد کشور !! ' +\
+               'IPQualityScore !! proxycheck !! GetIPIntel !! ' +\
                'بسته شد'
 
         iplist = self.get_ip_list(1000, 24)
-        rowtemplate = '\n|-\n| %s || %s || %s || %s || %s || %s || %s || %s'
+        rowtemplate = '\n|-\n| %s || %s || %s || %s || %s || %s || %s'
 
         for ip in iplist:
             pywikibot.output('Checking %s' % ip)
@@ -199,8 +198,8 @@ class FindProxyBot():
                 """
                 pass
             else:
-                IPQS, PC, GII, TEOH = self.run_queries(ip)
-                if IPQS + PC + GII + TEOH == 4:
+                IPQS, PC, GII = self.run_queries(ip)
+                if IPQS + PC + GII == 3:
                     target = pywikibot.User(self.site, ip)
                     if target.isBlocked():
                         blocked = 2
@@ -218,7 +217,6 @@ class FindProxyBot():
                     self.format_result(IPQS),
                     self.format_result(PC),
                     self.format_result(GII),
-                    self.format_result(TEOH),
                     self.format_result(blocked)
                 )
                 out += row
