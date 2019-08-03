@@ -31,7 +31,7 @@ class FindProxyBot():
     def __init__(self):
         self.site = pywikibot.Site()
         self.target = 'ویکی‌پدیا:گزارش دیتابیس/کشف پروکسی'
-        self.summary = 'روزآمدسازی نتایج (و ۲۱)'
+        self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
         self.blocksummary = '{{پروکسی باز}}'
         self.IPQSkey = config.findproxy['IPQSkey']
         self.PCkey = config.findproxy['PCkey']
