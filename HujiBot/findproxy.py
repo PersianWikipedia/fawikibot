@@ -186,7 +186,7 @@ class FindProxyBot():
                'IPQualityScore !! proxycheck !! GetIPIntel !! ' +\
                'بسته شد'
 
-        iplist = self.get_ip_list(1000, 24)
+        iplist = self.get_ip_list(500, 24)
         rowtemplate = '\n|-\n| %s || %s || %s || %s || %s || %s || %s'
 
         for ip in iplist:
@@ -204,6 +204,7 @@ class FindProxyBot():
                     if target.isBlocked():
                         blocked = 2
                     else:
+                        pywikibot.output('Blocking %s' % ip)
                         self.site.blockuser(
                             target, '1 year', self.blocksummary,
                             anononly=False, allowusertalk=True)
