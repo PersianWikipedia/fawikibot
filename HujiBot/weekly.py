@@ -2402,26 +2402,44 @@ ORDER BY freq DESC
         {
             "sqlnum": 60,
             "sql": """
-SELECT DISTINCT 
-    page_title , 
-    Replace(Replace(Replace(comment_text,"»",""),"«",""),'ایجاد شده توسط ترجمهٔ صفحهٔ','')
-FROM   revision 
-JOIN   page 
-JOIN   comment 
-ON     rev_page=page_id 
-AND    rev_comment_id=comment_id 
-where  page_namespace = 0 
-AND    page_is_redirect = 0 
-AND    comment_text LIKE '%شده توسط ترجمهٔ صفحهٔ%' 
-AND    page_id NOT IN 
-      ( 
-       SELECT ll_from 
-       FROM   langlinks 
-       WHERE  ll_lang IN ("ar", "ckb", "de", "en", 
-                          "eo", "es", "fr", "glk", 
-                          "it", "ja", "mzn", "nl", 
-                          "pl", "ru", "tg", "tr")
-      );
+SELECT DISTINCT
+  page_title,
+  REPLACE(
+    REPLACE(REPLACE(comment_text,"»",""),"«",""),
+    'ایجاد شده توسط ترجمهٔ صفحهٔ',
+    ''
+  )
+FROM revision
+JOIN page
+  ON rev_page=page_id
+JOIN comment
+  ON rev_comment_id = comment_id
+WHERE
+  page_namespace = 0
+  AND page_is_redirect = 0
+  AND comment_text LIKE '%شده توسط ترجمهٔ صفحهٔ%'
+  AND page_id NOT IN (
+    SELECT ll_from
+    FROM langlinks
+    WHERE ll_lang IN (
+      "ar",
+      "ckb",
+      "de",
+      "en",
+      "eo",
+      "es",
+      "fr",
+      "glk",
+      "it",
+      "ja",
+      "mzn",
+      "nl",
+      "pl",
+      "ru",
+      "tg",
+      "tr"
+    )
+  );
 """,
             "out": "ویکی‌پدیا:گزارش دیتابیس/ترجمه‌های بدون میان‌ویکی",
             "cols": ["ردیف", "مقاله", "میان‌ویکی پیشنهادی"],
