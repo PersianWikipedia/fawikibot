@@ -49,7 +49,7 @@ JOIN archive
   ON log_page = ar_page_id
 LEFT JOIN user_groups ug2
   ON actor_user = ug2.ug_user
-  AND ug2.ug_group = 'Image-reviewer'
+  AND ug2.ug_group = 'image-reviewer'
 WHERE
   log_type = 'delete'
   AND ar_namespace = 6
