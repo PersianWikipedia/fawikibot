@@ -1114,22 +1114,24 @@ SELECT
 FROM
 (
   SELECT
-    t1.rev_user,
+    t1.actor_user,
     t1.iwlinks,
     SUM(t2.freq) AS total
   FROM
   (
     SELECT
-      rev_user,
+      actor_user,
       iwlinks,
       COUNT(*) AS freq
     FROM
     (
       SELECT
-        rev_user,
+        actor_user,
         rev_page,
         COUNT(ll_lang) AS iwlinks
-      FROM revision
+      FROM revision_userindex
+      JOIN actor
+        ON rev_actor = actor_id
       JOIN page
         ON rev_page = page_id
         AND page_namespace = 0
@@ -1137,26 +1139,28 @@ FROM
         ON ll_FROM = rev_page
       WHERE
         rev_parent_id = 0
-        AND rev_user <> 0
+        AND actor_user <> 0
       GROUP BY rev_page
     ) t
     GROUP BY
-      rev_user,
+      actor_user,
       iwlinks
   ) t1
   JOIN
   (
     SELECT
-      rev_user,
+      actor_user,
       iwlinks,
       COUNT(*) AS freq
     FROM
     (
       SELECT
-        rev_user,
+        actor_user,
         rev_page,
         COUNT(ll_lang) AS iwlinks
-      FROM revision
+      FROM revision_userindex
+      JOIN actor
+        ON rev_actor = actor_id
       JOIN page
         ON rev_page = page_id
         AND page_namespace = 0
@@ -1164,25 +1168,29 @@ FROM
         ON ll_FROM = rev_page
       WHERE
         rev_parent_id = 0
-        AND rev_user <> 0
+        AND actor_user <> 0
       GROUP BY rev_page
     ) t
-    GROUP BY rev_user, iwlinks
+    GROUP BY
+      actor_user,
+      iwlinks
   ) t2
-    ON t2.rev_user = t1.rev_user
+    ON t2.actor_user = t1.actor_user
     AND t2.iwlinks >= t1.iwlinks
   GROUP BY
-    t1.rev_user,
+    t1.actor_user,
     t1.iwlinks
 ) h
+JOIN user
+  ON actor_user = user_id
 LEFT JOIN user_groups
-  ON ug_user = rev_user
+  ON ug_user = actor_user
   AND ug_group = "bot"
 WHERE
   total >= iwlinks
   AND iwlinks > 5
   AND ug_user IS NULL
-GROUP BY rev_user
+GROUP BY actor_user
 ORDER BY h_index DESC
 """,
             "out": "وپ:گزارش دیتابیس/کاربران ویکی‌پدیا بر پایه شاخص اچ",

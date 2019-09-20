@@ -55,7 +55,7 @@ class InactiveUsersBot:
         self.sql = self.sql.encode(site.encoding())
         cursor.execute(self.sql)
         results = cursor.fetchall()
-        print len(results), ' rows will be processed'
+        print(len(results), ' rows will be processed')
 
         for rowid in range(len(results)):
             row = results[rowid]

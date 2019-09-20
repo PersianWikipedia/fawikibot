@@ -123,8 +123,8 @@ class StatsBot:
         self.sqlnum = sqlnum
 
     def run(self):
-        print "Stats bot started ..."
-        print "Process number: %s" % self.sqlnum
+        print("Stats bot started ...")
+        print("Process number: %s" % self.sqlnum)
         pywikibot.output("Process number: %s" % self.sqlnum)
         bot_start = time.time()
         pywikibot.output("Start time: %s" % bot_start)
@@ -154,11 +154,11 @@ class StatsBot:
         results = cursor.fetchall()
         query_end = time.time()
         delta = int(query_end - query_start)
-        print "Query time: %d seconds" % delta
+        print("Query time: %d seconds" % delta)
         timer = '<!-- Query time: %d seconds -->\n' % delta
         text = timer + text
         text = u'<!-- SQL Number = ' + str(self.sqlnum) + u' -->\n' + text
-        print len(results), ' rows will be processed'
+        print(len(results), ' rows will be processed')
 
         for rowid in range(len(results)):
             row = results[rowid]
@@ -213,10 +213,10 @@ class StatsBot:
                                  sign.title(asLink=True))
         bot_end = time.time()
         delta = int(bot_end - bot_start)
-        print "Total time: %d seconds" % delta
+        print("Total time: %d seconds" % delta)
         pywikibot.output("Total time: %d seconds" % delta)
         pywikibot.output("End time: %s" % bot_end)
-        print "Stats bot out ..."
+        print("Stats bot out ...")
 
     def save(self, text, page, comment=None, minorEdit=True,
              botflag=True):
