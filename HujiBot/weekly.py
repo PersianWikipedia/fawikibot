@@ -2423,6 +2423,7 @@ WHERE
     FROM langlinks
     WHERE ll_lang IN (
       "ar",
+      "azb",
       "ckb",
       "de",
       "en",
@@ -2435,6 +2436,7 @@ WHERE
       "mzn",
       "nl",
       "pl",
+      "pt",
       "ru",
       "tg",
       "tr"
