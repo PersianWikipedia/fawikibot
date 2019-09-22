@@ -31,6 +31,7 @@ List of parameters
             it will be used as a formatting string in the standard way that
             python handles string formatting (i.e. %s will be replaced with a
             given string and so on).
+  -maxtime  Maximum execution time of SQL queries (in minutes). Default is 30.
 
 This bot always stores the SQL query in an HTML comment (<!-- ... -->) at the
 top of the page to allow reproducibility of the results by others.
@@ -110,7 +111,7 @@ user_groups = {
 class StatsBot:
 
     def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 frmt=None, sqlnum=None, sign=True):
+                 frmt=None, sqlnum=None, sign=True, maxtime=None):
         if not (sql and out and cols and summary):
             raise ValueError('You must define sql, out, cols, and summary')
         self.sql = sql
@@ -121,6 +122,7 @@ class StatsBot:
         self.frmt = frmt
         self.sign = sign
         self.sqlnum = sqlnum
+        self.maxtime = 30 if maxtime is None else maxtime
 
     def run(self):
         print("Stats bot started ...")
@@ -145,7 +147,8 @@ class StatsBot:
         )
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
-        cursor.execute("SET SESSION MAX_STATEMENT_TIME = 60 * 30;")
+        max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
+        cursor.execute(max_time)
         try:
             cursor.execute(self.sql)
         except Exception:
@@ -257,6 +260,7 @@ def main(*args):
     pref = 'آخرین به روز رسانی: ~~~~~\n\n'
     frmt = None
     sqlnum = 0
+    maxtime = None
     for arg in local_args:
         if arg.startswith('-sql:'):
             sql = arg[len('-sql:'):]
@@ -272,6 +276,8 @@ def main(*args):
             frmt = arg[len('-frmt:'):]
         elif arg.startswith('-sign:'):
             sign = False
+        elif arg.startswith('-maxtime:'):
+            maxtime = int(arg[len('-maxtime:')])
     bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign)
     bot.run()
 

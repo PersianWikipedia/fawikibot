@@ -3,11 +3,14 @@
 """
 weekly.py - a wrapper for stats.py to be called every week.
 usage:
+    python pwb.py weekly <sqlnum> <maxtime>
+    or
     python pwb.py weekly <sqlnum>
     or
     python pwb.py weekly
 parameters:
     <sqlnum>: (optinal) integer Used to run specifice queries
+    <maxtime>: (optional) maximum execution time for the specified query
 """
 #
 # (C) Pywikibot team, 2006-2014
@@ -23,7 +26,7 @@ import sys
 import stats
 
 
-def main(sqlnum):
+def main(sqlnum, maxtime):
     tasks = [
         {
             "sqlnum": 1,
@@ -2465,13 +2468,18 @@ WHERE
             t["pref"],
             t["frmt"],
             t["sqlnum"],
-            t["sign"])
+            t["sign"],
+            maxtime)
         bot.run()
 
 
 if __name__ == "__main__":
-    try:
+    if len(sys.argv) > 1:
         sqlnum = int(sys.argv[1])
-    except Exception:
+        if len(sys.argv) > 2:
+            maxtime = int(sys.argv[2])
+        else:
+            maxtime = None
+    else:
         sqlnum = 0
-    main(sqlnum)
+    main(sqlnum, maxtime)

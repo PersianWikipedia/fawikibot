@@ -2,14 +2,15 @@
 # -*- coding: utf-8  -*-
 """
 weekly-slow.py - a wrapper for stats.py to be called every week.
-
 usage:
-    <sqlnum>: Optional argument to run only one of the tasks
-    python pwb.py weekly-slow <sqlnum>
-    Like:
-    python pwb.py weekly-slow.py 2
+    python pwb.py weekly-slow <sqlnum> <maxtime>
     or
-    python pwb.py weekly-slow.py
+    python pwb.py weekly-slow <sqlnum>
+    or
+    python pwb.py weekly-slow
+parameters:
+    <sqlnum>: (optinal) integer Used to run specifice queries
+    <maxtime>: (optional) maximum execution time for the specified query
 """
 #
 # (C) Pywikibot team, 2006-2014
@@ -26,7 +27,7 @@ import sys
 import stats
 
 
-def main(sqlnum):
+def main(sqlnum, maxtime):
     tasks = [
         {
             "sqlnum": 1,
@@ -1258,13 +1259,18 @@ WHERE
             t["pref"],
             t["frmt"],
             t["sqlnum"],
-            t["sign"])
+            t["sign"],
+            maxtime)
         bot.run()
 
 
 if __name__ == "__main__":
-    try:
+    if len(sys.argv) > 1:
         sqlnum = int(sys.argv[1])
-    except Exception:
+        if len(sys.argv) > 2:
+            maxtime = int(sys.argv[2])
+        else:
+            maxtime = None
+    else:
         sqlnum = 0
-    main(sqlnum)
+    main(sqlnum, maxtime)
