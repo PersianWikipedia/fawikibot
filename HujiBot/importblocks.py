@@ -134,9 +134,7 @@ WHERE
 
     def main(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! آی‌پی !! بازه !! کد کشور !! ' +\
-               'IPQualityScore !! proxycheck !! GetIPIntel !! ' +\
-               'بسته شد'
+        out += '! آی‌پی !! بازه !! کد کشور !! بسته شد'
 
         iplist = self.get_ip_list()
         rowtemplate = '\n|-\n| %s || %s || %s || %s'
