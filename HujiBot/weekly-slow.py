@@ -1273,4 +1273,5 @@ if __name__ == "__main__":
             maxtime = None
     else:
         sqlnum = 0
+        maxtime = None
     main(sqlnum, maxtime)
