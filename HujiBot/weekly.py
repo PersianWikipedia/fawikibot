@@ -415,8 +415,15 @@ SELECT
   COUNT(il_to) cnt,
   SUM(
     CASE
-      WHEN il_from_namespace = 0 THEN 0
-      ELSE 1
+      WHEN il_from_namespace NOT IN (
+        0,
+        4,
+        10,
+        100,
+        118
+      )
+      THEN 1
+      ELSE 0
     END
   ) AS nonarticle
 FROM page
@@ -427,7 +434,7 @@ JOIN imagelinks
   ON page_title = il_to
 GROUP BY page_title
 HAVING cnt > 10
-ORDER BY cnt DESC
+ORDER BY nonarticle DESC
 """,
             "out": "وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده",
             "cols": ["ردیف", "پرونده", "کل کاربردها", "کاربرد غیر منصفانه"],
