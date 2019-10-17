@@ -617,6 +617,8 @@ def tem_cleaner(text,page):
     for i in templates:
         if u'{{'+i.replace(u'الگو:',u'') in text:
             temp_braket=u'{{'+i.replace(u'الگو:',u'')+text.split(u'{{'+i.replace(u'الگو:',u''))[1].split(u'}}')[0]+u'}}'
+            if u'infobox' in temp_braket.lower() or string.count( temp_braket,u"|" )>1 or string.count( temp_braket,u"\n" )>0 or u'جعبه' in temp_braket:
+                continue
             template_sub=templatequery(i,'fa')
             if template_sub:    
                 if u'الگو:الگوی خرد' in template_sub or u'-خرد' in i:
