@@ -768,7 +768,7 @@ LEFT JOIN (
     COUNT(log_id) thankback
   FROM logging
   JOIN actor
-    on actor_user = actor_id
+    ON log_actor = actor_id
   JOIN user
     ON user_id = actor_user
   WHERE log_type = 'thanks'
