@@ -423,10 +423,7 @@ SELECT
     CASE
       WHEN il_from_namespace NOT IN (
         0,
-        4,
-        10,
-        100,
-        118
+        10
       )
       THEN 1
       ELSE 0
