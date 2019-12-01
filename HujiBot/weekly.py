@@ -440,7 +440,10 @@ JOIN imagelinks
   ON page_title = il_to
 GROUP BY page_title
 HAVING cnt > 10
-ORDER BY nonarticle DESC
+ORDER BY
+  nonarticle DESC,
+  template DESC,
+  cnt DESC
 """,
             "out": "وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده",
             "cols": [
