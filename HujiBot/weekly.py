@@ -415,10 +415,15 @@ SELECT
   COUNT(il_to) cnt,
   SUM(
     CASE
+      WHEN il_from_namespace = 10 THEN 1
+      ELSE 0
+    END
+  ) AS template,
+  SUM(
+    CASE
       WHEN il_from_namespace NOT IN (
         0,
         4,
-        10,
         100,
         118
       )
@@ -437,12 +442,19 @@ HAVING cnt > 10
 ORDER BY nonarticle DESC
 """,
             "out": "وپ:گزارش دیتابیس/محتویات غیرآزاد بیش از حد استفاده شده",
-            "cols": ["ردیف", "پرونده", "کل کاربردها", "کاربرد غیر منصفانه"],
+            "cols": [
+              "ردیف",
+              "پرونده",
+              "کل کاربردها",
+              "کاربرد مشکوک",
+              "کاربرد غیرمنصفانه"
+            ],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]] " +
-                    "|| {{formatnum:%s}} || {{formatnum:%s}}",
+                    "|| {{formatnum:%s}} || {{formatnum:%s}} " +
+                    "|| {{formatnum:%s}}",
             "sign": True
         },
         {
