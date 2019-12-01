@@ -424,6 +424,7 @@ SELECT
       WHEN il_from_namespace NOT IN (
         0,
         4,
+        10,
         100,
         118
       )
