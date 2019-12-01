@@ -436,7 +436,9 @@ JOIN categorylinks
 JOIN imagelinks
   ON page_title = il_to
 GROUP BY page_title
-HAVING cnt > 10
+HAVING
+  cnt > 10
+  OR nonarticle > 0
 ORDER BY
   nonarticle DESC,
   template DESC,
