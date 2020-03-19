@@ -227,7 +227,7 @@ def Dictation(txt,msg_short,msg=msg):
     txt = re.sub(bLB+u'بی[‌ ]?م[حه]ابا', u'بی‌محابا', txt)
     txt = re.sub(bLB+u' بر ?خو?است', u' برخاست', txt)
     txt = re.sub(u'خوانواد(?=ه|گی)', u'خانواد', txt)
-    txt = re.sub(u'[آا]نفو?لو? ?[آا]نزا', u'آنفلوآنزا', txt)
+    txt = re.sub(u'[آا]نفو?لو? ?[آا]نزا', u'آنفلوانزا', txt)
     txt = re.sub(bLB+u'غری[ضظ]ه'+bLA, u'غریزه', txt)
     txt = txt.replace(u'خواستگاه', u'خاستگاه')
     txt = txt.replace(u'اطاق', u'اتاق').replace(u'باطری', u'باتری').replace(u'باطلاق', u'باتلاق').replace(u' ملیون', u' میلیون')
