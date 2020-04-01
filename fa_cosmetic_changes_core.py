@@ -304,13 +304,28 @@ def cleaning(text,msg_short,msg=msg):
     #تمیزکاری عنوان 
     #----cleaning for subsections -----
     text=re.sub(ur'(\< *\/ *br *\>|\< *br *\\ *\>|\< *br *\. *\>)',u'<br/>',text)
-    text=text.replace(u'<br/>',u'{{سخ}}').replace(u'{{سر خط}}',u'{{سخ}}').replace(u'{{سرخط}}',u'{{سخ}}').replace(u'<br />',u'{{سخ}}')
-    text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'[\s_](\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
-    text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
-    text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)[\s_]\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
-    text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text)
-    text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text)
-    text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n([\n\#\*])",r"\n\n== \1 ==\n\3",text)
+    if u'{|' in text: # dont edit inside table
+        text_table=text.split('{|')[1].split('|}')[0]
+        text1=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'[\s_](\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text_table)
+        text1=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text1)
+        text1=re.sub(ur"(\n\{\{سخ\}\}|\n\n)[\s_]\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text1)
+        text1=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text1)
+        text1=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text1)
+        text1=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n([\n\#\*])",r"\n\n== \1 ==\n\3",text1)
+        if text1 == text_table:
+            thepass=True
+        else:
+            thepass=False
+        del text1, text_table
+    else:
+        thepass=True
+    if thepass:
+        text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'[\s_](\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
+        text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
+        text=re.sub(ur"(\n\{\{سخ\}\}|\n\n)[\s_]\'\'\'(.*?)\'\'\'(\{\{سخ\}\}\n|\n\n)",r"\n\n== \2 ==\n\n",text)
+        text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text)
+        text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n\n",r"\n\n== \1 ==\n\n",text)
+        text=re.sub(ur"\n\n\'\'\'(.*?)\'\'\'(\s)\n([\n\#\*])",r"\n\n== \1 ==\n\3",text)
     text=re.sub(ur"^(=+([^=].*?)=+)[\t\s]{1,}\n",r"\1\n",text)
 
     text = re.sub(re.compile(ur'^(\={2,}) *(.*?) *(\={2,})', re.MULTILINE), ur"\1 \2 \3",text).replace(u"==  ",u'== ').replace(u"  ==",u' ==')
