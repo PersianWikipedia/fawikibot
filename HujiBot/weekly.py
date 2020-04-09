@@ -291,6 +291,14 @@ SELECT page_title
 FROM page
 LEFT JOIN categorylinks
   ON page_id = cl_from
+  AND cl_to NOT IN (
+    SELECT p2.page_title
+    FROM page p2
+    JOIN categorylinks cl2
+      ON p2.page_id = cl2.cl_from
+      AND cl2.cl_to = 'رده‌های_پنهان'
+    WHERE p2.page_namespace = 14
+  )
 WHERE
   page_namespace = 0
   AND page_is_redirect = 0
