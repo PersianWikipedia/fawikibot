@@ -129,7 +129,8 @@ class StatsBot:
         print("Process number: %s" % self.sqlnum)
         pywikibot.output("Process number: %s" % self.sqlnum)
         bot_start = time.time()
-        pywikibot.output("Start time: %s" % bot_start)
+        pywikibot.output("Start time: %s" %
+                         time.asctime(time.gmtime(bot_start)))
 
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
@@ -218,7 +219,7 @@ class StatsBot:
         delta = int(bot_end - bot_start)
         print("Total time: %d seconds" % delta)
         pywikibot.output("Total time: %d seconds" % delta)
-        pywikibot.output("End time: %s" % bot_end)
+        pywikibot.output("End time: %s" % time.asctime(time.gmtime(bot_end)))
         print("Stats bot out ...")
 
     def save(self, text, page, comment=None, minorEdit=True,
