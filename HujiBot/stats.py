@@ -171,13 +171,14 @@ class StatsBot:
             text += u'|-\n'
             row = list(row)
             for idx in range(len(row)):
-                try:
-                    row[idx] = row[idx].decode()
-                except Exception:
+                if isinstance(row[idx], bytes):
                     try:
-                        row[idx] = row[idx].decode()[:-1]
+                        row[idx] = row[idx].decode()
                     except Exception:
-                        row[idx] = row[idx].decode()[:-2]
+                        try:
+                            row[idx] = row[idx].decode()[:-1]
+                        except Exception:
+                            row[idx] = row[idx].decode()[:-2]
 
             if self.frmt:
                 row = tuple(row)

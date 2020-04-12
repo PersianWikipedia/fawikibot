@@ -62,7 +62,8 @@ class InactiveUsersBot:
             text += u'|-\n'
             row = list(row)
             for idx in range(len(row)):
-                row[idx] = row[idx].decode()
+                if isinstance(row[idx], bytes):
+                    row[idx] = row[idx].decode()
                 row[idx] = row[idx].replace('rollbacker', 'واگردان')
                 row[idx] = row[idx].replace('patroller', 'گشت‌زن')
                 row[idx] = row[idx].replace('eliminator', 'ویکی‌بان')
