@@ -150,6 +150,8 @@ class StatsBot:
         self.sql = self.sql.encode(site.encoding())
         max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
         cursor.execute(max_time)
+        max_len = "SET SESSION GROUP_CONCAT_MAX_LEN = 15000;"
+        cursor.execute(max_len)
         try:
             cursor.execute(self.sql)
         except Exception:
