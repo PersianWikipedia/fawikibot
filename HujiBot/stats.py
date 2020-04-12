@@ -172,12 +172,12 @@ class StatsBot:
             row = list(row)
             for idx in range(len(row)):
                 try:
-                    row[idx] = str(row[idx]).decode('utf-8')
+                    row[idx] = row[idx].decode()
                 except Exception:
                     try:
-                        row[idx] = str(row[idx])[:-1].decode('utf-8')
+                        row[idx] = row[idx].decode()[:-1]
                     except Exception:
-                        row[idx] = str(row[idx])[:-2].decode('utf-8')
+                        row[idx] = row[idx].decode()[:-2]
 
             if self.frmt:
                 row = tuple(row)
