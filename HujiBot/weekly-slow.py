@@ -963,7 +963,7 @@ FROM fawiki_p.image AS faimage
 WHERE
   faimage.img_name IN (
     SELECT DISTINCT log_title
-    FROM enwiki_p.logging
+    FROM enwiki_p.logging_logindex
     WHERE
       log_type = 'delete'
       AND log_action = 'delete'
