@@ -1368,8 +1368,8 @@ WHERE
 SELECT
   page_title,
   CASE
-    WHEN page_is_redirect = 1 THEN '{{بله}}'
-    ELSE '{{خیر}}'
+    WHEN page_is_redirect = 1 THEN '{{yes}}'
+    ELSE '{{no}}'
   END AS is_redirect
 FROM page_restrictions
 JOIN page
@@ -1964,7 +1964,7 @@ SELECT
   GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') AS groups,
   CASE
     WHEN ipb_user IS NULL THEN ''
-    ELSE '{{بله}}'
+    ELSE '{{yes}}'
   END AS blocked
 FROM revision_userindex
 JOIN actor_revision
