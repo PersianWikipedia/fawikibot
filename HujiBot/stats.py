@@ -42,9 +42,6 @@ top of the page to allow reproducibility of the results by others.
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import unicode_literals
-
-#
 
 import pywikibot
 import sys

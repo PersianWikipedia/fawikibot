@@ -18,9 +18,7 @@ parameters:
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import unicode_literals
 
-#
 
 import pywikibot
 import sys

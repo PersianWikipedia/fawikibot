@@ -16,10 +16,7 @@ parameters:
 # (C) Pywikibot team, 2006-2014
 # (C) w:fa:User:Huji, 2015-2016
 #
-#
-from __future__ import unicode_literals
 
-#
 
 import pywikibot
 import sys
@@ -1969,16 +1966,16 @@ SELECT
     WHEN ipb_user IS NULL THEN ''
     ELSE '{{بله}}'
   END AS blocked
-FROM revision
-JOIN actor
+FROM revision_userindex
+JOIN actor_revision
   ON rev_actor = actor_id
 JOIN (
   SELECT
     actor_user old_user,
     max(rev_timestamp) sunset,
     COUNT(rev_id) AS old_edits
-  FROM revision
-  JOIN actor
+  FROM revision_userindex
+  JOIN actor_revision
     ON rev_actor = actor_id
   WHERE
     actor_user <> 0
@@ -2003,8 +2000,8 @@ WHERE
   )
   AND actor_user NOT IN (
     SELECT actor_user
-    FROM revision
-    JOIN actor
+    FROM revision_userindex
+    JOIN actor_revision
       ON rev_actor = actor_id
     WHERE
       actor_user <> 0
@@ -2111,7 +2108,7 @@ SELECT DISTINCT
   COUNT(*) cnt,
   CASE
     WHEN ufg_group IS NULL THEN ''
-    ELSE '{{خیر|بله}}'
+    ELSE '{{no|{{Check mark-n}}}}'
   END AS lostautopatrol
 FROM revision
 JOIN actor
