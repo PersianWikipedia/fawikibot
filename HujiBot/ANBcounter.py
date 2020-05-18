@@ -13,7 +13,6 @@ last few hours and tries to identify proxies within that list.
 
 import pywikibot
 import re
-from pywikibot.data import api
 
 
 class ANBcounter():
