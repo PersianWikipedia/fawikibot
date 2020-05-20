@@ -12,4 +12,5 @@ install:
 # command to run tests
 script:
   - pycodestyle HujiBot/*.py
+  - pycodestyle Rezabot/*.py
   - pycodestyle webcite.py
