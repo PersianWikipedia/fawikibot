@@ -744,6 +744,8 @@ SELECT
     "{{ns:", page_namespace, "}}:",
     page_title
   ),
+  STR_TO_DATE(LEFT(MIN(rev_timestamp), 8), '%Y%m%d') AS first_edit,
+  STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS last_edit,
   COUNT(*)
 FROM revision
 JOIN page ON page_id = rev_page
@@ -759,12 +761,15 @@ LIMIT 1000
             "cols": [
               "ردیف",
               "صفحه",
+              "اولین ویرایش",
+              "آخرین ویرایش",
               "تعداد ویرایش"
             ],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s}}",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || {{formatnum:%s|NOSEP}} " +
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s}}",
             "sign": True
         },
         {
