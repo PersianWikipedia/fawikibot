@@ -8,6 +8,12 @@
 # Distributed under the terms of the CC-BY-SA 3.0 .
 # for calling this bot you can use  fa_cosmetic_changes(text,page) function
 
+if sys.version_info[0] > 2:
+    from html.parser import HTMLParser
+    basestring = (str,)
+    unicode = str
+else:
+    from HTMLParser import HTMLParser
 import pywikibot
 from pywikibot import pagegenerators
 from pywikibot import config
