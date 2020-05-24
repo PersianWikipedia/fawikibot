@@ -5,11 +5,9 @@
 # Distributed under the terms of MIT License (MIT)
 #
 # for more information see [[fa:ویکی‌پدیا:درخواست‌های ربات/رده همسنگ]] and [[fa:ویکی‌پدیا:رده‌دهی مقالات همسنگ]]
-# Python 3
 from pywikibot import config
 from pywikibot import pagegenerators
 import re
-import sys
 import fa_cosmetic_changes_core
 import pywikibot
 import codecs
@@ -24,7 +22,7 @@ en_site = pywikibot.Site('en', 'wikipedia')
 versionpage = pywikibot.Page(fa_site, 'کاربر:Rezabot/رده‌دهی مقالات همسنگ/نسخه')
 lastversion = versionpage.get().strip()
 version = '۳۰.۱'
-new_edition = '۲'
+new_edition = '۳'
 if lastversion != version:
     pywikibot.output("\03{lightred}Your bot dosen't use the last verion please update me!\03{default}")
     pywikibot.stopme()
@@ -61,76 +59,40 @@ def englishdictionry(enlink, firstsite, secondsite):
     if _cache.get(tuple([enlink, firstsite, secondsite, 'en_dic'])):
         return _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]
     try:
-        enlink = str(enlink).replace('[[', '').replace(']]', '').replace('en:', '').replace('fa:', '').replace(' ','_')
+        enlink = str(enlink).replace('[[', '').replace(']]', '').replace('en:', '').replace('fa:', '')
     except:
-        enlink = enlink.replace('[[', '').replace(']]', '').replace('en:', '').replace('fa:', '').replace(' ','_')
+        enlink = enlink.replace('[[', '').replace(']]', '').replace('en:', '').replace('fa:', '')
     if enlink.find('#') != -1:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
     if enlink == '':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
-    result=link_translator(enlink,firstsite,secondsite)
-    #print (result)
-    if result:
-        if str(result).find('#') != -1:
+    enlink = enlink.replace(' ', '_')
+    params = {
+        'action': 'query',
+        'prop': 'langlinks',
+        'titles': enlink,
+        'redirects': 1,
+        'lllimit': 500,
+    }
+    try:
+        categoryname = pywikibot.data.api.Request(site=firstsite, **params).submit()
+        for item in categoryname['query']['pages']:
+            case = categoryname['query']['pages'][item]['langlinks']
+        for item in case:
+            if item['lang'] == secondsite.code:
+                intersec = item['*']
+                break
+        result = intersec
+        if result.find('#') != -1:
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = result
         return result
-    else:
-        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]=False
-        return False 
-
-def link_translator(title,ensite,fasite):
-
-    params = {
-        'action': 'query',
-        'redirects': '',
-        'titles': title
-    }
-    query_res = pywikibot.data.api.Request(site=ensite, **params).submit()
-
-
-    normalizeds = query_res['query'].get('normalized', [])
-    if len(normalizeds):
-        title = normalizeds[0]['to']
-        
-    redirects = query_res['query'].get('redirects', [])
-    if len(redirects):
-        title = redirects[0]['to']
-
-
-    wikidata = pywikibot.Site('wikidata', 'wikidata')
-    
-    endbName = ensite.dbName()
-    fadbName = fasite.dbName()
-    params = {
-        'action': 'wbgetentities',
-        'sites': endbName,
-        'titles': title,
-        'props': 'sitelinks'
-    }
-
-    try:
-        query_res = pywikibot.data.api.Request(site=wikidata, **params).submit()
     except:
-        return ''
-
-    matches_titles = {}
-    entities = query_res.get('entities', {})
-    for qid, entity in entities.items():
-        if fadbName in entity.get('sitelinks', {}):
-            fa_title = entity['sitelinks'][fadbName]
-
-            # for not updated since addition of badges on Wikidata items
-            if not isinstance(title, str):
-                fa_title = fa_title['title']
-
-            return fa_title
-
-    return ''
-
+        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
+        return False
 
 def catquery(enlink, firstsite, hidden):
     if _cache.get(tuple([enlink, firstsite, hidden, 'cat_query'])):
@@ -372,8 +334,8 @@ def pedar(catfa, radehi, link):
 
 def run(gen):
     for pagework in gen:
-        if True:
-        #try:
+            
+        try:
             radehf, catsfas, maghalehen, radeh, finallRadeh = ' ', ' ', ' ', ' ', ' '
             try:
                 pagework = str(pagework)
@@ -384,10 +346,7 @@ def run(gen):
                 continue
             else:
                 page_list_run.append(pagework)
-            try:
-                pagework=pagework.title()
-            except:
-                pass
+
             pywikibot.output('-----------------------------------------------')
             pywikibot.output('opening....' + pagework)
             catsfa = sitop(pagework, 'fa')
@@ -564,9 +523,9 @@ def run(gen):
             except Exception as e:
                  pywikibot.output('\03{lightred}Could not open page\03{default}')
                  continue
-        #except:
-        #    pywikibot.output('\03{lightred}Bot has error\03{default}')
-        #    continue
+        except:
+            pywikibot.output('\03{lightred}Bot has error\03{default}')
+            continue
 # -------------------------------encat part-----------------------------------
 
 def categorydown(listacategory):
@@ -616,7 +575,7 @@ def encatlist(encat):
                     elif profix_fa in ['1', '2', '3', '5', '7', '8', '9', '11', '13', '15', '101', '103','118','119','446','447', '828', '829']:
                         continue
                     else:
-                        pages = pages
+                        pass
                     pywikibot.output('\03{lightgreen}Adding ' + pages + ' to fapage lists\03{default}')
                     listenpageTitle.append(pages)
 
