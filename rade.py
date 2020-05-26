@@ -64,73 +64,37 @@ def englishdictionry(enlink, firstsite, secondsite):
         enlink = unicode(str(enlink), 'UTF-8').replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
     except:
         enlink = enlink.replace(u'[[', u'').replace(u']]', u'').replace(u'en:', u'').replace(u'fa:', u'').replace(u' ',u'_')
-    if enlink.find('#') != -1:
+    if enlink.find(u'#') != -1:
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
     if enlink == u'':
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
         return False
-    result=link_translator(enlink,firstsite,secondsite)
-    #print result
-    if result:
+    enlink = enlink.replace(u' ', u'_')
+    params = {
+        'action': 'query',
+        'prop': 'langlinks',
+        'titles': enlink,
+        'redirects': 1,
+        'lllimit': 500,
+    }
+    try:
+        categoryname = pywikibot.data.api.Request(site=firstsite, **params).submit()
+        for item in categoryname['query']['pages']:
+            case = categoryname['query']['pages'][item]['langlinks']
+        for item in case:
+            if item['lang'] == secondsite.code:
+                intersec = item['*']
+                break
+        result = intersec
         if result.find('#') != -1:
             _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
             return False
         _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = result
         return result
-    else:
-        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])]=False
-        return False 
-
-def link_translator(title,ensite,fasite):
-
-    params = {
-        'action': 'query',
-        'redirects': '',
-        'titles': title
-    }
-    query_res = pywikibot.data.api.Request(site=ensite, **params).submit()
-
-
-    normalizeds = query_res['query'].get('normalized', [])
-    if len(normalizeds):
-        title = normalizeds[0]['to']
-        
-    redirects = query_res['query'].get('redirects', [])
-    if len(redirects):
-        title = redirects[0]['to']
-
-
-    wikidata = pywikibot.Site('wikidata', 'wikidata')
-    
-    endbName = ensite.dbName()
-    fadbName = fasite.dbName()
-    params = {
-        'action': 'wbgetentities',
-        'sites': endbName,
-        'titles': title,
-        'props': 'sitelinks'
-    }
-
-    try:
-        query_res = pywikibot.data.api.Request(site=wikidata, **params).submit()
     except:
-        return ''
-
-    matches_titles = {}
-    entities = query_res.get('entities', {})
-    for qid, entity in entities.items():
-        if fadbName in entity.get('sitelinks', {}):
-            fa_title = entity['sitelinks'][fadbName]
-
-            # for not updated since addition of badges on Wikidata items
-            if not isinstance(title, str):
-                fa_title = fa_title['title']
-
-            return fa_title
-
-    return ''
-
+        _cache[tuple([enlink, firstsite, secondsite, 'en_dic'])] = False
+        return False
 
 def catquery(enlink, firstsite, hidden):
     if _cache.get(tuple([enlink, firstsite, hidden, 'cat_query'])):
