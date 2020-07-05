@@ -450,6 +450,7 @@ def run(gen):
                     continue
                 #---------------------------------------remove repeative category-----------------
                 text = text.replace(u']]‌', u']]@12@').replace(u'‌[[', u'@34@[[')  # for solving ZWNJ+[[ or ]]+ZWNJ Bug
+                text = text.replace(u'@12@', u'').replace(u'@34@', u'')
                 for item in finallRadeh.split(u'\n'):
                     item2 = item.split(u'|')[0].replace(u'[[', u'').replace(u']]', u'').strip()
                     radehbehtar = templatequery(item2, 'fa')
