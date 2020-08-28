@@ -808,11 +808,7 @@ LIMIT 1000
             "sql": """
 SELECT
   pl_title,
-  COUNT(*),
-  GROUP_CONCAT(
-    CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]')
-    SEPARATOR "، "
-  )
+  COUNT(*)
 FROM pagelinks
 LEFT JOIN page AS p1
   ON p1.page_namespace = pl_namespace
@@ -834,14 +830,12 @@ LIMIT 1000
             "cols": [
               'ردیف',
               'مقاله',
-              'تعداد پیوند به',
-              'صفحات به کار رفته'
+              'تعداد پیوندهای ورودی'
             ],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
                     "\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}} " +
-                    "|| %s",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[%s]] || {{formatnum:%s}} ",
             "sign": True
         },
         {
