@@ -817,7 +817,7 @@ FROM pagelinks
 LEFT JOIN page AS p1
   ON p1.page_namespace = pl_namespace
   AND p1.page_title = pl_title
-JOIN logging
+JOIN logging_userindex
   ON pl_namespace = log_namespace
   AND pl_title = log_title
   AND log_type = 'delete'
