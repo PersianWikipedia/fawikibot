@@ -1242,6 +1242,43 @@ WHERE
             "frmt": "| {{formatnum:%d}} || [[{{ns:4}}:%s]]",
             "sign": True
         },
+        {
+            "sqlnum": 20,
+            "sql": """
+SELECT
+  actor_name,
+  COUNT(DISTINCT page_id)
+FROM page
+JOIN revision_userindex
+  ON rev_page = page_id
+JOIN actor_revision
+  ON rev_actor = actor_id
+WHERE
+  page_namespace = 0
+  AMD page_is_redirect = 0
+  AND rev_actor NOT IN (
+    SELECT actor_id
+    FROM actor
+    JOIN user_groups
+      ON ug_user = actor_user
+    WHERE ug_group = 'bot'
+  )
+GROUP BY actor_name
+ORDER BY COUNT(DISTINCT page_id) DESC
+LIMIT 500
+""",
+            "out": "وپ:گزارش دیتابیس/کاربران بر پایه تعداد مقالات ویرایش‌کرده",
+            "cols": [
+              "ردیف",
+              "کاربر",
+              "شمار مقاله‌ها"
+            ],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
+                    "\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[کاربر:%s]] || {{formatnum:%s}}",
+            "sign": True
+        },
     ]
 
     for t in tasks:
