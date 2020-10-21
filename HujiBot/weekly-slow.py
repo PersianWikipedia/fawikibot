@@ -1255,7 +1255,7 @@ JOIN actor_revision
   ON rev_actor = actor_id
 WHERE
   page_namespace = 0
-  AMD page_is_redirect = 0
+  AND page_is_redirect = 0
   AND rev_actor NOT IN (
     SELECT actor_id
     FROM actor
