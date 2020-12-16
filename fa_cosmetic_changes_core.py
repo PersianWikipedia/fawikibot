@@ -780,7 +780,7 @@ def reverting (text,old_text):
         count+=1
         
     # source
-    Regexs=re.compile(ur'(?is)<'+ur'source (?:\n*.*?)+<'+ur'/source'+ur'>') 
+    Regexs=re.compile(ur'(?is)<'+ur'source\b(?:\n*.*?)+<'+ur'/source'+ur'>') 
     sources = Regexs.findall(text)
     old_sources = Regexs.findall(old_text)
     count=0
@@ -789,7 +789,7 @@ def reverting (text,old_text):
         count+=1
         
     # score
-    Regexs=re.compile(ur'(?is)<'+ur'score (?:\n*.*?)+<'+ur'/score'+ur'>') 
+    Regexs=re.compile(ur'(?is)<'+ur'score\b(?:\n*.*?)+<'+ur'/score'+ur'>') 
     scores = Regexs.findall(text)
     old_scores = Regexs.findall(old_text)
     count=0
