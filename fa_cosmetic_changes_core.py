@@ -769,6 +769,16 @@ def reverting (text,old_text):
     for m in maths:
         text=text.replace(maths[count],old_maths[count])
         count+=1
+        
+    #ابر
+    Regexs=re.compile(ur'\<\!\-\-ابر\-\-\>(?:\n*.*?)+\<\!\-\-\/ابر\-\-\>') 
+    abars = Regexs.findall(text)
+    old_abars = Regexs.findall(old_text)
+    count=0
+    for abar in abars:
+        text=text.replace(abars[count],old_abars[count])
+        count+=1
+        
     # source
     Regexs=re.compile(ur'(?is)<'+ur'source (?:\n*.*?)+<'+ur'/source'+ur'>') 
     sources = Regexs.findall(text)
