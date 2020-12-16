@@ -770,13 +770,23 @@ def reverting (text,old_text):
         text=text.replace(maths[count],old_maths[count])
         count+=1
     # source
-    Regexs=re.compile(ur'(?is)<'+ur'source .*?<'+ur'/source'+ur'>') 
+    Regexs=re.compile(ur'(?is)<'+ur'source (?:\n*.*?)+<'+ur'/source'+ur'>') 
     sources = Regexs.findall(text)
     old_sources = Regexs.findall(old_text)
     count=0
     for source in sources:
         text=text.replace(sources[count],old_sources[count])
         count+=1
+        
+    # score
+    Regexs=re.compile(ur'(?is)<'+ur'score (?:\n*.*?)+<'+ur'/score'+ur'>') 
+    scores = Regexs.findall(text)
+    old_scores = Regexs.findall(old_text)
+    count=0
+    for score in scores:
+        text=text.replace(scores[count],old_scores[count])
+        count+=1
+                
     text=text.replace(u'\r',u'')
     text=text.replace(u'==<',u'==\n<').replace(u'>==',u'>\n==')
     return text
@@ -852,7 +862,8 @@ def fa_replaceExcept(text, old, new, exceptions,marker='', site=None):
         'comment':      re.compile(r'(?s)<!--.*?-->'),
         'header':       re.compile(r'\r?\n=+.+=+ *\r?\n'),
         'pre':          re.compile(r'(?ism)<pre>.*?</pre>'),
-        'source':       re.compile(r'(?is)<'+ur'source .*?<'+ur'/source'+ur'>'),
+        'source':       re.compile(r'(?is)<'+ur'source (?:\n*.*?)+<'+ur'/source'+ur'>'),
+        'score' :       re.compile(r'(?is)<'+ur'score (?:\n*.*?)+<'+ur'/score'+ur'>'),
         'category':       re.compile(ur'\[\[رده\:.*?\]\]'),
         'ref':          re.compile(r'(?ism)<ref[ >].*?</ref>'),
         'URL':         re.compile(r'\[\.*?\]'),
