@@ -95,7 +95,7 @@ class ANBcounter():
 
         page = pywikibot.Page(self.site, self.last_updated)
         page.text = '~~~~~'
-        page.save(summary=self.summary, minor=False, botflag=False)
+        page.save(summary=self.summary)
 
 
 robot = ANBcounter()
