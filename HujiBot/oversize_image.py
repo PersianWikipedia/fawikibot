@@ -26,8 +26,9 @@ class OversizeImageBot:
         self.site = pywikibot.Site()
         self.cat = 'رده:محتویات غیر آزاد'
         self.out = 'User:Huji/oversize_images'
+        self.detail = 'User:Huji/oversize_images/details'
         self.summary = 'روزآمدسازی آمار'
-        self.count_threshold = 3
+        self.count_threshold = 0
         self.dim_threshold = 500
         self.df = pd.DataFrame(
             columns=['user', 'file', 'ts', 'width', 'height'],
@@ -61,10 +62,24 @@ class OversizeImageBot:
         wikitab += '! کاربر !! شمار پرونده\n'
 
         for idx, row in tab.iterrows():
-            print(row)
             wikitab += '|-\n'
             wikitab += '| [[User:' + row.name + '|]]\n'
             wikitab += '| ' + str(row['file']) + '\n'
+
+        wikitab += '|}'
+
+        return wikitab
+
+    def tabulate(self):
+        wikitab = '{| classwikitable\n'
+        wikitab += '! کاربر !! پرونده !! تاریخ بارگذاری !! ابعاد'
+
+        for idx, row in self.df.sort_values('user').iterrows():
+            wikitab += '|-\n'
+            wikitab += '| [[User:' + row['user'] + '|]]\n'
+            wikitab += '| [[:' + row['file'] + ']]\n'
+            wikitab += '| ' + row['ts'] + '\n'
+            wikitab += '| %s×%s\n' % (row['width'], row['height'])
 
         wikitab += '|}'
 
@@ -86,6 +101,11 @@ class OversizeImageBot:
 
         tab = self.aggregate()
         page = pywikibot.Page(self.site, self.out)
+        page.text = tab
+        page.save(summary=self.summary, minor=False, botflag=False)
+
+        tab = self.tabulate()
+        page = pywikibot.Page(self.site, self.detail)
         page.text = tab
         page.save(summary=self.summary, minor=False, botflag=False)
 
