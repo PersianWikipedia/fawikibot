@@ -28,8 +28,6 @@ class OversizeImageBot:
         self.out = 'User:Huji/oversize_images'
         self.detail = 'User:Huji/oversize_images/details'
         self.summary = 'روزآمدسازی آمار'
-        self.count_threshold = 0
-        self.dim_threshold = 500
         self.df = pd.DataFrame(
             columns=['user', 'file', 'ts', 'width', 'height'],
             dtype=str)
@@ -54,10 +52,6 @@ class OversizeImageBot:
         tab = self.df[['user', 'file']].groupby('user').count(). \
             sort_values('file', ascending=False)
 
-        tab = tab[tab['file'] > self.count_threshold]
-
-        print(tab)
-
         wikitab = '{| class=wikitable\n'
         wikitab += '! کاربر !! شمار پرونده\n'
 
@@ -71,8 +65,8 @@ class OversizeImageBot:
         return wikitab
 
     def tabulate(self):
-        wikitab = '{| classwikitable\n'
-        wikitab += '! کاربر !! پرونده !! تاریخ بارگذاری !! ابعاد'
+        wikitab = '{| class=wikitable\n'
+        wikitab += '! کاربر !! پرونده !! تاریخ بارگذاری !! ابعاد\n'
 
         for idx, row in self.df.sort_values('user').iterrows():
             wikitab += '|-\n'
@@ -89,7 +83,7 @@ class OversizeImageBot:
         print(filepage)
         title = filepage.title()
         fi = filepage.latest_file_info
-        if fi.width > self.dim_threshold or fi.height > self.dim_threshold:
+        if fi.width * fi.height > 1000000:
             self.tally(title, fi)
 
     def run(self):
