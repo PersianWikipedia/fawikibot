@@ -52,7 +52,7 @@ class OversizeImageBot:
         tab = self.df[['user', 'file']].groupby('user').count(). \
             sort_values('file', ascending=False)
 
-        wikitab = '{| class=wikitable\n'
+        wikitab = '{| class="wikitable sortable"\n'
         wikitab += '! کاربر !! شمار پرونده\n'
 
         for idx, row in tab.iterrows():
