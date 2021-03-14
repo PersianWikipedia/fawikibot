@@ -29,7 +29,8 @@ class ImageResizerBot:
     def __init__(self):
         self.cat = 'رده:محتویات غیر آزاد'
         self.site = pywikibot.Site()
-        self.summary = 'کوچک کردن تصویر غیر آزاد'
+        self.summary = 'کوچک کردن تصویر غیر آزاد ([[ویکی‌پدیا:' + \
+            'سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۴|وظیفه ۲۴]])'
 
     def get_image_from_image_page(self, imagePage):
         """Get the image object to work based on an imagePage object."""
@@ -40,6 +41,8 @@ class ImageResizerBot:
         return image
 
     def treat(self, filepage):
+        print(filepage)
+
         text = filepage.text
 
         pat = r'\{\{([Nn]on-free no reduce|پرهیز از نسخه کوچکتر)\}\}'
@@ -53,23 +56,32 @@ class ImageResizerBot:
         width = fileinfo.width
         height = fileinfo.height
 
-        if (width < 500 and height < 500) or width * height < 100000:
-            return
+        if width * height > 100000:
+            width2 = math.floor(width * math.sqrt(100000 / (width * height)))
+            height2 = math.floor(height * math.sqrt(100000 / (width * height)))
 
-        newwidth = math.floor(width * math.sqrt(100000 / (width * height)))
-        newheight = math.floor(height * math.sqrt(100000 / (width * height)))
+            img = self.get_image_from_image_page(filepage)
+            newimg = img.resize((width2, height2))
+            filepath = '/tmp/' + filepage.title(with_ns=False)
 
-        img = self.get_image_from_image_page(filepage)
-        newimg = img.resize((newwidth, newheight))
-        filepath = '/tmp/' + filepage.title(with_ns=False)
+            newimg.save(filepath)
+            self.site.upload(
+                filepage,
+                source_filename=filepath,
+                comment=self.summary,
+                ignore_warnings=True)
+            os.remove(filepath)
 
-        newimg.save(filepath)
-        self.site.upload(
-            filepage,
-            source_filename=filepath,
-            comment=self.summary,
-            ignore_warnings=True)
-        os.remove(filepath)
+        filepage = pywikibot.FilePage(self.site, filepage.title())
+        filehistory = filepage.get_file_history()
+
+        for key in filehistory:
+            version = filehistory[key]
+            if version['width'] * version['height'] <= 100000:
+                continue
+            oldimageid = version['archivename'].split('!')[0]
+            self.site.deleterevs('oldimage', oldimageid, 'content', '',
+                                 self.summary, filepage.title())
 
     def run(self):
         cat = pywikibot.Category(self.site, self.cat)
