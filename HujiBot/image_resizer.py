@@ -88,7 +88,8 @@ class ImageResizerBot:
         gen = pagegenerators.CategorizedPageGenerator(cat)
 
         for page in pagegenerators.PreloadingGenerator(gen):
-            self.treat(page)
+            if page.title()[-4:0] != '.pdf':
+                self.treat(page)
 
 
 if __name__ == "__main__":
