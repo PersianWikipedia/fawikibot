@@ -62,7 +62,7 @@ class ANBcounter():
         stat_title = title + '/شمار' + suffix
         stat_page = pywikibot.Page(self.site, stat_title)
         stat_page.text = '{{subst:formatnum:' + str(count) + '}}'
-        stat_page.save(summary=self.summary, minor=False, botflag=False)
+        stat_page.save(summary=self.summary)
 
     def run_each(self):
         for title in self.level2pages:

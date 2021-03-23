@@ -65,7 +65,7 @@ class GANtable:
 
         page = pywikibot.Page(self.site, self.GAN + '/جدول')
         page.text = output
-        page.save(summary=self.summary, minor=False, botflag=False)
+        page.save(summary=self.summary)
 
     def process_page(self, GANsubpage):
         GANpage = '%s/%s' % (self.GAN, GANsubpage)

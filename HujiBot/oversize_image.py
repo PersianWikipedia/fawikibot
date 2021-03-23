@@ -96,12 +96,12 @@ class OversizeImageBot:
         tab = self.aggregate()
         page = pywikibot.Page(self.site, self.out)
         page.text = tab
-        page.save(summary=self.summary, minor=False, botflag=False)
+        page.save(summary=self.summary)
 
         tab = self.tabulate()
         page = pywikibot.Page(self.site, self.detail)
         page.text = tab
-        page.save(summary=self.summary, minor=False, botflag=False)
+        page.save(summary=self.summary)
 
 
 if __name__ == "__main__":
