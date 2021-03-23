@@ -85,11 +85,10 @@ class MoveToTalkBot(NoRedirectPageBot):
 
 
 def main():
-    bot = MoveToTalkBot('عکس-نیاز')
+    bot = MoveToTalkBot('تصویر-نیاز')
     articles = bot.getReferringArticles()
     for article in articles:
         bot.treat_page(article)
-    bot.treat_page(page)
 
 
 if __name__ == '__main__':
