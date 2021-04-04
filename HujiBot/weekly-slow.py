@@ -779,13 +779,13 @@ SELECT
   actor_name,
   STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS lastedit,
   COUNT(rev_id) cnt
-FROM revision
-JOIN actor
+FROM revision_user_index
+JOIN actor_revision
   ON rev_actor = actor_id
-LEFT JOIN user_groups
+JOIN user_groups
   ON actor_user = ug_user
   AND ug_group = 'autopatrolled'
-GROUP BY actor_user
+GROUP BY rev_actor
 ORDER BY cnt
 LIMIT 1000
 """,
