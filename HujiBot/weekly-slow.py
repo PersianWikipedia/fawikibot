@@ -779,7 +779,7 @@ SELECT
   actor_name,
   STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS lastedit,
   COUNT(rev_id) cnt
-FROM revision_user_index
+FROM revision_userindex
 JOIN actor_revision
   ON rev_actor = actor_id
 JOIN user_groups
