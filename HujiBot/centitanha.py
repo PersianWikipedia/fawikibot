@@ -60,7 +60,7 @@ class CentiTanhaBot():
 
     def _active_users(self):
         conn = mysqldb.connect(
-            host='fawiki.labsdb',
+            host='fawiki.web.db.svc.wikimedia.cloud',
             db='fawiki_p',
             read_default_file='~/replica.my.cnf'
         )

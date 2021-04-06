@@ -74,7 +74,8 @@ def main(*args):
         bot.run()
         return True
     else:
-        conn = mysqldb.connect("fawiki.labsdb", db="fawiki_p",
+        conn = mysqldb.connect("fawiki.web.db.svc.wikimedia.cloud",
+                               db="fawiki_p",
                                read_default_file="~/replica.my.cnf")
         cursor = conn.cursor()
         sql = """

@@ -45,7 +45,7 @@ class ImportBlockBot():
         Gathers a list of IPs with a long-term block that is about to expire.
         """
         conn = mysqldb.connect(
-            host='enwiki.labsdb',
+            host='enwiki.web.db.svc.wikimedia.cloud',
             db='enwiki_p',
             read_default_file='~/replica.my.cnf'
         )

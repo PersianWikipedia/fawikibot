@@ -49,7 +49,8 @@ class InactiveUsersBot:
         for col in self.cols:
             text += u'!' + col + u'\n'
 
-        conn = mysqldb.connect("fawiki.labsdb", db="fawiki_p",
+        conn = mysqldb.connect("fawiki.web.db.svc.wikimedia.cloud",
+                               db="fawiki_p",
                                read_default_file="~/replica.my.cnf")
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
