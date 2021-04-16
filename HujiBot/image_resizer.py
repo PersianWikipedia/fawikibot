@@ -72,16 +72,17 @@ class ImageResizerBot:
                 ignore_warnings=True)
             os.remove(filepath)
 
-        filepage = pywikibot.FilePage(self.site, filepage.title())
-        filehistory = filepage.get_file_history()
+            filepage = pywikibot.FilePage(self.site, filepage.title())
+            filehistory = filepage.get_file_history()
 
-        for key in filehistory:
-            version = filehistory[key]
-            if version['width'] * version['height'] <= 100000:
-                continue
-            oldimageid = version['archivename'].split('!')[0]
-            self.site.deleterevs('oldimage', oldimageid, 'content', '',
-                                 self.summary, filepage.title())
+            for key in filehistory:
+                version = filehistory[key]
+                if version['width'] * version['height'] <= 100000:
+                    continue
+                oldimageid = version['archivename'].split('!')[0]
+                self.site.deleterevs('oldimage', oldimageid, hide='content',
+                                    show='', reason=self.summary,
+                                    target=filepage.title())
 
     def run(self):
         cat = pywikibot.Category(self.site, self.cat)
