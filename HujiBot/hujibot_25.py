@@ -35,13 +35,27 @@ class MoveToTalkBot(NoRedirectPageBot):
         return template_page.getReferences(namespaces=(0))
 
     def get_template_pattern(self):
-        first_letter = self.template_title[0:1]
-        the_rest = self.template_title[1:]
-        the_rest = re.sub('( |_)', '[ _]', the_rest)
-        pattern = r'\{\{\s*[%s%s]%s\s*\}\}' % (
-            first_letter,
-            first_letter.upper(),
-            the_rest
+        tp = pywikibot.Page(self.site, 'الگو:' + self.template_title)
+        redirs = tp.backlinks(filter_redirects=True)
+        tp_titles = [self.template_title]
+
+        for r in list(redirs):
+            r_title = r.title(with_ns=False)
+            tp_titles.append(r_title)
+
+        patterns = []
+        for t in tp_titles:
+            first_letter = t[0:1]
+            the_rest = t[1:]
+            the_rest = re.sub('( |_)', '[ _]', the_rest)
+            patterns.append('[%s%s]%s' % (
+                first_letter,
+                first_letter.upper(),
+                the_rest
+            ))
+
+        pattern = r'\{\{\s*(%s)\s*(\|[^\}]+)?\}\}' % (
+            '|'.join(patterns)
         )
         return pattern
 
