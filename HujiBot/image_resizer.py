@@ -81,8 +81,8 @@ class ImageResizerBot:
                     continue
                 oldimageid = version['archivename'].split('!')[0]
                 self.site.deleterevs('oldimage', oldimageid, hide='content',
-                                    show='', reason=self.summary,
-                                    target=filepage.title())
+                                     show='', reason=self.summary,
+                                     target=filepage.title())
 
     def run(self):
         cat = pywikibot.Category(self.site, self.cat)
