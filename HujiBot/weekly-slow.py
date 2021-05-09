@@ -105,19 +105,16 @@ LIMIT 5000
             "sqlnum": 3,
             "sql": """
 SELECT
-  actor_name,
-  COUNT(rev_id) cnt
-FROM revision
-JOIN actor
-  ON rev_actor = actor_id
+  user_name,
+  user_editcount
+FROM user
 LEFT JOIN user_groups
-  ON actor_user = ug_user
+  ON user_id = ug_user
   AND ug_group = "bot"
 WHERE
-  actor_user <> 0
-  AND ug_group IS NULL
-GROUP BY actor_user
-ORDER BY cnt DESC
+  ug_group IS NULL
+  AND user_id <> 374638 -- پیام به کاربر جدید
+ORDER BY user_editcount DESC
 LIMIT 500
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بر اساس تعداد ویرایش‌ها",
