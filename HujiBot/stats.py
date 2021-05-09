@@ -141,10 +141,10 @@ class StatsBot:
         conn = mysqldb.connect(
             host="fawiki.web.db.svc.wikimedia.cloud",
             db="fawiki_p",
-            read_default_file="~/replica.my.cnf"
+            read_default_file="~/replica.my.cnf",
+            charset="utf8"
         )
         cursor = conn.cursor()
-        self.sql = self.sql.encode(site.encoding())
         max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
         cursor.execute(max_time)
         max_len = "SET SESSION GROUP_CONCAT_MAX_LEN = 15000;"
