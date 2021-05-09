@@ -65,6 +65,7 @@ class InactiveUsersBot:
             for idx in range(len(row)):
                 if isinstance(row[idx], bytes):
                     row[idx] = row[idx].decode()
+                row[idx] = str(row[idx])
                 row[idx] = row[idx].replace('rollbacker', 'واگردان')
                 row[idx] = row[idx].replace('patroller', 'گشت‌زن')
                 row[idx] = row[idx].replace('eliminator', 'ویکی‌بان')
