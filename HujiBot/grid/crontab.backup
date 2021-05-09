@@ -1,0 +1,40 @@
+# 0,10,20,30,40,50 * * * *  /usr/bin/jsub -N cron-tools.huji-1 -once -quiet python /data/project/huji/bot/huji.py >/dev/null 
+
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# Wikimedia Tool Labs specific note:
+#   Please be aware that *only* jsub and jstart are acceptable
+#   commands to schedule via cron.  Any command specified here will
+#   be modified to be invoked through jsub unless it is one of
+#   the two.
+# 
+# m h  dom mon dow   command
+
+50 * * * *    jsub -N "h"  -once -o ~/err/hourly.out -e ~/err/hourly.err ~/grid/jobs/hourly.sh
+1 0 * * *     jsub -N "d"  -once -o ~/err/daily.out -e ~/err/daily.err ~/grid/jobs/daily.sh 
+0 11 * * 5    jsub -N "w"  -once -o ~/err/weekly.out -e ~/err/weekly.err ~/grid/jobs/weekly.sh
+30 10 * * 5   jsub -N "ws" -once -o ~/err/weekly-slow.out -e ~/err/weekly-slow.err ~/grid/jobs/weekly-slow.sh
+0 10 * * 5    jsub -N "in" -once -o ~/err/inactive-users.out -e ~/err/inactive-users.err ~/grid/jobs/inactive-users.sh
+20 10 * * 5   jsub -N "ct" -once -o ~/err/centitanha.out -e ~/err/centitanha.err ~/grid/jobs/centitanha.sh
+0 2 * * 6     jsub -N "ir" -once -o ~/err/image_resizer.out -e ~/err/image_resizer.err ~/grid/jobs/image_resizer.sh
+0 3,15 * * *  jsub -N "fp" -once -o ~/err/findproxy.out -e ~/err/findproxy.err ~/grid/jobs/findproxy.sh
+0 7 7 * *     jsub -N "m"  -once -o ~/err/monthly.out -e ~/err/monthly.err ~/grid/jobs/monthly.sh
