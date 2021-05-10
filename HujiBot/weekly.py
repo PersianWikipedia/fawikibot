@@ -1337,7 +1337,13 @@ SELECT
   tl_title,
   COUNT(*)
 FROM templatelinks
-WHERE tl_namespace = 10
+LEFT JOIN page
+  ON page_title = tl_title
+  AND page_namespace = 10
+  AND page_is_redirect = 1
+WHERE
+  tl_namespace = 10
+  AND page_title IS NULL
 GROUP BY tl_title
 ORDER BY COUNT(*) DESC
 LIMIT 1000
