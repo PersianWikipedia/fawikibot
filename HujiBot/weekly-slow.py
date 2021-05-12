@@ -253,7 +253,7 @@ SELECT
     END
   ) portal,
   COUNT(rev_first) tot
-FROM revision r
+FROM revision_userindex r
 JOIN (
   SELECT
     MIN(rev_id) rev_first,
@@ -331,7 +331,7 @@ SELECT
     END
   ),
   COUNT(rev_first) tot
-FROM revision r
+FROM revision_userindex r
 JOIN (
   SELECT
     MIN(rev_id) rev_first,
@@ -352,7 +352,7 @@ WHERE
   AND ug_group IS NULL
   AND page_namespace = 0
   AND page_is_redirect = 0
-GROUP BY actor_user
+GROUP BY rev_actor
 ORDER BY tot DESC
 LIMIT 200
 """,
