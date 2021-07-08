@@ -12,6 +12,7 @@ link hint, and replaces them with a normal blue link whenever possible.
 
 
 import pywikibot
+from pywikibot import pagegenerators
 import re
 
 
@@ -22,11 +23,13 @@ class iwlinkfixer:
     def process_page_text(self, page_text):
         tpl_pattern = "پیوند با میان‌ویکی|پم|پبم|[Ll]int-interwiki|[Pp]am"
         param_pattern = r"\| *([^=|]+= *)?([^|]*)"
-        usage_pattern = r"\{\{( *(?:" + tpl_pattern + r") *)(.+)\}\}"
+        usage_pattern = r"\{\{( *(?:" + tpl_pattern + r") *)([^}]+)\}\}"
 
         matches = re.findall(usage_pattern, page_text)
-        if matches is None:
+        if len(matches) == 0:
+            print("No usage found; skipping..")
             return False
+
         for m in matches:
             original = "{{%s%s}}" % (m)
             param_str = m[1]
@@ -60,49 +63,67 @@ class iwlinkfixer:
             print("Locally links to %s" % link_target)
             print("References %s:%s" % (iw_lang, iw_title))
 
-            p = pywikibot.Page(pywikibot.Site("fa"), link_target)
-            if p.exists():
-                print("Local page exists; using it to create a link")
-                replacement = "[[%s%s]]" % (link_target, link_title)
-                print("Replacement wikitext: %s" % replacement)
-                page_text = page_text.replace(original, replacement)
-                continue
-
-            try:
-                iw_site = pywikibot.Site(iw_lang)
-                iw_page = pywikibot.Page(iw_site, iw_title)
-                # TODO: follow redirects on the target wiki
-                lang_links = iw_page.langlinks()
-                for l in lang_links:
-                    p = pywikibot.Page(l)
-                    if p.site.lang != "fa":
-                        continue
-                    else:
-                        new_target = p.title()
-                        break
-
-                if new_target is not None:
-                    print("Using interwiki backlink to create a link")
-                    replacement = "[[%s%s]]" % (new_target, link_title)
+            if link_target is not None and link_target != "":
+                page = pywikibot.Page(pywikibot.Site("fa"), link_target)
+                if page.exists():
+                    print("Local page exists; using it to create a link")
+                    replacement = "[[%s%s]]" % (link_target, link_title)
                     print("Replacement wikitext: %s" % replacement)
                     page_text = page_text.replace(original, replacement)
                     continue
-                else:
-                    print("No interwiki backlink found; leaving it alone")
 
-            except pywikibot.exceptions.UnknownSiteError:
-                print("Invalid lang code; skipping...")
+            if iw_title is not None and iw_title != "":
+                try:
+                    iw_site = pywikibot.Site(iw_lang)
+                    iw_page = pywikibot.Page(iw_site, iw_title)
+                    # TODO: follow redirects on the target wiki
+                    lang_links = iw_page.langlinks()
+                    for l in lang_links:
+                        p = pywikibot.Page(l)
+                        if p.site.lang != "fa":
+                            continue
+                        else:
+                            new_target = p.title()
+                            break
+
+                    if new_target is not None:
+                        print("Using interwiki backlink to create a link")
+                        replacement = "[[%s%s]]" % (new_target, link_title)
+                        print("Replacement wikitext: %s" % replacement)
+                        page_text = page_text.replace(original, replacement)
+                        continue
+                    else:
+                        print("No interwiki backlink found; leaving it alone")
+
+                except pywikibot.exceptions.UnknownSiteError:
+                    print("Invalid lang code; skipping...")
+
             print("")
 
         return page_text
 
     def process_page(self, page):
-        text = self.process_page_text(page.text)
-        page.put(text, self.summary)
+        print(page)
+        new_text = self.process_page_text(page.text)
+        if new_text == page.text or new_text is False:
+            return
+        try:
+            page.put(new_text, self.summary)
+        except Exception as e:
+            print("Unable to save page; skipping...")
+            print("")
+
+    def get_pages(self):
+        tpl_title = "الگو:پیوند با میان‌ویکی"
+        tpl_page = pywikibot.Page(pywikibot.Site("fa"), tpl_title)
+        return tpl_page.getReferences(only_template_inclusion=True)
 
     def main(self):
-        page = pywikibot.Page(pywikibot.Site("fa"), "الگو:دیانت یونان")
-        self.process_page(page)
+        pages = self.get_pages()
+        for page in pages:
+            if page.title() == "الگو:پیوند با میان‌ویکی/توضیحات":
+                continue
+            self.process_page(page)
 
 
 robot = iwlinkfixer()
