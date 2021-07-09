@@ -104,6 +104,8 @@ class iwlinkfixer:
 
     def process_page(self, page):
         print(page)
+        if page.namespace().id % 2 == 1:
+            print("Talk page; skipping...")
         new_text = self.process_page_text(page.text)
         if new_text == page.text or new_text is False:
             return
