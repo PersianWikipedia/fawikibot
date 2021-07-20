@@ -23,7 +23,7 @@ class iwlinkfixer:
     def process_page_text(self, page_text):
         tpl_pattern = "پیوند با میان‌ویکی|پم|پبم|[Ll]int-interwiki|[Pp]am"
         param_pattern = r"\| *([^=|]+= *)?([^|]*)"
-        usage_pattern = r"\{\{( *(?:" + tpl_pattern + r") *)([^}]+)\}\}"
+        usage_pattern = r"\{\{( *(?:" + tpl_pattern + r") *)([^{}}]+)\}\}"
 
         matches = re.findall(usage_pattern, page_text)
         if len(matches) == 0:
