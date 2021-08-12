@@ -6,36 +6,36 @@ page and fetches its categories. If any of those categories has a counterpart
 in the origin Wikipedia, the bot then adds the page to those categories.
 """
 #
-# (C) User:Huji, 2016
+# (C) User:Huji, 2021
 #
 # Distributed under the terms of the MIT license.
-#
-from __future__ import absolute_import, unicode_literals
 #
 
 import pywikibot
 from pywikibot import pagegenerators
+import fa_cosmetic_changes_core as fccc
 
 from pywikibot.bot import (
-    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
+    SingleSiteBot,
+    ExistingPageBot,
+    NoRedirectPageBot,
+    AutomaticTWSummaryBot,
+)
 from pywikibot.tools import issue_deprecation_warning
 
-# This is required for the text that is shown when you run this script
-# with the parameter -help.
-docuReplacements = {
-    '&params;': pagegenerators.parameterHelp
-}
+# Show help with the parameter -help.
+docuReplacements = {"&params;": pagegenerators.parameterHelp}
 
 
 class CategorizeBot(
-    # Refer pywikobot.bot for generic bot classes
-    SingleSiteBot,  # A bot only working on one site
-    # CurrentPageBot,  # Sets 'current_page'. Process it in treat_page method.
-    #                  # Not needed here because we have subclasses
-    ExistingPageBot,  # CurrentPageBot which only treats existing pages
-    NoRedirectPageBot,  # CurrentPageBot which only treats non-redirects
-    AutomaticTWSummaryBot,  # Automatically defines summary; needs summary_key
+    SingleSiteBot,
+    ExistingPageBot,
+    NoRedirectPageBot,
+    AutomaticTWSummaryBot,
 ):
+    update_options = {
+        "cosmetic": False,  # Whether to run cosmetic changes script
+    }
 
     def __init__(self, generator, **kwargs):
         """
@@ -45,112 +45,71 @@ class CategorizeBot(
             to work
         @type generator: generator
         """
-        # call constructor of the super class
         super(CategorizeBot, self).__init__(site=True, **kwargs)
-
-        # assign the generator to the bot
         self.generator = generator
-        
-        # define the edit summary
-        self.summary = u'[[ویکی‌پدیا:رده‌دهی مقالات همسنگ|ربات]]: افزودن رده‌های همسنگ'
-        
-        # allowed namespaces
+        self.skip_categories = [
+            "صفحه‌هایی که رده همسنگ نمی‌پذیرند",
+            "صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
+        ]
+        self.summary = (
+            "[[ویکی‌پدیا:رده‌دهی مقالات همسنگ|ربات]]: افزودن رده‌های همسنگ"
+        )
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
+        self.cosmetic_changes = kwargs['cosmetic']
+
+    def get_existing_cats(self, page):
+        cats = list(page.categories())
+        cat_titles = list()
+        for c in cats:
+            cat_titles.append(c.title(with_ns=False))
+        return cat_titles
 
     def treat_page(self):
-        # check if the bot should even run (this bot cannot be run in EN WP)
-        if self.current_page.site.code == 'en':
-            pywikibot.output(u'\03{lightred}Cannot accept EN WP page as input!\03{default}')
-            return False
-        
-        if self.current_page.namespace() not in self.allowednamespaces:
-            pywikibot.output(u'\03{lightred}Namespace not allowed!\03{default}')
+        page = self.current_page
+
+        if page.namespace() not in self.allowednamespaces:
+            pywikibot.output("Namespace not allowed!")
             return False
 
-        # let's define some basic variables
-        text = self.current_page.text
-        lang = self.current_page.site.code
-        current_categories = []
-        remote_site = pywikibot.Site('en')
-        remote_title = ''
-        remote_categories = []
-        new_categories = []
-        
-        # don't run the bot if it contains the template that bans this bot
-        # TODO: make this step FA WP agnostic
-        if text.find(u'{{رده همسنگ نه}}') != -1 or text.find(u'{{رده‌همسنگ نه}}') != -1:
-            pywikibot.output(u'\03{lightred}Skipped!\03{default}')
-            return False
-        
-        # fetch the list of categories the page is currently in
-        params = {
-            'action': 'query',
-            'prop': 'categories',
-            'titles': self.current_page.title(),
-            'redirects': 1,
-            'cllimit': 500,
-        }
+        langlinks = page.langlinks()
+        remote_page = None
 
-        try:
-            req = pywikibot.data.api.Request(site=pywikibot.Site(lang), **params).submit()
-            page_id = req[u'query'][u'pages'].keys()[0]
-            for cat in req[u'query'][u'pages'][page_id][u'categories']:
-                current_categories.append(cat[u'title'])
-        except:
-            pywikibot.output(u'\03{lightred}Unable to fetch local categories!\03{default}')
+        for ll in langlinks:
+            if ll.site.code == "en":
+                remote_page = pywikibot.Page(ll)
+                break
+
+        if remote_page is None:
+            pywikibot.output("No interwiki link to enwiki; skipped.")
             return False
-        
-        # find the EN WP counterpart page, if one exists
-        params = {
-            'action': 'query',
-            'prop': 'langlinks',
-            'titles': self.current_page.title(),
-            'redirects': 1,
-            'lllimit': 500,
-        }
-        
-        try:
-            req = pywikibot.data.api.Request(site=pywikibot.Site(lang), **params).submit()
-            page_id = req[u'query'][u'pages'].keys()[0]
-            for ll in req[u'query'][u'pages'][page_id][u'langlinks']:
-                if ll[u'lang'] == u'en':
-                    remote_title = ll[u'*']
-        except:
-            pywikibot.output(u'\03{lightred}Unable to fetch interwiki links!\03{default}')
-            return False
-        
-        # fetch the list of categories its EN WP counterpart is in  
-        params = {
-            'action': 'query',
-            'prop': 'categories',
-            'titles': remote_title,
-            'redirects': 1,
-            'cllimit': 500,
-            'clshow': '!hidden'
-        }
-        try:
-            req = pywikibot.data.api.Request(site=remote_site, **params).submit()
-            page_id = req[u'query'][u'pages'].keys()[0]
-            remote_categories = req[u'query'][u'pages'][page_id][u'categories']
-        except:
-            pywikibot.output(u'\03{lightred}Unable to fetch remote categories!\03{default}')
-            return False
-        
-        # if the category is new, add the page to that category
+
+        original_text = page.text
+
+        current_categories = self.get_existing_cats(page)
+        if len(set(self.skip_categories) & set(current_categories)) > 0:
+            pywikibot.output("Page disallows this bot; skipped.")
+
+        remote_categories = list(remote_page.categories())
+        added_categories = list()
+
         for rc in remote_categories:
-            remote_category = pywikibot.Page(remote_site, rc[u'title'])
-            # find the matching local category
-            for ll in remote_category.langlinks():
-                if ll.site.code == lang:
-                    # TODO: Get the local namespace name
-                    if u'رده:' + ll.title not in current_categories:
-                        # don't add stub categories
-                        # TODO: export this into a function that is more generic
-                        if ll.title.find(u' خرد ') < 0:
-                            text += u'\n[[رده:' + ll.title + ']]'
+            candidate = None
+            for ll in rc.langlinks():
+                if ll.site.code == "fa":
+                    candidate = ll.title
+            if candidate is None:
+                continue
+            if candidate not in current_categories:
+                added_categories.append(candidate)
 
-        # save the page
-        self.put_current(text, summary=self.summary)
+        if len(added_categories) > 0:
+            text = page.text
+            for ac in added_categories:
+                text += "\n[[رده:%s]]" % ac
+
+            if self.cosmetic_changes is True:
+                text, ver, msg = fccc.fa_cosmetic_changes(text, page)
+            self.put_current(text, summary=self.summary)
 
 
 def main(*args):
@@ -163,45 +122,38 @@ def main(*args):
     @type args: list of unicode
     """
     options = {}
+
+    # Default value for "cosmetic" option
+    options['cosmetic'] = False
+
     # Process global arguments to determine desired site
     local_args = pywikibot.handle_args(args)
 
-    # This factory is responsible for processing command line arguments
-    # that are also used by other scripts and that determine on which pages
-    # to work on.
-    genFactory = pagegenerators.GeneratorFactory()
+    # Process pagegenerators arguments
+    gen_factory = pagegenerators.GeneratorFactory()
+    local_args = gen_factory.handle_args(local_args)
 
     # Parse command line arguments
     for arg in local_args:
-
-        # Catch the pagegenerators options
-        if genFactory.handleArg(arg):
-            continue  # nothing to do here
-
-        # Now pick up your own options
-        arg, sep, value = arg.partition(':')
+        arg, sep, value = arg.partition(":")
         option = arg[1:]
-        if option in ('summary', 'text'):
+        if option in ("summary", "text"):
             if not value:
-                pywikibot.input('Please enter a value for ' + arg)
+                pywikibot.input("Please enter a value for " + arg)
             options[option] = value
-        # take the remaining options as booleans.
-        # You will get a hint if they aren't pre-definded in your bot class
+        # Take the remaining options as booleans.
         else:
             options[option] = True
 
-    gen = genFactory.getCombinedGenerator()
+    gen = gen_factory.getCombinedGenerator(preload=True)
     if gen:
-        # The preloading generator is responsible for downloading multiple
-        # pages from the wiki simultaneously.
-        gen = pagegenerators.PreloadingGenerator(gen)
-        # pass generator and private options to the bot
         bot = CategorizeBot(gen, **options)
-        bot.run()  # guess what it does
+        bot.run()
         return True
     else:
         pywikibot.bot.suggest_help(missing_generator=True)
         return False
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
