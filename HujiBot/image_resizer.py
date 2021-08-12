@@ -84,12 +84,22 @@ class ImageResizerBot:
                                      show='', reason=self.summary,
                                      target=filepage.title())
 
+    def get_categories_list(self, page):
+        cats = list(page.categories())
+        cat_titles = list()
+        for c in cats:
+            cat_titles.append(c.title(with_ns=False))
+        return cat_titles
+
     def run(self):
         cat = pywikibot.Category(self.site, self.cat)
         gen = pagegenerators.CategorizedPageGenerator(cat)
 
         for page in pagegenerators.PreloadingGenerator(gen):
             ignored_extensions = ['.pdf', '.svg', '.ogg', 'webm']
+            cat_list = self.get_categories_list(page)
+            if "محتویات آزاد" in cat_list:
+                continue
             if ignored_extensions.count(page.title()[-4:].lower()) == 0:
                 self.treat(page)
 
