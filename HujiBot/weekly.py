@@ -13,8 +13,7 @@ parameters:
     <maxtime>: (optional) maximum execution time for the specified query
 """
 #
-# (C) Pywikibot team, 2006-2014
-# (C) w:fa:User:Huji, 2015-2016
+# (C) w:fa:User:Huji, 2015-2021
 #
 
 
@@ -2161,6 +2160,32 @@ WHERE
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[%s]] || %s ",
+            "sign": True
+        },
+        {
+            "sqlnum": 61,
+            "sql": """
+SELECT
+  page_title
+FROM page
+JOIN categorylinks
+  ON cl_from = page_id
+WHERE cl_to IN (
+  'پرونده‌های_مالکیت_عمومی_ایران',
+  'محتویات_آزاد'
+)
+AND cl_from IN (
+  SELECT cl_from
+  FROM categorylinks
+  WHERE cl_to = 'محتویات_غیر_آزاد'
+)
+""",
+            "out": "ویکی‌پدیا:گزارش دیتابیس/پرونده‌های دارای برچسب متناقض",
+            "cols": ["ردیف", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
+                    "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]]",
             "sign": True
         }
     ]
