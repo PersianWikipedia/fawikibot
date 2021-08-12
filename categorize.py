@@ -56,6 +56,7 @@ class CategorizeBot(
         )
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
         self.cosmetic_changes = kwargs['cosmetic']
+        self.hidden_cats = []
 
     def get_existing_cats(self, page):
         cats = list(page.categories())
@@ -63,6 +64,16 @@ class CategorizeBot(
         for c in cats:
             cat_titles.append(c.title(with_ns=False))
         return cat_titles
+
+    def check_eligibility(self, candidate):
+        if candidate in self.hidden_cats:
+            return False
+        cat = pywikibot.Page(pywikibot.Site("fa"), "رده:%s" % candidate)
+        cat_cats = self.get_existing_cats(cat)
+        if "رده‌های پنهان" in cat_cats:
+            self.hidden_cats.append(candidate)
+            return False
+        return True
 
     def treat_page(self):
         page = self.current_page
@@ -100,7 +111,8 @@ class CategorizeBot(
             if candidate is None:
                 continue
             if candidate not in current_categories:
-                added_categories.append(candidate)
+                if self.check_eligibility(candidate):
+                    added_categories.append(candidate)
 
         if len(added_categories) > 0:
             text = page.text
