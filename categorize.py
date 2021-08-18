@@ -39,26 +39,25 @@ class CategorizeBot(
 
     def __init__(self, generator, **kwargs):
         """
-        Constructor.
-
-        @param generator: the page generator that determines on which pages
-            to work
+        @param generator: the page generator that determines which pages
+            to work on
         @type generator: generator
         """
         super(CategorizeBot, self).__init__(site=True, **kwargs)
         self.generator = generator
         self.skip_categories = [
             "صفحه‌هایی که رده همسنگ نمی‌پذیرند",
-            "صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
+            "صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند",
         ]
         self.summary = (
             "[[ویکی‌پدیا:رده‌دهی مقالات همسنگ|ربات]]: افزودن رده‌های همسنگ"
         )
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
-        self.cosmetic_changes = kwargs['cosmetic']
+        self.cosmetic_changes = kwargs["cosmetic"]
         self.hidden_cats = []
 
     def get_existing_cats(self, page):
+        """Get a list() of categories the page is in."""
         cats = list(page.categories())
         cat_titles = list()
         for c in cats:
@@ -66,16 +65,18 @@ class CategorizeBot(
         return cat_titles
 
     def check_eligibility(self, candidate):
+        """Determine if the category is addable."""
         if candidate in self.hidden_cats:
             return False
         cat = pywikibot.Page(pywikibot.Site("fa"), "رده:%s" % candidate)
         cat_cats = self.get_existing_cats(cat)
-        if "رده‌های پنهان" in cat_cats:
+        if "رده‌های پنهان" in cat_cats or "رده‌های ردیابی" in cat_cats:
             self.hidden_cats.append(candidate)
             return False
         return True
 
     def treat_page(self):
+        """Process the current page that the bot is working on."""
         page = self.current_page
 
         if page.namespace() not in self.allowednamespaces:
@@ -128,15 +129,13 @@ def main(*args):
     """
     Process command line arguments and invoke bot.
 
-    If args is an empty list, sys.argv is used.
-
     @param args: command line arguments
     @type args: list of unicode
     """
     options = {}
 
     # Default value for "cosmetic" option
-    options['cosmetic'] = False
+    options["cosmetic"] = False
 
     # Process global arguments to determine desired site
     local_args = pywikibot.handle_args(args)
