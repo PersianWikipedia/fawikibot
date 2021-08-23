@@ -95,6 +95,10 @@ class CategorizeBot(
             pywikibot.output("No interwiki link to enwiki; skipped.")
             return False
 
+        if remote_page.isRedirectPage():
+            pywikibot.output("Target page is a redirect; skipped.")
+            return False
+
         original_text = page.text
 
         current_categories = self.get_existing_cats(page)
