@@ -54,7 +54,12 @@ class CategorizeBot(
         )
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
         self.cosmetic_changes = kwargs["cosmetic"]
-        self.hidden_cats = []
+        self.ignore_cats = []
+        self.ignore_cats_en = []
+
+    def list_intersection(self, list1, list2):
+        list3 = [value for value in list1 if value in list2]
+        return list3
 
     def get_existing_cats(self, page):
         """Get a list() of categories the page is in."""
@@ -66,12 +71,33 @@ class CategorizeBot(
 
     def check_eligibility(self, candidate):
         """Determine if the category is addable."""
-        if candidate in self.hidden_cats:
+        if candidate in self.ignore_cats:
             return False
         cat = pywikibot.Page(pywikibot.Site("fa"), "رده:%s" % candidate)
         cat_cats = self.get_existing_cats(cat)
-        if "رده‌های پنهان" in cat_cats or "رده‌های ردیابی" in cat_cats:
-            self.hidden_cats.append(candidate)
+        ineligible_parents = [
+            "رده‌های پنهان",
+            "رده‌های ردیابی",
+            "رده‌های خرد"
+        ]
+        if len(self.list_intersection(ineligible_parents, cat_cats)) > 0:
+            self.ignore_cats.append(candidate)
+            return False
+        return True
+
+    def check_eligibility_en(self, candidate):
+        """Determine if the category is addable."""
+        if candidate in self.ignore_cats_en:
+            return False
+        cat = pywikibot.Page(pywikibot.Site("en"), "Category:%s" % candidate)
+        cat_cats = self.get_existing_cats(cat)
+        ineligible_parents = [
+            "Hidden categories",
+            "Tracking categories",
+            "Stub categories"
+        ]
+        if len(self.list_intersection(ineligible_parents, cat_cats)) > 0:
+            self.ignore_cats_en.append(candidate)
             return False
         return True
 
@@ -109,6 +135,8 @@ class CategorizeBot(
         added_categories = list()
 
         for rc in remote_categories:
+            if self.check_eligibility_en(rc.title(with_ns=False)) is False:
+                continue
             candidate = None
             for ll in rc.langlinks():
                 if ll.site.code == "fa":
@@ -118,6 +146,7 @@ class CategorizeBot(
             if candidate not in current_categories:
                 if self.check_eligibility(candidate):
                     added_categories.append(candidate)
+                    
 
         if len(added_categories) > 0:
             text = page.text
