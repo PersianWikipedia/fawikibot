@@ -22,6 +22,7 @@ import pywikibot
 from pywikibot import pagegenerators
 from pywikibot.comms import http
 import re
+import urllib
 
 
 class ImageResizerBot:
@@ -32,10 +33,13 @@ class ImageResizerBot:
         self.summary = 'کوچک کردن تصویر غیر آزاد ([[ویکی‌پدیا:' + \
             'سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۴|وظیفه ۲۴]])'
 
-    def get_image_from_image_page(self, imagePage):
+    def get_resized_image(self, file_page, thumb_width):
         """Get the image object to work based on an imagePage object."""
-        imageURL = imagePage.get_file_url()
-        imageURLopener = http.fetch(imageURL)
+        thumb_url = "https://fa.wikipedia.org/w/thumb.php?f=%s&w=%s" % (
+            urllib.parse.quote_plus(file_page.title(with_ns=False)),
+            thumb_width
+            )
+        imageURLopener = http.fetch(thumb_url)
         imageBuffer = io.BytesIO(imageURLopener.content[:])
         image = Image.open(imageBuffer)
         return image
@@ -57,11 +61,8 @@ class ImageResizerBot:
         height = fileinfo.height
 
         if width * height > 100000:
-            width2 = math.floor(width * math.sqrt(100000 / (width * height)))
-            height2 = math.floor(height * math.sqrt(100000 / (width * height)))
-
-            img = self.get_image_from_image_page(filepage)
-            newimg = img.resize((width2, height2))
+            new_width = math.floor(width * math.sqrt(100000 / (width * height)))
+            newimg = self.get_resized_image(filepage, new_width)
             filepath = '/tmp/' + filepage.title(with_ns=False)
 
             newimg.save(filepath)
@@ -94,8 +95,9 @@ class ImageResizerBot:
     def run(self):
         cat = pywikibot.Category(self.site, self.cat)
         gen = pagegenerators.CategorizedPageGenerator(cat)
+        pgen = pagegenerators.PreloadingGenerator(gen)
 
-        for page in pagegenerators.PreloadingGenerator(gen):
+        for page in pgen:
             ignored_extensions = ['.pdf', '.svg', '.ogg', 'webm']
             cat_list = self.get_categories_list(page)
             if "محتویات آزاد" in cat_list:
