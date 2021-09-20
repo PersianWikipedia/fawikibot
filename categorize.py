@@ -14,7 +14,7 @@ in the origin Wikipedia, the bot then adds the page to those categories.
 import pywikibot
 from pywikibot import pagegenerators
 import fa_cosmetic_changes_core as fccc
-
+from functools import lru_cache
 from pywikibot.bot import (
     SingleSiteBot,
     ExistingPageBot,
@@ -22,6 +22,7 @@ from pywikibot.bot import (
     AutomaticTWSummaryBot,
 )
 from pywikibot.tools import issue_deprecation_warning
+import re
 
 # Show help with the parameter -help.
 docuReplacements = {"&params;": pagegenerators.parameterHelp}
@@ -54,13 +55,14 @@ class CategorizeBot(
         )
         self.allowednamespaces = [0, 4, 6, 10, 12, 14, 16]
         self.cosmetic_changes = kwargs["cosmetic"]
-        self.ignore_cats = []
-        self.ignore_cats_en = []
+        self.site_fa = pywikibot.Site("fa")
+        self.site_en = pywikibot.Site("en")
 
     def list_intersection(self, list1, list2):
         list3 = [value for value in list1 if value in list2]
         return list3
 
+    @lru_cache
     def get_existing_cats(self, page):
         """Get a list() of categories the page is in."""
         cats = list(page.categories())
@@ -69,11 +71,10 @@ class CategorizeBot(
             cat_titles.append(c.title(with_ns=False))
         return cat_titles
 
+    @lru_cache
     def check_eligibility(self, candidate):
         """Determine if the category is addable."""
-        if candidate in self.ignore_cats:
-            return False
-        cat = pywikibot.Page(pywikibot.Site("fa"), "رده:%s" % candidate)
+        cat = pywikibot.Page(self.site_fa, "رده:%s" % candidate)
         cat_cats = self.get_existing_cats(cat)
         ineligible_parents = [
             "رده‌های پنهان",
@@ -81,15 +82,13 @@ class CategorizeBot(
             "رده‌های خرد"
         ]
         if len(self.list_intersection(ineligible_parents, cat_cats)) > 0:
-            self.ignore_cats.append(candidate)
             return False
         return True
 
+    @lru_cache
     def check_eligibility_en(self, candidate):
         """Determine if the category is addable."""
-        if candidate in self.ignore_cats_en:
-            return False
-        cat = pywikibot.Page(pywikibot.Site("en"), "Category:%s" % candidate)
+        cat = pywikibot.Page(self.site_en, "Category:%s" % candidate)
         cat_cats = self.get_existing_cats(cat)
         ineligible_parents = [
             "Hidden categories",
@@ -97,9 +96,16 @@ class CategorizeBot(
             "Stub categories"
         ]
         if len(self.list_intersection(ineligible_parents, cat_cats)) > 0:
-            self.ignore_cats_en.append(candidate)
             return False
         return True
+
+    @lru_cache
+    def is_child_category_of(self, child, parent):
+        child_cat = pywikibot.Page(self.site_fa, "رده:%s" % child)
+        child_cat_cats = self.get_existing_cats(child_cat)
+        if parent in child_cat_cats:
+            return True
+        return False
 
     def treat_page(self):
         """Process the current page that the bot is working on."""
@@ -133,6 +139,7 @@ class CategorizeBot(
 
         remote_categories = list(remote_page.categories())
         added_categories = list()
+        removed_categories = list()
 
         for rc in remote_categories:
             if self.check_eligibility_en(rc.title(with_ns=False)) is False:
@@ -145,13 +152,42 @@ class CategorizeBot(
                 continue
             if candidate not in current_categories:
                 if self.check_eligibility(candidate):
-                    added_categories.append(candidate)
-                    
+                    # If a child of this category is already used, don't add it
+                    skip_less_specific = False
+                    for cc in current_categories:
+                        if self.is_child_category_of(cc, candidate):
+                            skip_less_specific = True
+                            pywikibot.output(
+                                "More specific category already used."
+                            )
+
+                    # Otherwise add this category
+                    if skip_less_specific is False:
+                        added_categories.append(candidate)
+
+                    # If a parent of what you just added is used, remove it
+                    candidate_fullname = "رده:%s" % candidate
+                    candidate_page = pywikibot.Page(
+                        self.site_fa,
+                        candidate_fullname
+                    )
+                    candidate_parents = self.get_existing_cats(candidate_page)
+                    intersection = self.list_intersection(
+                        candidate_parents,
+                        current_categories)
+                    if len(intersection) > 0:
+                        pywikibot.output("Removing less specific parent.")
+                        removed_categories.extend(intersection)
 
         if len(added_categories) > 0:
             text = page.text
             for ac in added_categories:
                 text += "\n[[رده:%s]]" % ac
+
+            if len(removed_categories) > 0:
+                for rc in removed_categories:
+                    rc_pattern = r"\n\[\[رده:" + rc + r"(\|[^\]]*)?\]\]"
+                    text = re.sub(rc_pattern, "", text)
 
             if self.cosmetic_changes is True:
                 text, ver, msg = fccc.fa_cosmetic_changes(text, page)
