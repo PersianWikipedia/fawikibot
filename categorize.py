@@ -62,7 +62,7 @@ class CategorizeBot(
         list3 = [value for value in list1 if value in list2]
         return list3
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def get_existing_cats(self, page):
         """Get a list() of categories the page is in."""
         cats = list(page.categories())
@@ -71,7 +71,7 @@ class CategorizeBot(
             cat_titles.append(c.title(with_ns=False))
         return cat_titles
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def check_eligibility(self, candidate):
         """Determine if the category is addable."""
         cat = pywikibot.Page(self.site_fa, "رده:%s" % candidate)
@@ -85,7 +85,7 @@ class CategorizeBot(
             return False
         return True
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def check_eligibility_en(self, candidate):
         """Determine if the category is addable."""
         cat = pywikibot.Page(self.site_en, "Category:%s" % candidate)
@@ -99,7 +99,7 @@ class CategorizeBot(
             return False
         return True
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def is_child_category_of(self, child, parent):
         child_cat = pywikibot.Page(self.site_fa, "رده:%s" % child)
         child_cat_cats = self.get_existing_cats(child_cat)
