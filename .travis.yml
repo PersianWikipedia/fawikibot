@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
@@ -10,10 +9,10 @@ python:
   - "3.9-dev"  # 3.6 development branch
 # command to install dependencies
 install:
-  - pip install pycodestyle
+  - pip install flake8
 # command to run tests
 script:
   - pycodestyle HujiBot/*.py
   - pycodestyle Rezabot/*.py
   - pycodestyle webcite.py
-  - pycodestyle categorize.py
+  - python -m flake8 categorize.py
