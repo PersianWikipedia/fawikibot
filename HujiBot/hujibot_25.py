@@ -15,7 +15,6 @@ usage:
 
 
 import pywikibot
-from pywikibot import pagegenerators
 from pywikibot.bot import NoRedirectPageBot
 import re
 

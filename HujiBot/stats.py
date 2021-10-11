@@ -44,10 +44,9 @@ top of the page to allow reproducibility of the results by others.
 #
 
 import pywikibot
-import sys
-import re
 import MySQLdb as mysqldb
 import time
+
 page_namespace = {
     u'0': u'',
     u'1': u'بحث:',
@@ -279,7 +278,7 @@ def main(*args):
             sign = False
         elif arg.startswith('-maxtime:'):
             maxtime = int(arg[len('-maxtime:')])
-    bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign)
+    bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign, maxtime)
     bot.run()
 
 

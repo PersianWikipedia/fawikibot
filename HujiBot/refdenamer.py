@@ -18,7 +18,6 @@ from pywikibot import pagegenerators
 
 from pywikibot.bot import (
     SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
-from pywikibot.tools import issue_deprecation_warning
 
 docuReplacements = {
     '&params;': pagegenerators.parameterHelp

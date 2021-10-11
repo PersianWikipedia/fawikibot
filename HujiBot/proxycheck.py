@@ -19,9 +19,7 @@ import json
 import requests
 import re
 import os
-from datetime import datetime, timedelta
 from ipwhois import IPWhois
-from iptools import IpRange
 from cidr_trie import PatriciaTrie
 import argparse
 

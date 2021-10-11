@@ -12,7 +12,6 @@ link hint, and replaces them with a normal blue link whenever possible.
 
 
 import pywikibot
-from pywikibot import pagegenerators
 import re
 
 
@@ -78,8 +77,8 @@ class iwlinkfixer:
                     iw_page = pywikibot.Page(iw_site, iw_title)
                     # TODO: follow redirects on the target wiki
                     lang_links = iw_page.langlinks()
-                    for l in lang_links:
-                        p = pywikibot.Page(l)
+                    for lang_link in lang_links:
+                        p = pywikibot.Page(lang_link)
                         if p.site.lang != "fa":
                             continue
                         else:
@@ -111,7 +110,7 @@ class iwlinkfixer:
             return
         try:
             page.put(new_text, self.summary)
-        except Exception as e:
+        except Exception:
             print("Unable to save page; skipping...")
             print("")
 

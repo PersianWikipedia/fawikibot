@@ -24,16 +24,14 @@ from __future__ import absolute_import, unicode_literals
 
 import json
 import re
-import time
 import requests
 import webcitation
 import pywikibot
 
 from pywikibot import pagegenerators
 from pywikibot.bot import (
-    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
-from datetime import (
-    timedelta, datetime)
+    SingleSiteBot, ExistingPageBot, NoRedirectPageBot)
+from datetime import datetime
 
 
 class WebCiteBot(

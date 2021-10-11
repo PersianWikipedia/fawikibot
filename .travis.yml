@@ -12,7 +12,7 @@ install:
   - pip install flake8
 # command to run tests
 script:
-  - pycodestyle HujiBot/*.py
-  - pycodestyle Rezabot/*.py
-  - pycodestyle webcite.py
+  - python -m flake8 HujiBot/*.py
+  - python -m flake8 Rezabot/*.py
+  - python -m flake8 webcite.py
   - python -m flake8 categorize.py

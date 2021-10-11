@@ -17,7 +17,6 @@ parameters:
 #
 
 
-import pywikibot
 import sys
 import stats
 

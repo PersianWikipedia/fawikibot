@@ -14,15 +14,9 @@ from __future__ import absolute_import
 #
 
 import pywikibot
-from pywikibot.data import api
-from datetime import datetime, timedelta
-import config
-import json
-import requests
 import re
 import MySQLdb as mysqldb
 from ipwhois import IPWhois
-from iptools import IpRange
 from cidr_trie import PatriciaTrie
 
 

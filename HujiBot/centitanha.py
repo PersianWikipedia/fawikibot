@@ -17,7 +17,6 @@ from __future__ import absolute_import
 
 import pywikibot
 import mwclient
-import urllib
 import MySQLdb as mysqldb
 
 

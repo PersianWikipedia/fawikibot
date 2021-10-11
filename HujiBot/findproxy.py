@@ -16,9 +16,9 @@ from __future__ import absolute_import
 
 import pywikibot
 from pywikibot.data import api
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from ipwhois import IPWhois
-from iptools import IpRange
 import config
 import json
 import requests

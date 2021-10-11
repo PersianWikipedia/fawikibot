@@ -16,10 +16,7 @@ from __future__ import absolute_import
 
 import pywikibot
 import MySQLdb as mysqldb
-from pywikibot.data import api
-from datetime import datetime, timedelta
 from ipwhois import IPWhois
-from iptools import IpRange
 import config
 import json
 import requests

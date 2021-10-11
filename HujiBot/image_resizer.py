@@ -61,8 +61,8 @@ class ImageResizerBot:
         height = fileinfo.height
 
         if width * height > 100000:
-            new_width = math.floor(width * math.sqrt(100000 / (width * height)))
-            newimg = self.get_resized_image(filepage, new_width)
+            newwidth = math.floor(width * math.sqrt(100000 / (width * height)))
+            newimg = self.get_resized_image(filepage, newwidth)
             filepath = '/tmp/' + filepage.title(with_ns=False)
 
             newimg.save(filepath)

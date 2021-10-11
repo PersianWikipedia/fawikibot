@@ -12,13 +12,11 @@ from __future__ import absolute_import, unicode_literals
 #
 
 import pywikibot
-import re
 import MySQLdb as mysqldb
 from pywikibot import pagegenerators
 
 from pywikibot.bot import (
     SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
-from pywikibot.tools import issue_deprecation_warning
 
 docuReplacements = {
     '&params;': pagegenerators.parameterHelp
