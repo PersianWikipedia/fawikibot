@@ -21,7 +21,6 @@ from pywikibot.bot import (
     NoRedirectPageBot,
     AutomaticTWSummaryBot,
 )
-from pywikibot.tools import issue_deprecation_warning
 import re
 
 # Show help with the parameter -help.
@@ -57,7 +56,7 @@ class CategorizeBot(
         self.cosmetic_changes = kwargs["cosmetic"]
         self.site_fa = pywikibot.Site("fa")
         self.site_en = pywikibot.Site("en")
-        self.remove_parent = false
+        self.remove_parent = False
 
     def list_intersection(self, list1, list2):
         list3 = [value for value in list1 if value in list2]
@@ -131,8 +130,6 @@ class CategorizeBot(
         if remote_page.isRedirectPage():
             pywikibot.output("Target page is a redirect; skipped.")
             return False
-
-        original_text = page.text
 
         current_categories = self.get_existing_cats(page)
         if len(set(self.skip_categories) & set(current_categories)) > 0:
