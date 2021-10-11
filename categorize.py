@@ -57,6 +57,7 @@ class CategorizeBot(
         self.cosmetic_changes = kwargs["cosmetic"]
         self.site_fa = pywikibot.Site("fa")
         self.site_en = pywikibot.Site("en")
+        self.remove_parent = false
 
     def list_intersection(self, list1, list2):
         list3 = [value for value in list1 if value in list2]
@@ -166,18 +167,21 @@ class CategorizeBot(
                         added_categories.append(candidate)
 
                     # If a parent of what you just added is used, remove it
-                    candidate_fullname = "رده:%s" % candidate
-                    candidate_page = pywikibot.Page(
-                        self.site_fa,
-                        candidate_fullname
-                    )
-                    candidate_parents = self.get_existing_cats(candidate_page)
-                    intersection = self.list_intersection(
-                        candidate_parents,
-                        current_categories)
-                    if len(intersection) > 0:
-                        pywikibot.output("Removing less specific parent.")
-                        removed_categories.extend(intersection)
+                    if self.remove_parent is True:
+                        candidate_fullname = "رده:%s" % candidate
+                        candidate_page = pywikibot.Page(
+                            self.site_fa,
+                            candidate_fullname
+                        )
+                        candidate_parents = self.get_existing_cats(
+                            candidate_page
+                        )
+                        intersection = self.list_intersection(
+                            candidate_parents,
+                            current_categories)
+                        if len(intersection) > 0:
+                            pywikibot.output("Removing less specific parent.")
+                            removed_categories.extend(intersection)
 
         if len(added_categories) > 0:
             text = page.text
