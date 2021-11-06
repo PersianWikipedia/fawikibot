@@ -35,13 +35,14 @@ FROM
   SELECT
     actor_name,
     user_editcount,
-    CONCAT('[[', REPLACE(rc_title, '_', ' '), ']]') AS rc_title
+    CONCAT('[[', REPLACE(rc_title, '_', ' '), ']]') AS rc_title,
+    COUNT(*) AS edits
   FROM recentchanges_userindex
   JOIN actor
     ON actor_id = rc_actor
   JOIN user
     ON actor_user = user_id
-  WJERE
+  WHERE
     user_editcount > 0
     AND user_editcount < 100
     AND rc_namespace = 0
@@ -79,7 +80,8 @@ FROM
 (
   SELECT
     CONCAT('[[کاربر:', actor_name, ']]') as actor_name,
-    CONCAT('[[', rc_title, ']]') as rc_title
+    CONCAT('[[', rc_title, ']]') as rc_title,
+    COUNT(*) AS edits
   FROM recentchanges_userindex
   JOIN actor
     ON actor_id = rc_actor
