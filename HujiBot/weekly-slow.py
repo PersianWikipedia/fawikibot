@@ -880,10 +880,14 @@ LIMIT 1000
             "sql": """
 SELECT
   page_title,
+  STR_TO_DATE(LEFT(MIN(rev_timestamp), 8), '%Y%m%d'),
   COUNT(ll_lang)
 FROM page
 JOIN category
   ON page_title = cat_title
+JOIN revision
+  ON rev_page = page_id
+  AND rev_parent_id = 0
 LEFT JOIN categorylinks
   ON page_title = cl_to
 LEFT JOIN templatelinks
@@ -892,7 +896,9 @@ LEFT JOIN templatelinks
     'رده_خالی',
     'رده_بهتر',
     'رده_ابهام‌زدایی',
-    'رده_ردیابی‌کردن'
+    'رده_ردیابی‌کردن',
+    'رده_ردیابی_کردن',
+    'رده_ردیابی'
   )
 LEFT JOIN langlinks
   ON page_id = ll_from
@@ -901,21 +907,26 @@ WHERE
   AND page_is_redirect = 0
   AND cl_to IS NULL
   AND tl_title IS NULL
-GROUP BY page_title
-ORDER BY 2, 1
+GROUP BY
+  page_title,
+  rev_timestamp
+ORDER BY
+ COUNT(ll_lang),
+ page_title
 LIMIT 5000
 """,
             "out": "وپ:گزارش دیتابیس/رده‌های خالی",
             "cols": [
               "ردیف",
               "رده",
+              "تاریخ ایجاد",
               "تعداد میان‌ویکی"
             ],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" +
                     "\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d|NOSEP}} || [[:رده:%s]] " +
-                    "|| {{formatnum:%s|}}",
+                    "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|}}",
             "sign": True
         },
         {
