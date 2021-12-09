@@ -75,11 +75,14 @@ class CategorizeBot(
     def check_eligibility(self, candidate):
         """Determine if the category is addable."""
         cat = pywikibot.Page(self.site_fa, "رده:%s" % candidate)
+        if not cat.eixts():
+            return False
         cat_cats = self.get_existing_cats(cat)
         ineligible_parents = [
             "رده‌های پنهان",
             "رده‌های ردیابی",
-            "رده‌های خرد"
+            "رده‌های خرد",
+            "رده‌های منتقل‌شده"
         ]
         if len(self.list_intersection(ineligible_parents, cat_cats)) > 0:
             return False
