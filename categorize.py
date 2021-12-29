@@ -75,7 +75,7 @@ class CategorizeBot(
     def check_eligibility(self, candidate):
         """Determine if the category is addable."""
         cat = pywikibot.Page(self.site_fa, "رده:%s" % candidate)
-        if not cat.eixts():
+        if not cat.exists():
             return False
         cat_cats = self.get_existing_cats(cat)
         ineligible_parents = [
