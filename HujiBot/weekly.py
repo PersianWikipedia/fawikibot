@@ -29,7 +29,7 @@ def main(sqlnum, maxtime):
 SELECT DISTINCT
   log_id,
   log_id AS log_link_title,
-  user_name,
+  actor_name,
   CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) AS link,
   comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
@@ -42,8 +42,6 @@ JOIN comment
 JOIN user_groups ug
   ON actor_user = ug.ug_user
   AND ug.ug_group = 'eliminator'
-JOIN user
-  ON actor_user = user_id
 JOIN archive
   ON log_page = ar_page_id
 LEFT JOIN user_groups ug2
@@ -59,7 +57,7 @@ UNION
 SELECT DISTINCT
   log_id,
   log_id AS log_link_title,
-  u.user_name,
+  actor_name,
   CONCAT('کاربر:', log_title) AS link,
   comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
@@ -71,8 +69,6 @@ JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups ug
   ON actor_user = ug.ug_user
-JOIN user u
-  ON actor_user = u.user_id
 JOIN user u2
   ON log_title = u2.user_name
 JOIN user_groups ug2
@@ -93,7 +89,7 @@ UNION
 SELECT DISTINCT
   log_id,
   log_id AS log_link_title,
-  user_name,
+  actor_name,
   log_title AS link,
   comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
@@ -105,8 +101,6 @@ JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups
   ON actor_user = ug_user
-JOIN user
-  ON actor_user = user_id
 WHERE
   ug_group = 'eliminator'
   AND log_type = 'protect'
@@ -118,7 +112,7 @@ UNION
 SELECT
   log_id,
   log_id AS log_link_title,
-  user_name,
+  actor_name,
   CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
   comment_text,
   STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
@@ -130,8 +124,6 @@ JOIN comment
   ON log_comment_id = comment_id
 JOIN user_groups
   ON actor_user = ug_user
-JOIN user
-  ON user_id = actor_user
 WHERE
   ug_group = 'eliminator'
   AND log_params LIKE '%nfield";i:0%'
