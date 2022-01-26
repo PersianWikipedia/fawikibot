@@ -28,7 +28,7 @@ def main(sqlnum, maxtime):
             "sql": """
 SELECT DISTINCT
   log_id,
-  log_id,
+  log_id AS log_link_title,
   user_name,
   CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) AS link,
   comment_text,
@@ -58,7 +58,7 @@ WHERE
 UNION
 SELECT DISTINCT
   log_id,
-  log_id,
+  log_id AS log_link_title,
   u.user_name,
   CONCAT('کاربر:', log_title) AS link,
   comment_text,
@@ -92,7 +92,7 @@ WHERE
 UNION
 SELECT DISTINCT
   log_id,
-  log_id,
+  log_id AS log_link_title,
   user_name,
   log_title AS link,
   comment_text,
@@ -117,7 +117,7 @@ WHERE
 UNION
 SELECT
   log_id,
-  log_id,
+  log_id AS log_link_title,
   user_name,
   CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
   comment_text,
