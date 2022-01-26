@@ -1,3 +1,5 @@
+![Linter](https://github.com/PersianWikipedia/fawikibot/actions/workflows/linter.yml/badge.svg)
+
 # fawikibot
 Collection of pywikibot-based tools for Persian Wikipedia
 
