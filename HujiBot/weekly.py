@@ -28,6 +28,7 @@ def main(sqlnum, maxtime):
             "sql": """
 SELECT DISTINCT
   log_id,
+  log_id,
   user_name,
   CONCAT(':{{ns:', ar_namespace, '}}:', ar_title) AS link,
   comment_text,
@@ -56,6 +57,7 @@ WHERE
   AND ug2.ug_user IS NULL
 UNION
 SELECT DISTINCT
+  log_id,
   log_id,
   u.user_name,
   CONCAT('کاربر:', log_title) AS link,
@@ -90,6 +92,7 @@ WHERE
 UNION
 SELECT DISTINCT
   log_id,
+  log_id,
   user_name,
   log_title AS link,
   comment_text,
@@ -113,6 +116,7 @@ WHERE
     DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
 UNION
 SELECT
+  log_id,
   log_id,
   user_name,
   CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
@@ -142,7 +146,8 @@ ORDER BY log_id DESC
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| %s || [[کاربر:%s|]] || [[%s]] || " +
+            "frmt": "| [//fa.wikipedia.org/wiki/Special:Logs?logid=%s %s] || " +
+                    " [[کاربر:%s|]] || [[%s]] || " +
                     "<nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}} || %s",
             "sign": True
         },
