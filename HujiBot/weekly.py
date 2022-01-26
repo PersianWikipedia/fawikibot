@@ -131,6 +131,53 @@ WHERE
   AND log_action='revision'
   AND log_timestamp >=
     DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 DAY), '%Y%m%d000000')
+UNION
+SELECT
+  log_id,
+  log_id AS log_link_title,
+  actor_name,
+  CONCAT('{{ns:' , log_namespace, '}}:', log_title) AS link,
+  comment_text,
+  STR_TO_DATE(LEFT(log_timestamp, 8), '%Y%m%d'),
+  'محافظت طولانی' AS issue
+FROM (
+  SELECT
+    log_id,
+    log_id AS log_id_title,
+    actor_name,
+    log_namespace,
+    log_title,
+    log_timestamp,
+    log_comment_id,
+    DATEDIFF(
+      DATE(
+        CONCAT(
+          SUBSTRING(log_params, LOCATE('s:6:"expiry";', log_params) + 19, 4),
+          SUBSTRING(log_params, LOCATE('s:6:"expiry";', log_params) + 23, 2),
+          SUBSTRING(log_params, LOCATE('s:6:"expiry";', log_params) + 25, 2)
+        )
+      ),
+      date(substring(log_timestamp, 1, 8))
+    ) AS duration_days,
+    CASE
+      WHEN log_params LIKE '%s:6:"expiry";s:8:"infinity"%' THEN 1
+      ELSE 0
+    END AS duration_infinity
+  FROM logging_userindex
+  JOIN actor
+    ON log_actor = actor_id
+  JOIN user_groups
+    ON actor_user = ug_user
+    AND ug_group = 'eliminator'
+  WHERE
+    log_type = 'protect'
+    AND log_action = 'protect'
+) AS block_logs
+JOIN comment_logging
+  ON comment_id = log_comment_id
+WHERE
+  duration_days > 14
+  OR duration_infinity = 1
 ORDER BY log_id DESC
 """,
             "out": "وپ:گزارش دیتابیس/گزارش عملکرد اشتباه ویکی‌بان‌ها",
@@ -138,8 +185,8 @@ ORDER BY log_id DESC
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}" +
                     "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| [//fa.wikipedia.org/wiki/Special:Logs?logid=%s %s] || " +
-                    " [[کاربر:%s|]] || [[%s]] || " +
+            "frmt": "| [//fa.wikipedia.org/wiki/Special:Logs?logid=%s %s]" +
+                    " || [[کاربر:%s|]] || [[%s]] || " +
                     "<nowiki>%s</nowiki> || {{formatnum:%s|NOSEP}} || %s",
             "sign": True
         },
