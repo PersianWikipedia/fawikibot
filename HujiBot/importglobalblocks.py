@@ -25,7 +25,7 @@ class ImportBlockBot():
 
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های پروکسی'
+        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری پروکسی'
         self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
         self.blocksummary = '{{پروکسی باز}}'
         self.IPv4cache = PatriciaTrie()
@@ -36,8 +36,8 @@ class ImportBlockBot():
         Gathers a list of IPs with a long-term block that is about to expire.
         """
         conn = mysqldb.connect(
-            host='enwiki.web.db.svc.wikimedia.cloud',
-            db='enwiki_p',
+            host='metawiki.web.db.svc.wikimedia.cloud',
+            db='metawiki_p',
             read_default_file='~/replica.my.cnf'
         )
         cursor = conn.cursor()
@@ -45,11 +45,12 @@ class ImportBlockBot():
 SELECT
   ipb_address
 FROM ipblocks
-JOIN comment
+JOIN comment_ipblocks
   ON ipb_reason_id = comment_id
 WHERE
   ipb_user = 0
   AND ipb_auto = 0
+  AND ipb_sitewide = 1
   AND ipb_expiry NOT IN (
     'infinity',
     'indefinite'
@@ -63,8 +64,10 @@ WHERE
     STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')
   ) > 90
   AND (
-    comment_text LIKE '%webhost%'
-    OR comment_text LIKE '%proxy%'
+    comment_text LIKE '%m:NOP%'
+    OR comment_text LIKE '%[[NOP%'
+    OR comment_text LIKE '%[[w:Open proxy%'
+    OR comment_text LIKE '%hosting%'
   )
 """
         cursor.execute(query)
@@ -146,7 +149,7 @@ WHERE
                 else:
                     pywikibot.output('Blocking %s' % ip)
                     self.site.blockuser(
-                        target, '1 year', self.blocksummary,
+                        target, '2 years', self.blocksummary,
                         anononly=False, allowusertalk=True)
                     blocked = 1
                 row = rowtemplate % (
