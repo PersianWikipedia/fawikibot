@@ -23,6 +23,7 @@ from __future__ import absolute_import
 #
 
 import pywikibot
+from pywikibot.exceptions import APIError
 import MySQLdb as mysqldb
 
 
@@ -85,12 +86,19 @@ WHERE
             pywikibot.output('Checking %s' % ip)
             target = pywikibot.User(self.site, ip)
             if target.isBlocked():
-                pywikibot.output('IP was already blocked')
+                pywikibot.output('It was already blocked')
             else:
-                pywikibot.output('Blocking %s' % ip)
-                self.site.blockuser(
-                    target, '2 years', self.blocksummary,
-                    anononly=False, allowusertalk=True)
+                try:
+                    self.site.blockuser(
+                        target, '2 years', self.blocksummary,
+                        anononly=False, allowusertalk=True)
+                    pywikibot.output('Blocked it!')
+                except APIError as err:
+                    if err.code == 'alreadyblocked':
+                        pywikibot.output('Range was already blocked')
+                    else:
+                        pywikibot.output('Unknown error occurred:')
+                        pywikibot.output(err)
 
 
 robot = ImportBlockBot()
