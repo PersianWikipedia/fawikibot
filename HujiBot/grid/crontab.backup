@@ -34,6 +34,7 @@
 15 23 * * *   jsub -N "n"  -once -o ~/err/nightly.out -e ~/err/nightly.err ~/grid/jobs/nightly.sh
 0 11 * * 5    jsub -N "w"  -once -o ~/err/weekly.out -e ~/err/weekly.err ~/grid/jobs/weekly.sh
 30 10 * * 5   jsub -N "ws" -once -o ~/err/weekly-slow.out -e ~/err/weekly-slow.err ~/grid/jobs/weekly-slow.sh
+0 11 * * 2    jsub -N "ipb"  -once -o ~/err/import-blocks.out -e ~/err/import-blocks.err ~/grid/jobs/import-blocks.sh
 0 10 * * 5    jsub -N "in" -once -o ~/err/inactive-users.out -e ~/err/inactive-users.err ~/grid/jobs/inactive-users.sh
 20 10 * * 5   jsub -N "ct" -once -o ~/err/centitanha.out -e ~/err/centitanha.err ~/grid/jobs/centitanha.sh
 0 2 * * 6     jsub -N "ir" -once -o ~/err/image_resizer.out -e ~/err/image_resizer.err ~/grid/jobs/image_resizer.sh
