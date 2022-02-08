@@ -1,13 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-This bot retreives a list of long term IP blocks on enwiki and applies them to
-fawiki as well. The query aims to only capture blocks for proxy or web host IP
-addresses.
+This bot retreives a list of long term IP blocks on metawiki and applies them
+at fawiki as well. The query aims to only capture blocks for proxy or web host
+IP addresses.
+
+This script is meant to be run weekly and only catches *new* blocks. If an old
+block is modified before its expiration, its ipb_id and ipb_timestamp will not
+change and this script cannot find it to apply the new expiration date at
+fawiki. Therefore, importallglobalblocks.py should also be executed
+periodically to re-import all such blocks should they have expired at fawiki.
 """
 #
 # (C) User:Mensis Mirabilis, 2019
-# (C) User:Huji, 2019
+# (C) User:Huji, 2022
 #
 # Distributed under the terms of the MIT License.
 #

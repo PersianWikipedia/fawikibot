@@ -7,7 +7,7 @@ addresses.
 """
 #
 # (C) User:Mensis Mirabilis, 2019
-# (C) User:Huji, 2019
+# (C) User:Huji, 2022
 #
 # Distributed under the terms of the MIT License.
 #

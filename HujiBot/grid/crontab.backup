@@ -40,3 +40,4 @@
 0 2 * * 6     jsub -N "ir" -once -o ~/err/image_resizer.out -e ~/err/image_resizer.err ~/grid/jobs/image_resizer.sh
 0 3,15 * * *  jsub -N "fp" -once -o ~/err/findproxy.out -e ~/err/findproxy.err ~/grid/jobs/findproxy.sh
 0 7 7 * *     jsub -N "m"  -once -o ~/err/monthly.out -e ~/err/monthly.err ~/grid/jobs/monthly.sh
+0 7 18 * *    jsub -N "mipb"  -once -o ~/err/import-all-blocks.out -e ~/err/import-all-blocks.err ~/grid/jobs/import-all-blocks.sh
