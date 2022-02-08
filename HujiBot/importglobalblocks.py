@@ -25,7 +25,7 @@ class ImportBlockBot():
 
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری پروکسی'
+        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری آی‌پی'
         self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
         self.blocksummary = '{{پروکسی باز}}'
         self.IPv4cache = PatriciaTrie()
