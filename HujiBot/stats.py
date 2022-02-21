@@ -44,6 +44,7 @@ top of the page to allow reproducibility of the results by others.
 #
 
 import pywikibot
+from pywikibot import exceptions
 import MySQLdb as mysqldb
 import time
 
@@ -228,18 +229,18 @@ class StatsBot:
             # Save the page
             page.save(summary=comment or self.summary,
                       minor=minorEdit, botflag=botflag)
-        except pywikibot.LockedPageError:
+        except exceptions.LockedPageError:
             pywikibot.output(u"Page %s is locked; skipping."
-                             % page.title(asLink=True))
-        except pywikibot.EditConflictError:
+                             % page.title())
+        except exceptions.EditConflictError:
             pywikibot.output(
                 u'Skipping %s because of edit conflict'
                 % (page.title()))
-        except pywikibot.SpamblacklistError as error:
+        except exceptions.SpamblacklistError as error:
             pywikibot.output(
                 u'Cannot change %s due to spam blacklist entry %s'
                 % (page.title(), error.url))
-        except pywikibot.OtherPageSaveError as error:
+        except exceptions.OtherPageSaveError as error:
             pywikibot.output("Page save error")
             pywikibot.output(error)
         else:
