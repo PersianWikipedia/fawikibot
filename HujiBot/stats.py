@@ -228,14 +228,14 @@ class StatsBot:
             # Save the page
             page.save(summary=comment or self.summary,
                       minor=minorEdit, botflag=botflag)
-        except pywikibot.LockedPage:
+        except pywikibot.LockedPageError:
             pywikibot.output(u"Page %s is locked; skipping."
                              % page.title(asLink=True))
-        except pywikibot.EditConflict:
+        except pywikibot.EditConflictError:
             pywikibot.output(
                 u'Skipping %s because of edit conflict'
                 % (page.title()))
-        except pywikibot.SpamfilterError as error:
+        except pywikibot.SpamblacklistError as error:
             pywikibot.output(
                 u'Cannot change %s due to spam blacklist entry %s'
                 % (page.title(), error.url))
