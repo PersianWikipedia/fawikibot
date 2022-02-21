@@ -209,12 +209,12 @@ class StatsBot:
             u'،'
         )
         if not self.save(text, page, self.summary):
-            pywikibot.output(u'Page %s not saved.' % page.title(asLink=True))
+            pywikibot.output(u'Page %s not saved.' % page.title())
 
         if self.sign:
             if not self.save('~~~~~', sign, self.summary):
                 pywikibot.outout(u'Signature note saved in %s.' %
-                                 sign.title(asLink=True))
+                                 sign.title())
         bot_end = time.time()
         delta = int(bot_end - bot_start)
         print("Total time: %d seconds" % delta)
