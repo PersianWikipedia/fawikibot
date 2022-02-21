@@ -239,6 +239,9 @@ class StatsBot:
             pywikibot.output(
                 u'Cannot change %s due to spam blacklist entry %s'
                 % (page.title(), error.url))
+        except pywikibot.OtherPageSaveError as error:
+            pywikibot.output("Page save error")
+            pywikibot.output(error)
         else:
             return True
 
