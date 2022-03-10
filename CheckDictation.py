@@ -475,13 +475,13 @@ def clean_word(txt):
 def get_page(title):
     txt=u''
     try:
-        txt= requests.post('https://fa.wikipedia.org/w/api.php', params={"titles": title,"action": "query", "prop": "revisions",
-             "rvprop": "content", "format": "json"}).json()['query']['pages'].values()[0]['revisions'][0]['*']
+        txt= list(requests.post('https://fa.wikipedia.org/w/api.php', params={"titles": title,"action": "query", "prop": "revisions",
+             "rvprop": "content", "format": "json", "rvslots": "main"}).json()['query']['pages'].values())[0]['revisions'][0]['slots']['main']['*']
     except:
         time.sleep(2)
         try:
-            txt= requests.post('https://fa.wikipedia.org/w/api.php', params={"titles": title,"action": "query", "prop": "revisions",
-                 "rvprop": "content", "format": "json"}).json()['query']['pages'].values()[0]['revisions'][0]['*']
+            txt= list(requests.post('https://fa.wikipedia.org/w/api.php', params={"titles": title,"action": "query", "prop": "revisions",
+                 "rvprop": "content", "format": "json", "rvslots": "main"}).json()['query']['pages'].values())[0]['revisions'][0]['slots']['main']['*']
         except:
             pass
     return txt
