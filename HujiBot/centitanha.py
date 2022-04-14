@@ -37,11 +37,12 @@ class CentiTanhaBot():
                 reverse=True,
                 key=lambda kv: (kv[1], kv[0])
             )
+            row_id = 1
             output = '[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n'
             output += '{{/بالا}}\n\n'
             output += 'آخرین به روز رسانی: ~~~~~\n'
             output += '{| class="wikitable sortable"\n'
-            output += '! صفحه !! سانتی‌تنها\n'
+            output += '! ردیف !! کاربر !! سانتی‌تنها\n'
             max_watchers = data[0][1]
             if max_watchers == 0:
                 max_watchers = 1
@@ -49,8 +50,10 @@ class CentiTanhaBot():
                 if item[1] == 0:
                     continue
                 ct = '{:.2f}'.format(100 * item[1] / max_watchers)
-                output += '|-\n| [[' + item[0] + '|]] || ' + \
+                output += '|-\n| {{subst:formatnumber|' + row_id + '}} || ' + \
+                          '[[' + item[0] + '|]] || ' + \
                           '{{formatnum:' + ct + '}}\n'
+                row_id += 1
             output += '|}'
             page = pywikibot.Page(self.site, self.output_page)
             page.put(output, self.summary)
