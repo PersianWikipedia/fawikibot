@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import pywikibot
 import mwclient
 import MySQLdb as mysqldb
+from persiantools import digits
 
 
 class CentiTanhaBot():
@@ -50,9 +51,9 @@ class CentiTanhaBot():
                 if item[1] == 0:
                     continue
                 ct = '{:.2f}'.format(100 * item[1] / max_watchers)
-                output += '|-\n| {{subst:formatnumber|' + str(row_id) + \
-                           '}} || [[' + item[0] + '|]] || ' + \
-                          '{{formatnum:' + ct + '}}\n'
+                output += '|-\n| ' + digits.en_to_fa(str(row_id)) + ' ' + \
+                          '|| [[' + item[0] + '|]] ' + \
+                          '|| {{formatnum:' + ct + '}}\n'
                 row_id += 1
             output += '|}'
             page = pywikibot.Page(self.site, self.output_page)
