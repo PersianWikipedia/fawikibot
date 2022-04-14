@@ -50,8 +50,8 @@ class CentiTanhaBot():
                 if item[1] == 0:
                     continue
                 ct = '{:.2f}'.format(100 * item[1] / max_watchers)
-                output += '|-\n| {{subst:formatnumber|' + row_id + '}} || ' + \
-                          '[[' + item[0] + '|]] || ' + \
+                output += '|-\n| {{subst:formatnumber|' + str(row_id) + \
+                           '}} || [[' + item[0] + '|]] || ' + \
                           '{{formatnum:' + ct + '}}\n'
                 row_id += 1
             output += '|}'
