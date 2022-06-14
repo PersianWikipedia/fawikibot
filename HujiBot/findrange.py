@@ -11,6 +11,7 @@ last few hours and tries to identify proxies within that list.
 # Distributed under the terms of the CC-BY-SA license.
 #
 from __future__ import absolute_import
+
 #
 
 import pywikibot
@@ -20,20 +21,21 @@ from ipwhois import IPWhois
 from cidr_trie import PatriciaTrie
 
 
-class FindRangesBot():
-
+class FindRangesBot:
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/کشف پروکسی/بازه'
-        self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
+        self.target = "ویکی‌پدیا:گزارش دیتابیس/کشف پروکسی/بازه"
+        self.summary = "روزآمدسازی نتایج (وظیفه ۲۲)"
         self.IPv4cache = PatriciaTrie()
         self.IPv6cache = PatriciaTrie()
         self.success = {}
         self.failure = []
         self.whois_reqs = 0
-        self.block_link = "//fa.wikipedia.org/wiki/Special:Block?wpExpiry=" + \
-            "1%20year&wpReason={{پروکسی%20باز}}&wpDisableUTEdit=1" + \
-            "&wpHardBlock=1&wpTarget="
+        self.block_link = (
+            "//fa.wikipedia.org/wiki/Special:Block?wpExpiry="
+            + "1%20year&wpReason={{پروکسی%20باز}}&wpDisableUTEdit=1"
+            + "&wpHardBlock=1&wpTarget="
+        )
         self.sql = """
 SELECT
   ipb_address AS IP,
@@ -45,7 +47,7 @@ ORDER BY ipb_range_start
 """
 
     def get_cache(self, ip):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             """
             Temporary fix for https://github.com/Figglewatts/cidr-trie/issues/2
@@ -57,7 +59,7 @@ ORDER BY ipb_range_start
             return self.IPv4cache.find_all(ip)
 
     def set_cache(self, ip, cidr, cases):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             self.IPv6cache.insert(cidr, cases)
         else:
@@ -72,7 +74,7 @@ ORDER BY ipb_range_start
                 print("WHOIS query #%d" % self.whois_reqs)
                 request = IPWhois(ip)
                 result = request.lookup_rdap(depth=1)
-                cidr = result['asn_cidr']
+                cidr = result["asn_cidr"]
                 cases = [ip]
                 self.set_cache(ip, cidr, cases)
             except Exception:
@@ -85,10 +87,7 @@ ORDER BY ipb_range_start
             cases.append(ip)
             self.set_cache(ip, cidr, cases)
 
-        return {
-            'cidr': cidr,
-            'cases': cases
-        }
+        return {"cidr": cidr, "cases": cases}
 
     def get_ip_list(self, max_number, max_hours):
         conn = toolforge.connect("fawiki")
@@ -105,20 +104,20 @@ ORDER BY ipb_range_start
 
             if idx > 0:
                 prv = iplist[idx - 1]
-                if prv[1].decode('utf-8')[0:2] == 'v6':
+                if prv[1].decode("utf-8")[0:2] == "v6":
                     prv = None
                 else:
-                    prv = int('0x' + prv[1].decode('utf-8'), 16)
+                    prv = int("0x" + prv[1].decode("utf-8"), 16)
 
             else:
                 prv = None
 
             if idx < len(iplist) - 1:
                 nxt = iplist[idx + 1]
-                if nxt[1].decode('utf-8')[0:2] == 'v6':
+                if nxt[1].decode("utf-8")[0:2] == "v6":
                     nxt = None
                 else:
-                    nxt = int('0x' + nxt[1].decode('utf-8'), 16)
+                    nxt = int("0x" + nxt[1].decode("utf-8"), 16)
             else:
                 nxt = None
 
@@ -127,15 +126,15 @@ ORDER BY ipb_range_start
             As for IPv4's, we will only keep them if they are not far from
             the one before or the one after
             """
-            if item[1].decode('utf-8')[0:2] == 'v6':
-                ip = item[0].decode('utf-8')
+            if item[1].decode("utf-8")[0:2] == "v6":
+                ip = item[0].decode("utf-8")
                 purged_iplist.append(ip)
             else:
-                ip = item[0].decode('utf-8')
-                cur = int('0x' + item[1].decode('utf-8'), 16)
-                if (prv is not None and cur - prv < 65536):
+                ip = item[0].decode("utf-8")
+                cur = int("0x" + item[1].decode("utf-8"), 16)
+                if prv is not None and cur - prv < 65536:
                     purged_iplist.append(ip)
-                elif (nxt is not None and nxt - cur < 65536):
+                elif nxt is not None and nxt - cur < 65536:
                     purged_iplist.append(ip)
 
         return purged_iplist
@@ -145,10 +144,10 @@ ORDER BY ipb_range_start
         iplist = self.purge_ip_list(iplist)
 
         for ip in iplist:
-            pywikibot.output('Checking %s' % ip)
+            pywikibot.output("Checking %s" % ip)
             ipinfo = self.update_cache(ip)
-            if ipinfo['cidr'] is not None:
-                self.success[ipinfo['cidr']] = ipinfo['cases']
+            if ipinfo["cidr"] is not None:
+                self.success[ipinfo["cidr"]] = ipinfo["cases"]
 
         print("Generating output for wiki ...")
 

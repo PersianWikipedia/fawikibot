@@ -18,6 +18,7 @@ periodically to re-import all such blocks should they have expired at fawiki.
 # Distributed under the terms of the MIT License.
 #
 from __future__ import absolute_import
+
 #
 
 import pywikibot
@@ -27,13 +28,12 @@ import re
 from cidr_trie import PatriciaTrie
 
 
-class ImportBlockBot():
-
+class ImportBlockBot:
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری آی‌پی'
-        self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
-        self.blocksummary = '{{پروکسی باز}}'
+        self.target = "ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری آی‌پی"
+        self.summary = "روزآمدسازی نتایج (وظیفه ۲۲)"
+        self.blocksummary = "{{پروکسی باز}}"
         self.IPv4cache = PatriciaTrie()
         self.IPv6cache = PatriciaTrie()
 
@@ -77,7 +77,7 @@ WHERE
         return results
 
     def get_cache(self, ip):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             """
             Temporary fix for https://github.com/Figglewatts/cidr-trie/issues/2
@@ -89,7 +89,7 @@ WHERE
             return self.IPv4cache.find_all(ip)
 
     def set_cache(self, ip, cidr, country):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             self.IPv6cache.insert(cidr, country)
         else:
@@ -105,41 +105,38 @@ WHERE
             try:
                 request = IPWhois(ip)
                 result = request.lookup_rdap(depth=1)
-                cidr = result['asn_cidr']
-                country = result['asn_country_code']
+                cidr = result["asn_cidr"]
+                country = result["asn_country_code"]
                 self.set_cache(ip, cidr, country)
             except Exception:
-                cidr = ''
-                country = ''
+                cidr = ""
+                country = ""
         else:
             cidr = cached_info[0][0]
             country = cached_info[0][1]
 
-        return {
-            'cidr': cidr,
-            'country_code': country
-        }
+        return {"cidr": cidr, "country_code": country}
 
     def format_result(self, res):
         if res == 1:
-            return '{{yes}}'
+            return "{{yes}}"
         elif res == 0:
-            return '{{no}}'
+            return "{{no}}"
         else:
-            return '{{yes-no|}}'
+            return "{{yes-no|}}"
 
     def main(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! آی‌پی !! بازه !! کد کشور !! بسته شد'
+        out += "! آی‌پی !! بازه !! کد کشور !! بسته شد"
 
         iplist = self.get_ip_list()
-        rowtemplate = '\n|-\n| %s || %s || %s || %s'
+        rowtemplate = "\n|-\n| %s || %s || %s || %s"
 
         for ipdata in iplist:
-            ip = ipdata[0].decode('ASCII')
-            pywikibot.output('Checking %s' % ip)
+            ip = ipdata[0].decode("ASCII")
+            pywikibot.output("Checking %s" % ip)
             ipinfo = self.get_ip_info(ip)
-            if ipinfo['country_code'] == 'IR':
+            if ipinfo["country_code"] == "IR":
                 """
                 IPs from Iran are almost never proxies, skip the checks
                 """
@@ -149,27 +146,31 @@ WHERE
                 if target.isBlocked():
                     blocked = 2
                 else:
-                    pywikibot.output('Blocking %s' % ip)
+                    pywikibot.output("Blocking %s" % ip)
                     self.site.blockuser(
-                        target, '2 years', self.blocksummary,
-                        anononly=False, allowusertalk=True)
+                        target,
+                        "2 years",
+                        self.blocksummary,
+                        anononly=False,
+                        allowusertalk=True,
+                    )
                     blocked = 1
                 row = rowtemplate % (
                     ip,
-                    ipinfo['cidr'],
-                    ipinfo['country_code'],
-                    self.format_result(blocked)
+                    ipinfo["cidr"],
+                    ipinfo["country_code"],
+                    self.format_result(blocked),
                 )
                 out += row
 
-        out += '\n|}'
+        out += "\n|}"
 
         page = pywikibot.Page(self.site, self.target)
         page.text = out
         page.save(self.summary)
 
-        page = pywikibot.Page(self.site, self.target + '/امضا')
-        page.text = '~~~~~'
+        page = pywikibot.Page(self.site, self.target + "/امضا")
+        page.text = "~~~~~"
         page.save(self.summary)
 
 

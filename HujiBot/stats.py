@@ -49,68 +49,77 @@ import toolforge
 import time
 
 page_namespace = {
-    u'0': u'',
-    u'1': u'بحث:',
-    u'2': u'کاربر:',
-    u'3': u'بحث کاربر:',
-    u'4': u'ویکی‌پدیا:',
-    u'5': u'بحث ویکی‌پدیا:',
-    u'6': u':پرونده:',
-    u'7': u'بحث پرونده:',
-    u'8': u'مدیاویکی:',
-    u'9': u'بحث مدیاویکی:',
-    u'10': u'الگو:',
-    u'11': u'بحث الگو:',
-    u'12': u'راهنما:',
-    u'13': u'بحث راهنما:',
-    u'14': u':رده:',
-    u'15': u'بحث رده:',
-    u'100': u'درگاه:',
-    u'101': u'بحث درگاه:',
-    u'102': u'کتاب:',
-    u'103': u'بحث کتاب:',
-    u'118': u'پیش‌نویس:',
-    u'119': u'بحث پیش‌نویس:',
-    u'828': u'پودمان:',
-    u'829': u'بحث پودمان:'
+    "0": "",
+    "1": "بحث:",
+    "2": "کاربر:",
+    "3": "بحث کاربر:",
+    "4": "ویکی‌پدیا:",
+    "5": "بحث ویکی‌پدیا:",
+    "6": ":پرونده:",
+    "7": "بحث پرونده:",
+    "8": "مدیاویکی:",
+    "9": "بحث مدیاویکی:",
+    "10": "الگو:",
+    "11": "بحث الگو:",
+    "12": "راهنما:",
+    "13": "بحث راهنما:",
+    "14": ":رده:",
+    "15": "بحث رده:",
+    "100": "درگاه:",
+    "101": "بحث درگاه:",
+    "102": "کتاب:",
+    "103": "بحث کتاب:",
+    "118": "پیش‌نویس:",
+    "119": "بحث پیش‌نویس:",
+    "828": "پودمان:",
+    "829": "بحث پودمان:",
 }
 user_groups = {
-    u'uploader': u'بارگذار',
-    u'transwiki': u'درون ریز بین‌ویکی‌ها',
-    u'templateeditor': u'ویرایشگر الگو',
-    u'sysop': u'مدیر',
-    u'rollbacker': u'واگردان',
-    u'registered': u'ثبت‌نام‌کرده',
-    u'patroller': u'گشت‌زن',
-    u'oversight': u'پنهانگر',
-    u'OTRS-member': u'عضو OTRS',
-    u'ipblock-exempt': u'استثنای قطع دسترسی',
-    u'interface-admin': u'مدیر رابط کاربری',
-    u'import': u'درون‌ریز',
-    u'Image-reviewer': u'بازبین تصویر',
-    u'extendedconfirmed': u'تأییدشده پایدار',
-    u'eponline': u'داوطلب دورهٔ برخط',
-    u'epinstructor': u'استاد دوره',
-    u'epcoordinator': u'هماهنگ‌کنندهٔ دوره',
-    u'epcampus': u'داوطلب دورهٔ پردیس',
-    u'eliminator': u'ویکی‌بان',
-    u'confirmed': u'کاربر تائیدشده',
-    u'checkuser': u'بازرس کاربر',
-    u'bureaucrat': u'دیوانسالار',
-    u'botadmin': u'مدیر رباتیک',
-    u'autoreviewer': u'بازبینی‌خودکار',
-    u'autopatrolled': u'گشت خودکار',
-    u'accountcreator': u'سازنده حساب',
-    u'abusefilter': u'تنظیم‌کنندهٔ پالایهٔ خرابکاری'
+    "uploader": "بارگذار",
+    "transwiki": "درون ریز بین‌ویکی‌ها",
+    "templateeditor": "ویرایشگر الگو",
+    "sysop": "مدیر",
+    "rollbacker": "واگردان",
+    "registered": "ثبت‌نام‌کرده",
+    "patroller": "گشت‌زن",
+    "oversight": "پنهانگر",
+    "OTRS-member": "عضو OTRS",
+    "ipblock-exempt": "استثنای قطع دسترسی",
+    "interface-admin": "مدیر رابط کاربری",
+    "import": "درون‌ریز",
+    "Image-reviewer": "بازبین تصویر",
+    "extendedconfirmed": "تأییدشده پایدار",
+    "eponline": "داوطلب دورهٔ برخط",
+    "epinstructor": "استاد دوره",
+    "epcoordinator": "هماهنگ‌کنندهٔ دوره",
+    "epcampus": "داوطلب دورهٔ پردیس",
+    "eliminator": "ویکی‌بان",
+    "confirmed": "کاربر تائیدشده",
+    "checkuser": "بازرس کاربر",
+    "bureaucrat": "دیوانسالار",
+    "botadmin": "مدیر رباتیک",
+    "autoreviewer": "بازبینی‌خودکار",
+    "autopatrolled": "گشت خودکار",
+    "accountcreator": "سازنده حساب",
+    "abusefilter": "تنظیم‌کنندهٔ پالایهٔ خرابکاری",
 }
 
 
 class StatsBot:
-
-    def __init__(self, sql=None, out=None, cols=None, summary=None, pref=None,
-                 frmt=None, sqlnum=None, sign=True, maxtime=None):
+    def __init__(
+        self,
+        sql=None,
+        out=None,
+        cols=None,
+        summary=None,
+        pref=None,
+        frmt=None,
+        sqlnum=None,
+        sign=True,
+        maxtime=None,
+    ):
         if not (sql and out and cols and summary):
-            raise ValueError('You must define sql, out, cols, and summary')
+            raise ValueError("You must define sql, out, cols, and summary")
         self.sql = sql
         self.out = out
         self.cols = cols
@@ -126,17 +135,18 @@ class StatsBot:
         print("Process number: %s" % self.sqlnum)
         pywikibot.output("Process number: %s" % self.sqlnum)
         bot_start = time.time()
-        pywikibot.output("Start time: %s" %
-                         time.asctime(time.gmtime(bot_start)))
+        pywikibot.output(
+            "Start time: %s" % time.asctime(time.gmtime(bot_start))
+        )
 
         site = pywikibot.Site()
         page = pywikibot.Page(site, self.out)
-        sign = pywikibot.Page(site, self.out + u'/امضا')
-        text = u'<!-- SQL = ' + self.sql + u' -->\n'
-        text += self.pref + u'\n'
-        text += u'{| class="wikitable sortable"\n'
+        sign = pywikibot.Page(site, self.out + "/امضا")
+        text = "<!-- SQL = " + self.sql + " -->\n"
+        text += self.pref + "\n"
+        text += '{| class="wikitable sortable"\n'
         for col in self.cols:
-            text += u'!' + col + u'\n'
+            text += "!" + col + "\n"
         query_start = time.time()
         conn = toolforge.connect("fawiki", charset="utf8")
         cursor = conn.cursor()
@@ -153,14 +163,14 @@ class StatsBot:
         query_end = time.time()
         delta = int(query_end - query_start)
         print("Query time: %d seconds" % delta)
-        timer = '<!-- Query time: %d seconds -->\n' % delta
+        timer = "<!-- Query time: %d seconds -->\n" % delta
         text = timer + text
-        text = u'<!-- SQL Number = ' + str(self.sqlnum) + u' -->\n' + text
-        print(len(results), ' rows will be processed')
+        text = "<!-- SQL Number = " + str(self.sqlnum) + " -->\n" + text
+        print(len(results), " rows will be processed")
 
         for rowid in range(len(results)):
             row = results[rowid]
-            text += u'|-\n'
+            text += "|-\n"
             row = list(row)
             for idx in range(len(row)):
                 if isinstance(row[idx], bytes):
@@ -174,42 +184,30 @@ class StatsBot:
 
             if self.frmt:
                 row = tuple(row)
-                if '%d' in self.frmt:
+                if "%d" in self.frmt:
                     row = (rowid + 1,) + row
                 text += self.frmt % row
-                text += u'\n'
+                text += "\n"
             else:
                 for item in row:
-                    text += u'| ' + item + u'\n'
-        text += u'|}'
+                    text += "| " + item + "\n"
+        text += "|}"
         # Convert Namespace number to their names
         for ns in page_namespace:
-            text = text.replace(
-                u'[[' + ns + u':',
-                u'[[' + page_namespace[ns]
-            )
+            text = text.replace("[[" + ns + ":", "[[" + page_namespace[ns])
         for user_grp in user_groups:
-            text = text.replace(
-                u' ' + user_grp,
-                u' ' + user_groups[user_grp]
-            )
-        text = text.replace(
-            u'||  ،',
-            u'|| '
-        ).replace(
-            u'،   ||',
-            u' ||'
-        ).replace(
-            u'، ،',
-            u'،'
+            text = text.replace(" " + user_grp, " " + user_groups[user_grp])
+        text = (
+            text.replace("||  ،", "|| ")
+            .replace("،   ||", " ||")
+            .replace("، ،", "،")
         )
         if not self.save(text, page, self.summary):
-            pywikibot.output(u'Page %s not saved.' % page.title())
+            pywikibot.output("Page %s not saved." % page.title())
 
         if self.sign:
-            if not self.save('~~~~~', sign, self.summary):
-                pywikibot.outout(u'Signature note saved in %s.' %
-                                 sign.title())
+            if not self.save("~~~~~", sign, self.summary):
+                pywikibot.outout("Signature note saved in %s." % sign.title())
         bot_end = time.time()
         delta = int(bot_end - bot_start)
         print("Total time: %d seconds" % delta)
@@ -217,24 +215,26 @@ class StatsBot:
         pywikibot.output("End time: %s" % time.asctime(time.gmtime(bot_end)))
         print("Stats bot out ...")
 
-    def save(self, text, page, comment=None, minorEdit=True,
-             botflag=True):
+    def save(self, text, page, comment=None, minorEdit=True, botflag=True):
         try:
             page.text = text
             # Save the page
-            page.save(summary=comment or self.summary,
-                      minor=minorEdit, botflag=botflag)
+            page.save(
+                summary=comment or self.summary,
+                minor=minorEdit,
+                botflag=botflag,
+            )
         except exceptions.LockedPageError:
-            pywikibot.output(u"Page %s is locked; skipping."
-                             % page.title())
+            pywikibot.output("Page %s is locked; skipping." % page.title())
         except exceptions.EditConflictError:
             pywikibot.output(
-                u'Skipping %s because of edit conflict'
-                % (page.title()))
+                "Skipping %s because of edit conflict" % (page.title())
+            )
         except exceptions.SpamblacklistError as error:
             pywikibot.output(
-                u'Cannot change %s due to spam blacklist entry %s'
-                % (page.title(), error.url))
+                "Cannot change %s due to spam blacklist entry %s"
+                % (page.title(), error.url)
+            )
         except exceptions.OtherPageSaveError as error:
             pywikibot.output("Page save error")
             pywikibot.output(error)
@@ -256,27 +256,27 @@ def main(*args):
     out = None
     cols = None
     summary = None
-    pref = 'آخرین به روز رسانی: ~~~~~\n\n'
+    pref = "آخرین به روز رسانی: ~~~~~\n\n"
     frmt = None
     sqlnum = 0
     maxtime = None
     for arg in local_args:
-        if arg.startswith('-sql:'):
-            sql = arg[len('-sql:'):]
-        elif arg.startswith('-out:'):
-            out = arg[len('-out:'):]
-        elif arg.startswith('-cols:'):
-            cols = arg[len('-cols:'):].split(',')
-        elif arg.startswith('-summary:'):
-            summary = arg[len('-summary:'):]
-        elif arg.startswith('-pref:'):
-            pref = arg[len('-pref:'):] + '\n\n' + pref
-        elif arg.startswith('-frmt:'):
-            frmt = arg[len('-frmt:'):]
-        elif arg.startswith('-sign:'):
+        if arg.startswith("-sql:"):
+            sql = arg[len("-sql:") :]
+        elif arg.startswith("-out:"):
+            out = arg[len("-out:") :]
+        elif arg.startswith("-cols:"):
+            cols = arg[len("-cols:") :].split(",")
+        elif arg.startswith("-summary:"):
+            summary = arg[len("-summary:") :]
+        elif arg.startswith("-pref:"):
+            pref = arg[len("-pref:") :] + "\n\n" + pref
+        elif arg.startswith("-frmt:"):
+            frmt = arg[len("-frmt:") :]
+        elif arg.startswith("-sign:"):
             sign = False
-        elif arg.startswith('-maxtime:'):
-            maxtime = int(arg[len('-maxtime:')])
+        elif arg.startswith("-maxtime:"):
+            maxtime = int(arg[len("-maxtime:")])
     bot = StatsBot(sql, out, cols, summary, pref, frmt, sqlnum, sign, maxtime)
     bot.run()
 

@@ -20,6 +20,7 @@ blocked by WHOIS servers otherwise.
 # Distributed under the terms of the MIT License.
 #
 from __future__ import absolute_import
+
 #
 
 import pywikibot
@@ -27,13 +28,12 @@ from pywikibot.exceptions import APIError
 import toolforge
 
 
-class ImportBlockBot():
-
+class ImportBlockBot:
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری آی‌پی'
-        self.summary = 'روزآمدسازی نتایج (وظیفه ۲۲)'
-        self.blocksummary = '{{پروکسی باز}}'
+        self.target = "ویکی‌پدیا:گزارش دیتابیس/درون‌ریزی بستن‌های سراسری آی‌پی"
+        self.summary = "روزآمدسازی نتایج (وظیفه ۲۲)"
+        self.blocksummary = "{{پروکسی باز}}"
 
     def get_ip_list(self):
         """
@@ -78,22 +78,26 @@ WHERE
         iplist = self.get_ip_list()
 
         for ipdata in iplist:
-            ip = ipdata[0].decode('ASCII')
-            pywikibot.output('Checking %s' % ip)
+            ip = ipdata[0].decode("ASCII")
+            pywikibot.output("Checking %s" % ip)
             target = pywikibot.User(self.site, ip)
             if target.isBlocked():
-                pywikibot.output('It was already blocked')
+                pywikibot.output("It was already blocked")
             else:
                 try:
                     self.site.blockuser(
-                        target, '2 years', self.blocksummary,
-                        anononly=False, allowusertalk=True)
-                    pywikibot.output('Blocked it!')
+                        target,
+                        "2 years",
+                        self.blocksummary,
+                        anononly=False,
+                        allowusertalk=True,
+                    )
+                    pywikibot.output("Blocked it!")
                 except APIError as err:
-                    if err.code == 'alreadyblocked':
-                        pywikibot.output('Range was already blocked')
+                    if err.code == "alreadyblocked":
+                        pywikibot.output("Range was already blocked")
                     else:
-                        pywikibot.output('Unknown error occurred:')
+                        pywikibot.output("Unknown error occurred:")
                         pywikibot.output(err)
 
 

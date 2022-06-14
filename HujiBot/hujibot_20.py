@@ -9,6 +9,7 @@ This bot cleans up old sandbox user pages
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, unicode_literals
+
 #
 
 import pywikibot
@@ -16,23 +17,21 @@ import toolforge
 from pywikibot import pagegenerators
 
 from pywikibot.bot import (
-    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
-
-docuReplacements = {
-    '&params;': pagegenerators.parameterHelp
-}
-
-SUMMARY = u'([[ویکی‌پدیا:سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۰|و ۲۰]])'
-NEWTEXT = u'{{صفحه کاربری غیرفعال خالی شده}}'
-
-
-class HujiBot(
     SingleSiteBot,
     ExistingPageBot,
     NoRedirectPageBot,
     AutomaticTWSummaryBot,
-):
+)
 
+docuReplacements = {"&params;": pagegenerators.parameterHelp}
+
+SUMMARY = "([[ویکی‌پدیا:سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۰|و ۲۰]])"
+NEWTEXT = "{{صفحه کاربری غیرفعال خالی شده}}"
+
+
+class HujiBot(
+    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot
+):
     def __init__(self, generator, **kwargs):
         super(HujiBot, self).__init__(site=True, **kwargs)
         self.generator = generator
@@ -51,15 +50,15 @@ def main(*args):
     for arg in local_args:
         if genFactory.handleArg(arg):
             continue  # nothing to do here
-        arg, sep, value = arg.partition(':')
+        arg, sep, value = arg.partition(":")
         option = arg[1:]
-        if option in ('summary', 'text'):
+        if option in ("summary", "text"):
             if not value:
-                pywikibot.input('Please enter a value for ' + arg)
+                pywikibot.input("Please enter a value for " + arg)
             options[option] = value
-        elif option in ('method'):
+        elif option in ("method"):
             if not value:
-                options[option] = 'all'
+                options[option] = "all"
             else:
                 options[option] = value
         else:
@@ -92,18 +91,18 @@ WHERE
   )
 ORDER BY rev_timestamp
 """
-        cursor.execute(sql.encode('utf-8'))
+        cursor.execute(sql.encode("utf-8"))
         results = cursor.fetchall()
-        print(len(results), ' rows will be processed')
+        print(len(results), " rows will be processed")
 
         for rowid in range(len(results)):
             row = results[rowid]
             title = row[0]
-            page = pywikibot.Page(pywikibot.Site(), title.decode('utf-8'))
+            page = pywikibot.Page(pywikibot.Site(), title.decode("utf-8"))
             page.put(NEWTEXT, SUMMARY)
 
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

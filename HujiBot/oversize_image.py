@@ -21,61 +21,67 @@ from persiantools import digits
 
 
 class OversizeImageBot:
-
     def __init__(self):
         self.site = pywikibot.Site()
-        self.cat = 'رده:محتویات غیر آزاد'
-        self.out = 'User:Huji/oversize_images'
-        self.detail = 'User:Huji/oversize_images/details'
-        self.summary = 'روزآمدسازی آمار'
+        self.cat = "رده:محتویات غیر آزاد"
+        self.out = "User:Huji/oversize_images"
+        self.detail = "User:Huji/oversize_images/details"
+        self.summary = "روزآمدسازی آمار"
         self.df = pd.DataFrame(
-            columns=['user', 'file', 'ts', 'width', 'height'],
-            dtype=str)
+            columns=["user", "file", "ts", "width", "height"], dtype=str
+        )
 
     def short_date(self, ts):
-        return '%s-%s-%s' % (
+        return "%s-%s-%s" % (
             digits.en_to_fa(str(ts.year)),
-            digits.en_to_fa(('0' + str(ts.month))[-2:]),
-            digits.en_to_fa(('0' + str(ts.day))[-2:])
+            digits.en_to_fa(("0" + str(ts.month))[-2:]),
+            digits.en_to_fa(("0" + str(ts.day))[-2:]),
         )
 
     def tally(self, title, fileinfo):
-        self.df = self.df.append({
-            'user': fileinfo.user,
-            'file': title,
-            'ts': self.short_date(fileinfo.timestamp),
-            'width': digits.en_to_fa(str(fileinfo.width)),
-            'height': digits.en_to_fa(str(fileinfo.height))
-        }, ignore_index=True)
+        self.df = self.df.append(
+            {
+                "user": fileinfo.user,
+                "file": title,
+                "ts": self.short_date(fileinfo.timestamp),
+                "width": digits.en_to_fa(str(fileinfo.width)),
+                "height": digits.en_to_fa(str(fileinfo.height)),
+            },
+            ignore_index=True,
+        )
 
     def aggregate(self):
-        tab = self.df[['user', 'file']].groupby('user').count(). \
-            sort_values('file', ascending=False)
+        tab = (
+            self.df[["user", "file"]]
+            .groupby("user")
+            .count()
+            .sort_values("file", ascending=False)
+        )
 
         wikitab = '{| class="wikitable sortable"\n'
-        wikitab += '! کاربر !! شمار پرونده\n'
+        wikitab += "! کاربر !! شمار پرونده\n"
 
         for idx, row in tab.iterrows():
-            wikitab += '|-\n'
-            wikitab += '| [[User:' + row.name + '|]]\n'
-            wikitab += '| ' + str(row['file']) + '\n'
+            wikitab += "|-\n"
+            wikitab += "| [[User:" + row.name + "|]]\n"
+            wikitab += "| " + str(row["file"]) + "\n"
 
-        wikitab += '|}'
+        wikitab += "|}"
 
         return wikitab
 
     def tabulate(self):
-        wikitab = '{| class=wikitable\n'
-        wikitab += '! کاربر !! پرونده !! تاریخ بارگذاری !! ابعاد\n'
+        wikitab = "{| class=wikitable\n"
+        wikitab += "! کاربر !! پرونده !! تاریخ بارگذاری !! ابعاد\n"
 
-        for idx, row in self.df.sort_values('user').iterrows():
-            wikitab += '|-\n'
-            wikitab += '| [[User:' + row['user'] + '|]]\n'
-            wikitab += '| [[:' + row['file'] + ']]\n'
-            wikitab += '| ' + row['ts'] + '\n'
-            wikitab += '| %s×%s\n' % (row['width'], row['height'])
+        for idx, row in self.df.sort_values("user").iterrows():
+            wikitab += "|-\n"
+            wikitab += "| [[User:" + row["user"] + "|]]\n"
+            wikitab += "| [[:" + row["file"] + "]]\n"
+            wikitab += "| " + row["ts"] + "\n"
+            wikitab += "| %s×%s\n" % (row["width"], row["height"])
 
-        wikitab += '|}'
+        wikitab += "|}"
 
         return wikitab
 

@@ -26,19 +26,20 @@ import urllib
 
 
 class ImageResizerBot:
-
     def __init__(self):
-        self.cat = 'رده:محتویات غیر آزاد'
+        self.cat = "رده:محتویات غیر آزاد"
         self.site = pywikibot.Site()
-        self.summary = 'کوچک کردن تصویر غیر آزاد ([[ویکی‌پدیا:' + \
-            'سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۴|وظیفه ۲۴]])'
+        self.summary = (
+            "کوچک کردن تصویر غیر آزاد ([[ویکی‌پدیا:"
+            + "سیاست ربات‌رانی/درخواست مجوز/HujiBot/وظیفه ۲۴|وظیفه ۲۴]])"
+        )
 
     def get_resized_image(self, file_page, thumb_width):
         """Get the image object to work based on an imagePage object."""
         thumb_url = "https://fa.wikipedia.org/w/thumb.php?f=%s&w=%s" % (
             urllib.parse.quote_plus(file_page.title(with_ns=False)),
-            thumb_width
-            )
+            thumb_width,
+        )
         imageURLopener = http.fetch(thumb_url)
         imageBuffer = io.BytesIO(imageURLopener.content[:])
         image = Image.open(imageBuffer)
@@ -49,7 +50,7 @@ class ImageResizerBot:
 
         text = filepage.text
 
-        pat = r'\{\{([Nn]on-free no reduce|پرهیز از نسخه کوچکتر)\}\}'
+        pat = r"\{\{([Nn]on-free no reduce|پرهیز از نسخه کوچکتر)\}\}"
         regex = re.compile(pat)
 
         if regex.search(text) is not None:
@@ -63,14 +64,15 @@ class ImageResizerBot:
         if width * height > 100000:
             newwidth = math.floor(width * math.sqrt(100000 / (width * height)))
             newimg = self.get_resized_image(filepage, newwidth)
-            filepath = '/tmp/' + filepage.title(with_ns=False)
+            filepath = "/tmp/" + filepage.title(with_ns=False)
 
             newimg.save(filepath)
             self.site.upload(
                 filepage,
                 source_filename=filepath,
                 comment=self.summary,
-                ignore_warnings=True)
+                ignore_warnings=True,
+            )
             os.remove(filepath)
 
             filepage = pywikibot.FilePage(self.site, filepage.title())
@@ -78,12 +80,17 @@ class ImageResizerBot:
 
             for key in filehistory:
                 version = filehistory[key]
-                if version['width'] * version['height'] <= 100000:
+                if version["width"] * version["height"] <= 100000:
                     continue
-                oldimageid = version['archivename'].split('!')[0]
-                self.site.deleterevs('oldimage', oldimageid, hide='content',
-                                     show='', reason=self.summary,
-                                     target=filepage.title())
+                oldimageid = version["archivename"].split("!")[0]
+                self.site.deleterevs(
+                    "oldimage",
+                    oldimageid,
+                    hide="content",
+                    show="",
+                    reason=self.summary,
+                    target=filepage.title(),
+                )
 
     def get_categories_list(self, page):
         cats = list(page.categories())
@@ -98,7 +105,7 @@ class ImageResizerBot:
         pgen = pagegenerators.PreloadingGenerator(gen)
 
         for page in pgen:
-            ignored_extensions = ['.pdf', '.svg', '.ogg', 'webm']
+            ignored_extensions = [".pdf", ".svg", ".ogg", "webm"]
             cat_list = self.get_categories_list(page)
             if "محتویات آزاد" in cat_list:
                 continue

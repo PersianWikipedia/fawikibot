@@ -10,6 +10,7 @@ This bot uncouples those shortened footnotes that are reused by using the
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, unicode_literals
+
 #
 
 import pywikibot
@@ -17,44 +18,50 @@ import re
 from pywikibot import pagegenerators
 
 from pywikibot.bot import (
-    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot)
-
-docuReplacements = {
-    '&params;': pagegenerators.parameterHelp
-}
-
-
-class RefDenamerBot(
     SingleSiteBot,
     ExistingPageBot,
     NoRedirectPageBot,
     AutomaticTWSummaryBot,
-):
+)
 
+docuReplacements = {"&params;": pagegenerators.parameterHelp}
+
+
+class RefDenamerBot(
+    SingleSiteBot, ExistingPageBot, NoRedirectPageBot, AutomaticTWSummaryBot
+):
     def __init__(self, generator, **kwargs):
         super(RefDenamerBot, self).__init__(site=True, **kwargs)
         self.generator = generator
-        self.summary = 'تمیزکاری پانویس‌های کوتاه ' + \
-                       '([[وپ:سیاست ربات‌رانی/' + \
-                       'درخواست مجوز/HujiBot/وظیفه ۲۱|وظیفه ۲۱]])'
+        self.summary = (
+            "تمیزکاری پانویس‌های کوتاه "
+            + "([[وپ:سیاست ربات‌رانی/"
+            + "درخواست مجوز/HujiBot/وظیفه ۲۱|وظیفه ۲۱]])"
+        )
         self.allowednamespaces = [0]
 
     def treat_page(self):
         text = self.current_page.text
 
-        def_pat = '<ref ([^>]*)name=(["\']?)([^>\'"]+)(["\']?)([^>]*)>' + \
-                  '({{پک\\|[^<]+\\}\\})' + \
-                  '<\\/ref>'
+        def_pat = (
+            "<ref ([^>]*)name=([\"']?)([^>'\"]+)([\"']?)([^>]*)>"
+            + "({{پک\\|[^<]+\\}\\})"
+            + "<\\/ref>"
+        )
 
         while re.search(def_pat, text) is not None:
             m = re.search(def_pat, text)
             original = m.group(0)
             name = m.group(3)
-            fullform = '<ref ' + m.group(1) + m.group(5) + '>' + \
-                       m.group(6) + '</ref>'
-            fullform = fullform.replace('<ref >', '<ref>')
-            reuse_pat = '<ref ([^>/]* )*name=["\']?' + re.escape(name) + \
-                        '["\']?( [^>/]*)*/>'
+            fullform = (
+                "<ref " + m.group(1) + m.group(5) + ">" + m.group(6) + "</ref>"
+            )
+            fullform = fullform.replace("<ref >", "<ref>")
+            reuse_pat = (
+                "<ref ([^>/]* )*name=[\"']?"
+                + re.escape(name)
+                + "[\"']?( [^>/]*)*/>"
+            )
 
             text = re.sub(reuse_pat, fullform, text)
             text = text.replace(original, fullform)
@@ -71,11 +78,11 @@ def main(*args):
     for arg in local_args:
         if genFactory.handleArg(arg):
             continue  # nothing to do here
-        arg, sep, value = arg.partition(':')
+        arg, sep, value = arg.partition(":")
         option = arg[1:]
-        if option in ('summary'):
+        if option in ("summary"):
             if not value:
-                pywikibot.input('Please enter a value for ' + arg)
+                pywikibot.input("Please enter a value for " + arg)
             options[option] = value
         else:
             options[option] = True
@@ -91,5 +98,5 @@ def main(*args):
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

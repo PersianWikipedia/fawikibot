@@ -12,6 +12,7 @@ year.
 # Distributed under the terms of the CC-BY-SA license.
 #
 from __future__ import absolute_import
+
 #
 
 import pywikibot
@@ -24,16 +25,15 @@ import re
 from cidr_trie import PatriciaTrie
 
 
-class FindProxyBot():
-
+class FindProxyBot:
     def __init__(self):
         self.site = pywikibot.Site()
-        self.target = 'ویکی‌پدیا:گزارش دیتابیس/تمدید بستن پروکسی'
-        self.summary = 'روزآمدسازی نتایج (وظیفه ۲۳)'
-        self.blocksummary = '{{پروکسی باز}}'
-        self.IPQSkey = config.findproxy['IPQSkey']
-        self.PCkey = config.findproxy['PCkey']
-        self.GIIemail = config.findproxy['GIIemail']
+        self.target = "ویکی‌پدیا:گزارش دیتابیس/تمدید بستن پروکسی"
+        self.summary = "روزآمدسازی نتایج (وظیفه ۲۳)"
+        self.blocksummary = "{{پروکسی باز}}"
+        self.IPQSkey = config.findproxy["IPQSkey"]
+        self.PCkey = config.findproxy["PCkey"]
+        self.GIIemail = config.findproxy["GIIemail"]
         self.IPv4cache = PatriciaTrie()
         self.IPv6cache = PatriciaTrie()
 
@@ -66,7 +66,7 @@ WHERE
         return results
 
     def get_cache(self, ip):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             """
             Temporary fix for https://github.com/Figglewatts/cidr-trie/issues/2
@@ -78,7 +78,7 @@ WHERE
             return self.IPv4cache.find_all(ip)
 
     def set_cache(self, ip, cidr, country):
-        pat = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        pat = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         if re.match(pat, ip) is None:
             self.IPv6cache.insert(cidr, country)
         else:
@@ -94,30 +94,27 @@ WHERE
             try:
                 request = IPWhois(ip)
                 result = request.lookup_rdap(depth=1)
-                cidr = result['asn_cidr']
-                country = result['asn_country_code']
+                cidr = result["asn_cidr"]
+                country = result["asn_country_code"]
                 self.set_cache(ip, cidr, country)
             except Exception:
-                cidr = ''
-                country = ''
+                cidr = ""
+                country = ""
         else:
             cidr = cached_info[0][0]
             country = cached_info[0][1]
 
-        return {
-            'cidr': cidr,
-            'country_code': country
-        }
+        return {"cidr": cidr, "country_code": country}
 
     def query_IPQualityScore(self, ip):
         """
         Queries the IPQualityScore API to check if an IP is a proxy
         """
-        url = 'https://www.ipqualityscore.com/api/json/ip/%s/%s'
+        url = "https://www.ipqualityscore.com/api/json/ip/%s/%s"
         request = requests.get(url % (self.IPQSkey, ip))
         result = request.json()
-        if 'proxy' in result.keys():
-            return 1 if result['proxy'] is True else 0
+        if "proxy" in result.keys():
+            return 1 if result["proxy"] is True else 0
         else:
             return False
 
@@ -125,11 +122,11 @@ WHERE
         """
         Queries the proxycheck.io API to check if an IP is a proxy
         """
-        url = 'http://proxycheck.io/v2/%s?key=%s&vpn=1'
+        url = "http://proxycheck.io/v2/%s?key=%s&vpn=1"
         request = requests.get(url % (ip, self.PCkey))
         result = request.json()
-        if ip in result.keys() and 'proxy' in result[ip]:
-            return 1 if result[ip]['proxy'] == 'yes' else 0
+        if ip in result.keys() and "proxy" in result[ip]:
+            return 1 if result[ip]["proxy"] == "yes" else 0
         else:
             return False
 
@@ -137,12 +134,14 @@ WHERE
         """
         Queries the GetIPIntel API to check if an IP is a proxy
         """
-        url = 'http://check.getipintel.net/check.php' + \
-              '?ip=%s&contact=%s&format=json&flags=m'
+        url = (
+            "http://check.getipintel.net/check.php"
+            + "?ip=%s&contact=%s&format=json&flags=m"
+        )
         request = requests.get(url % (ip, self.GIIemail))
         result = request.json()
-        if 'result' in result.keys():
-            return 1 if result['result'] == '1' else 0
+        if "result" in result.keys():
+            return 1 if result["result"] == "1" else 0
         else:
             return False
 
@@ -150,19 +149,19 @@ WHERE
         """
         Queries the teoh.io API to check if an IP is a proxy
         """
-        url = 'https://ip.teoh.io/api/vpn/%s'
+        url = "https://ip.teoh.io/api/vpn/%s"
         request = requests.get(url % ip)
         """
         Sadly, teoh.io sometimes generates PHP notices before the JSON output.
         Therefore, we will have to find the actual JSON output and parse it.
         """
         result = request.text
-        if result[0] != '{':
-            result = result[result.find('{'):]
+        if result[0] != "{":
+            result = result[result.find("{") :]
         result = json.loads(result)
 
-        if 'vpn_or_proxy' in result.keys():
-            return 1 if result['vpn_or_proxy'] == 'yes' else 0
+        if "vpn_or_proxy" in result.keys():
+            return 1 if result["vpn_or_proxy"] == "yes" else 0
         else:
             return False
 
@@ -170,32 +169,34 @@ WHERE
         return [
             self.query_IPQualityScore(ip),
             self.query_proxycheck(ip),
-            self.query_GetIPIntel(ip)
+            self.query_GetIPIntel(ip),
         ]
 
     def format_result(self, res):
         if res == 1:
-            return '{{yes}}'
+            return "{{yes}}"
         elif res == 0:
-            return '{{no}}'
+            return "{{no}}"
         else:
-            return '{{yes-no|}}'
+            return "{{yes-no|}}"
 
     def find_proxies(self):
         out = '{| class="wikitable sortable"\n'
-        out += '! آی‌پی !! بازه !! کد کشور !! ' +\
-               'IPQualityScore !! proxycheck !! GetIPIntel !! ' +\
-               'بسته شد'
+        out += (
+            "! آی‌پی !! بازه !! کد کشور !! "
+            + "IPQualityScore !! proxycheck !! GetIPIntel !! "
+            + "بسته شد"
+        )
 
         iplist = self.get_ip_list()
-        rowtemplate = '\n|-\n| %s || %s || %s || %s || %s || %s || %s'
+        rowtemplate = "\n|-\n| %s || %s || %s || %s || %s || %s || %s"
 
         for ipdata in iplist:
-            ip = ipdata[0].decode('ASCII')
+            ip = ipdata[0].decode("ASCII")
             print(ip)
-            pywikibot.output('Checking %s' % ip)
+            pywikibot.output("Checking %s" % ip)
             ipinfo = self.get_ip_info(ip)
-            if ipinfo['country_code'] == 'IR':
+            if ipinfo["country_code"] == "IR":
                 """
                 IPs from Iran are almost never proxies, skip the checks
                 """
@@ -204,32 +205,37 @@ WHERE
                 IPQS, PC, GII = self.run_queries(ip)
                 if IPQS + PC + GII == 3:
                     target = pywikibot.User(self.site, ip)
-                    pywikibot.output('Blocking %s' % ip)
+                    pywikibot.output("Blocking %s" % ip)
                     self.site.blockuser(
-                        target, '1 year', self.blocksummary,
-                        anononly=False, reblock=True, allowusertalk=True)
+                        target,
+                        "1 year",
+                        self.blocksummary,
+                        anononly=False,
+                        reblock=True,
+                        allowusertalk=True,
+                    )
                     blocked = 1
                 else:
                     blocked = 0
                 row = rowtemplate % (
                     ip,
-                    ipinfo['cidr'],
-                    ipinfo['country_code'],
+                    ipinfo["cidr"],
+                    ipinfo["country_code"],
                     self.format_result(IPQS),
                     self.format_result(PC),
                     self.format_result(GII),
-                    self.format_result(blocked)
+                    self.format_result(blocked),
                 )
                 out += row
 
-        out += '\n|}'
+        out += "\n|}"
 
         page = pywikibot.Page(self.site, self.target)
         page.text = out
         page.save(self.summary)
 
-        page = pywikibot.Page(self.site, self.target + '/امضا')
-        page.text = '~~~~~'
+        page = pywikibot.Page(self.site, self.target + "/امضا")
+        page.text = "~~~~~"
         page.save(self.summary)
 
 

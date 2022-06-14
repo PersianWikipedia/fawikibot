@@ -15,37 +15,37 @@ import pywikibot
 import re
 
 
-class ANBcounter():
+class ANBcounter:
     def __init__(self):
         self.site = pywikibot.Site()
-        self.summary = 'روزآمدسازی آمار'
-        self.last_updated = 'ویکی‌پدیا:تابلوی اعلانات مدیران/آخرین شمارش'
+        self.summary = "روزآمدسازی آمار"
+        self.last_updated = "ویکی‌پدیا:تابلوی اعلانات مدیران/آخرین شمارش"
         self.level2pages = [
-            'ویکی‌پدیا:تابلوی اعلانات مدیران/نام‌های کاربری نامناسب',
-            'ویکی‌پدیا:تابلوی اعلانات مدیران/نقض ۳ برگردان',
-            'ویکی‌پدیا:درخواست انتقال',
-            'ویکی‌پدیا:درخواست ادغام تاریخچه',
-            'ویکی‌پدیا:درخواست برای دسترسی/گشت‌زن',
-            'ویکی‌پدیا:درخواست برای دسترسی/گشت خودکار',
-            'ویکی‌پدیا:درخواست برای دسترسی/واگردان',
-            'ویکی‌پدیا:درخواست برای دسترسی/انتقال‌دهنده پیشرفته',
-            'ویکی‌پدیا:درخواست احیا',
-            'ویکی‌پدیا:تابلوی اعلانات مدیران',
-            'ویکی‌پدیا:تابلوی اعلانات دیوان‌سالاران'
+            "ویکی‌پدیا:تابلوی اعلانات مدیران/نام‌های کاربری نامناسب",
+            "ویکی‌پدیا:تابلوی اعلانات مدیران/نقض ۳ برگردان",
+            "ویکی‌پدیا:درخواست انتقال",
+            "ویکی‌پدیا:درخواست ادغام تاریخچه",
+            "ویکی‌پدیا:درخواست برای دسترسی/گشت‌زن",
+            "ویکی‌پدیا:درخواست برای دسترسی/گشت خودکار",
+            "ویکی‌پدیا:درخواست برای دسترسی/واگردان",
+            "ویکی‌پدیا:درخواست برای دسترسی/انتقال‌دهنده پیشرفته",
+            "ویکی‌پدیا:درخواست احیا",
+            "ویکی‌پدیا:تابلوی اعلانات مدیران",
+            "ویکی‌پدیا:تابلوی اعلانات دیوان‌سالاران",
         ]
         self.level3pages = [
-            'ویکی‌پدیا:درخواست برای دسترسی/معافیت از قطع دسترسی ' +
-            'نشانی اینترنتی',
-            'ویکی‌پدیا:درخواست برای دسترسی/ویرایشگر خودکار',
-            'ویکی‌پدیا:درخواست برای دسترسی/ویرایشگر الگو'
+            "ویکی‌پدیا:درخواست برای دسترسی/معافیت از قطع دسترسی "
+            + "نشانی اینترنتی",
+            "ویکی‌پدیا:درخواست برای دسترسی/ویرایشگر خودکار",
+            "ویکی‌پدیا:درخواست برای دسترسی/ویرایشگر الگو",
         ]
-        self.protection_requests = 'ویکی‌پدیا:درخواست محافظت صفحه'
+        self.protection_requests = "ویکی‌پدیا:درخواست محافظت صفحه"
 
     def get_sections(self, text, level=2):
         if level == 3:
-            pat = '\n===[^=]+===\n'
+            pat = "\n===[^=]+===\n"
         else:
-            pat = '\n==[^=]+==\n'
+            pat = "\n==[^=]+==\n"
 
         sections = re.split(pat, text)
         sections = sections[1:]
@@ -54,15 +54,15 @@ class ANBcounter():
     def count_open(self, sections):
         count = 0
         for s in sections:
-            if not re.match(r'\{\{بسته', s.strip()):
+            if not re.match(r"\{\{بسته", s.strip()):
                 count += 1
 
         return count
 
-    def update_count(self, title, count, suffix=''):
-        stat_title = title + '/شمار' + suffix
+    def update_count(self, title, count, suffix=""):
+        stat_title = title + "/شمار" + suffix
         stat_page = pywikibot.Page(self.site, stat_title)
-        stat_page.text = '{{subst:formatnum:' + str(count) + '}}'
+        stat_page.text = "{{subst:formatnum:" + str(count) + "}}"
         stat_page.save(summary=self.summary)
 
     def run_each(self):
@@ -88,14 +88,14 @@ class ANBcounter():
         # unprotection requests
         sections = self.get_sections(parent[1], 3)
         count = self.count_open(sections)
-        self.update_count(self.protection_requests, count, '/۲')
+        self.update_count(self.protection_requests, count, "/۲")
 
     def run(self):
         self.run_each()
         self.run_protection_requests()
 
         page = pywikibot.Page(self.site, self.last_updated)
-        page.text = '~~~~~'
+        page.text = "~~~~~"
         page.save(summary=self.summary)
 
 
