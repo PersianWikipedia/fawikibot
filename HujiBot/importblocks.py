@@ -15,7 +15,7 @@ from __future__ import absolute_import
 #
 
 import pywikibot
-import MySQLdb as mysqldb
+import toolforge
 from ipwhois import IPWhois
 import re
 from cidr_trie import PatriciaTrie
@@ -35,11 +35,7 @@ class ImportBlockBot():
         """
         Gathers a list of IPs with a long-term block that is about to expire.
         """
-        conn = mysqldb.connect(
-            host='enwiki.web.db.svc.wikimedia.cloud',
-            db='enwiki_p',
-            read_default_file='~/replica.my.cnf'
-        )
+        conn = toolforge.connect("enwiki")
         cursor = conn.cursor()
         query = """
 SELECT

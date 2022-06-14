@@ -15,7 +15,7 @@ from __future__ import absolute_import
 #
 
 import pywikibot
-import MySQLdb as mysqldb
+import toolforge
 from ipwhois import IPWhois
 import config
 import json
@@ -41,11 +41,7 @@ class FindProxyBot():
         """
         Gathers a list of IPs with a long-term block that is about to expire.
         """
-        conn = mysqldb.connect(
-            host='fawiki.web.db.svc.wikimedia.cloud',
-            db='fawiki_p',
-            read_default_file='~/replica.my.cnf'
-        )
+        conn = toolforge.connect("fawiki")
         cursor = conn.cursor()
         query = """
 SELECT

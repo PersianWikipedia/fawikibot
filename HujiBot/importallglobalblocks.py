@@ -24,7 +24,7 @@ from __future__ import absolute_import
 
 import pywikibot
 from pywikibot.exceptions import APIError
-import MySQLdb as mysqldb
+import toolforge
 
 
 class ImportBlockBot():
@@ -39,11 +39,7 @@ class ImportBlockBot():
         """
         Gathers a list of IPs with a long-term block that is about to expire.
         """
-        conn = mysqldb.connect(
-            host='metawiki.web.db.svc.wikimedia.cloud',
-            db='metawiki_p',
-            read_default_file='~/replica.my.cnf'
-        )
+        conn = toolforge.connect("metawiki")
         cursor = conn.cursor()
         query = """
 SELECT

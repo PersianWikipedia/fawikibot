@@ -12,7 +12,7 @@ from __future__ import absolute_import, unicode_literals
 #
 
 import pywikibot
-import MySQLdb as mysqldb
+import toolforge
 from pywikibot import pagegenerators
 
 from pywikibot.bot import (
@@ -72,9 +72,7 @@ def main(*args):
         bot.run()
         return True
     else:
-        conn = mysqldb.connect("fawiki.web.db.svc.wikimedia.cloud",
-                               db="fawiki_p",
-                               read_default_file="~/replica.my.cnf")
+        conn = toolforge.connect("fawiki")
         cursor = conn.cursor()
         sql = """
 SELECT DISTINCT

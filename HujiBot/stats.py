@@ -45,7 +45,7 @@ top of the page to allow reproducibility of the results by others.
 
 import pywikibot
 from pywikibot import exceptions
-import MySQLdb as mysqldb
+import toolforge
 import time
 
 page_namespace = {
@@ -138,12 +138,7 @@ class StatsBot:
         for col in self.cols:
             text += u'!' + col + u'\n'
         query_start = time.time()
-        conn = mysqldb.connect(
-            host="fawiki.web.db.svc.wikimedia.cloud",
-            db="fawiki_p",
-            read_default_file="~/replica.my.cnf",
-            charset="utf8"
-        )
+        conn = toolforge.connect("fawiki", charset="utf8")
         cursor = conn.cursor()
         max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
         cursor.execute(max_time)

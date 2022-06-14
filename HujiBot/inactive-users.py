@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 #
 
 import pywikibot
-import MySQLdb as mysqldb
+import toolforge
 
 
 class InactiveUsersBot:
@@ -47,9 +47,7 @@ class InactiveUsersBot:
         for col in self.cols:
             text += u'!' + col + u'\n'
 
-        conn = mysqldb.connect("fawiki.web.db.svc.wikimedia.cloud",
-                               db="fawiki_p",
-                               read_default_file="~/replica.my.cnf")
+        conn = toolforge.connect("fawiki")
         cursor = conn.cursor()
         self.sql = self.sql.encode(site.encoding())
         cursor.execute(self.sql)

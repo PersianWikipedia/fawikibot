@@ -15,7 +15,7 @@ from __future__ import absolute_import
 
 import pywikibot
 import re
-import MySQLdb as mysqldb
+import toolforge
 from ipwhois import IPWhois
 from cidr_trie import PatriciaTrie
 
@@ -91,11 +91,7 @@ ORDER BY ipb_range_start
         }
 
     def get_ip_list(self, max_number, max_hours):
-        conn = mysqldb.connect(
-            host="fawiki.web.db.svc.wikimedia.cloud",
-            db="fawiki_p",
-            read_default_file="~/replica.my.cnf"
-        )
+        conn = toolforge.connect("fawiki")
         cursor = conn.cursor()
         cursor.execute(self.sql)
         results = cursor.fetchall()
