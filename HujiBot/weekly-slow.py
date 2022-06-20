@@ -116,7 +116,8 @@ LIMIT 500
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}"
             + "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] || {{formatnum:%s}}",
+            "frmt": "| {{formatnum:%d|NOSEP}} || [[کاربر:%s]] "
+            + "|| {{formatnum:%s}}",
             "sign": True,
         },
         {
