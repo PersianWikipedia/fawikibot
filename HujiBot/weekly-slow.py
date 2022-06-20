@@ -1033,7 +1033,7 @@ FROM
         rev_page,
         COUNT(ll_lang) AS iwlinks
       FROM revision_userindex
-      JOIN actor
+      JOIN actor_revision
         ON rev_actor = actor_id
       JOIN page
         ON rev_page = page_id
@@ -1062,7 +1062,7 @@ FROM
         rev_page,
         COUNT(ll_lang) AS iwlinks
       FROM revision_userindex
-      JOIN actor
+      JOIN actor_revision
         ON rev_actor = actor_id
       JOIN page
         ON rev_page = page_id
