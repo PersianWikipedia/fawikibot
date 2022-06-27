@@ -262,17 +262,17 @@ def main(*args):
     maxtime = None
     for arg in local_args:
         if arg.startswith("-sql:"):
-            sql = arg[len("-sql:"):]
+            sql = arg[len("-sql:") :]  # noqa E203
         elif arg.startswith("-out:"):
-            out = arg[len("-out:"):]
+            out = arg[len("-out:") :]  # noqa E203
         elif arg.startswith("-cols:"):
-            cols = arg[len("-cols:"):].split(",")
+            cols = arg[len("-cols:") :].split(",")  # noqa E203
         elif arg.startswith("-summary:"):
-            summary = arg[len("-summary:"):]
+            summary = arg[len("-summary:") :]  # noqa E203
         elif arg.startswith("-pref:"):
-            pref = arg[len("-pref:"):] + "\n\n" + pref
+            pref = arg[len("-pref:") :] + "\n\n" + pref  # noqa E203
         elif arg.startswith("-frmt:"):
-            frmt = arg[len("-frmt:"):]
+            frmt = arg[len("-frmt:") :]  # noqa E203
         elif arg.startswith("-sign:"):
             sign = False
         elif arg.startswith("-maxtime:"):

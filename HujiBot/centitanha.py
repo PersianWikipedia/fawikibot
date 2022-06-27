@@ -33,6 +33,9 @@ class CentiTanhaBot:
 
     def process_users(self):
         user_list = self._active_users()
+        user_list.append(
+            "User:Mardetanha"
+        ) if "User:Mardetanha" not in user_list else user_list
         if len(user_list) > 0:
             data = self._watchers(user_list)
             data = sorted(

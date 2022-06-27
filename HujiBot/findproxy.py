@@ -158,7 +158,7 @@ class FindProxyBot:
         """
         result = request.text
         if result[0] != "{":
-            result = result[result.find("{"):]
+            result = result[result.find("{") :]  # noqa E203
         result = json.loads(result)
 
         if "vpn_or_proxy" in result.keys():
