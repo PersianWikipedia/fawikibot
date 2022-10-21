@@ -869,7 +869,9 @@ LEFT JOIN categorylinks
   ON page_title = cl_to
 LEFT JOIN templatelinks
   ON tl_from = page_id
-  AND tl_title IN (
+LEFT JOIN linktarget
+  ON tl_target_id = lt_id
+  AND lt_title IN (
     'رده_خالی',
     'رده_بهتر',
     'رده_ابهام‌زدایی',
@@ -883,7 +885,7 @@ WHERE
   page_namespace = 14
   AND page_is_redirect = 0
   AND cl_to IS NULL
-  AND tl_title IS NULL
+  AND tl_target_id IS NULL
 GROUP BY
   page_title,
   rev_timestamp
