@@ -1377,17 +1377,19 @@ WHERE ipb_address LIKE '%/%'
             "sqlnum": 36,
             "sql": """
 SELECT
-  tl_title,
+  lt_title,
   COUNT(*)
 FROM templatelinks
+JOIN linktarget
+  ON tl_target_id = lt_id
 LEFT JOIN page
-  ON page_title = tl_title
+  ON page_title = lt_title
   AND page_namespace = 10
   AND page_is_redirect = 1
 WHERE
-  tl_namespace = 10
+  lt_namespace = 10
   AND page_title IS NULL
-GROUP BY tl_title
+GROUP BY lt_title
 ORDER BY COUNT(*) DESC
 LIMIT 1000
 """,
@@ -1404,22 +1406,24 @@ LIMIT 1000
             "sqlnum": 37,
             "sql": """
 SELECT
-  tl_title,
+  lt_title,
   COUNT(*)
 FROM page
+JOIN linktarget
+  ON page_namespace = lt_namespace
+  AND page_title = lt_title
 JOIN templatelinks
-  ON page_title = tl_title
-  AND page_namespace = tl_namespace
+  ON tl_target_id = lt_id
 LEFT JOIN page_restrictions
   ON pr_page = page_id
   AND pr_level IN ('sysop', 'autoconfirmed')
   AND pr_type = 'edit'
 WHERE
-  tl_namespace = 10
+  page_namespace = 10
   AND pr_page IS NULL
-GROUP BY tl_title
+GROUP BY lt_title
 HAVING COUNT(*) > 500
-ORDER BY COUNT(*) DESC
+ORDER BY COUNT(*) DESC;
 """,
             "out": "وپ:گزارش_دیتابیس/الگوهای پرکاربرد بدون محافظت",
             "cols": ["ردیف", "الگو", "تعداد تراگنجایش"],
@@ -2047,12 +2051,14 @@ ORDER BY
 SELECT
   CONCAT(':{{ns:', page_namespace, '}}:', page_title)
 FROM templatelinks
+JOIN linktarget
+  ON tl_target_id = lt_id
 JOIN page
   ON page_id = tl_from
 LEFT JOIN categorylinks
   ON cl_to = page_title
 WHERE
-  tl_title = 'رده_خالی'
+  lt_title = 'رده_خالی'
   AND cl_to is null
   AND page_title NOT LIKE 'بازبینی_گمر%'
   AND page_title NOT LIKE 'درگذشتگان%'
