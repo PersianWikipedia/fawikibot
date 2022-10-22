@@ -820,26 +820,28 @@ LIMIT 1000
             "sqlnum": 13,
             "sql": """
 SELECT
-  CONCAT('الگو:', tl_title),
+  CONCAT('الگو:', lt_title),
   COUNT(*),
   GROUP_CONCAT(
     CONCAT ('[[',p2.page_namespace,':',p2.page_title,']]')
     SEPARATOR "، "
   )
 FROM templatelinks
+JOIN linktarget
+  ON tl_target_id = lt_id
 JOIN logging
-  ON tl_namespace = log_namespace
-  AND tl_title = log_title
+  ON lt_namespace = log_namespace
+  AND lt_title = log_title
   AND log_type = "delete"
 JOIN page AS p2
   ON tl_from = p2.page_id
 LEFT JOIN page AS p1
-  ON p1.page_namespace = tl_namespace
-  AND p1.page_title = tl_title
+  ON p1.page_namespace = lt_namespace
+  AND p1.page_title = lt_title
 WHERE
   p1.page_id IS NULL
-  AND tl_namespace = 10
-GROUP BY tl_title
+  AND lt_namespace = 10
+GROUP BY lt_title
 ORDER BY COUNT(*) DESC
 LIMIT 1000
 """,
@@ -1125,15 +1127,17 @@ LEFT JOIN pagelinks
   ON pl_title = page_title
   AND pl_namespace = 4
   AND pl_from <> 1171408 /* The report itself */
+LEFT JOIN linktarget
+  ON lt_title = page_title
+  AND lt_namespace = 4
 LEFT JOIN templatelinks
-  ON tl_title = page_title
-  AND tl_namespace = 4
+  ON tl_target_id = lt_id
 WHERE
   page_namespace = 4
   AND page_is_redirect = 0
   AND page_title NOT LIKE "اشتباه‌یاب/موارد_درست/%"
   AND pl_title IS NULL
-  AND tl_title IS NULL
+  AND lt_title IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده",
             "cols": ["ردیف", "صفحه"],
