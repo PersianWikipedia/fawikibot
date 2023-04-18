@@ -1625,7 +1625,12 @@ WHERE
             "sqlnum": 44,
             "sql": """
 SELECT
-  page_namespace,
+  CONCAT(
+    CASE WHEN page_namespace = 14 THEN ':' ELSE '' END,
+    '{{ns:',
+    page_namespace,
+    '}}'
+  ) AS ns_prefix,
   page_title,
   pr_type,
   CASE
@@ -1642,7 +1647,7 @@ JOIN page
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}"
             + "\n\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d}} || [[{{ns:%s}}:%s]] || %s "
+            "frmt": "| {{formatnum:%d}} || [[%s:%s]] || %s "
             + "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}}",
             "sign": True,
         },
