@@ -2238,6 +2238,34 @@ AND cl_from IN (
             + "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]]",
             "sign": True,
+        },,
+        {
+            "sqlnum": 62,
+            "sql": """
+SELECT
+  p2.page_title,
+  p1.page_title
+FROM page p1
+JOIN imagelinks
+  ON il_to = p1.page_title
+  AND p1.page_namespace = 6
+JOIN page p2
+  ON il_from = p2.page_id
+  AND p2.page_namespace = 0
+JOIN categorylinks cl1
+  ON cl1.cl_from = il_from
+  AND cl_to = 'افراد_زنده'
+JOIN categorylinks cl2
+  ON cl2.cl_from = p1.page_id
+  AND cl2.cl_to = 'محتویات_غیر_آزاد'
+""",
+            "out": "ویکی‌پدیا:گزارش دیتابیس/پرونده‌های ناآزاد در مقالهٔ افراد زنده",
+            "cols": ["ردیف", "مقاله", "پرونده"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}"
+            + "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[%s]] || [[:پرونده:%s]]",
+            "sign": True,
         },
     ]
 
