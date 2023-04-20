@@ -2238,7 +2238,7 @@ AND cl_from IN (
             + "\n\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[:پرونده:%s]]",
             "sign": True,
-        },,
+        },
         {
             "sqlnum": 62,
             "sql": """
@@ -2258,6 +2258,7 @@ JOIN categorylinks cl1
 JOIN categorylinks cl2
   ON cl2.cl_from = p1.page_id
   AND cl2.cl_to = 'محتویات_غیر_آزاد'
+ORDER BY p2.page_touched DESC
 """,
             "out": "ویکی‌پدیا:گزارش دیتابیس/پرونده‌های ناآزاد در مقالهٔ افراد زنده",
             "cols": ["ردیف", "مقاله", "پرونده"],
