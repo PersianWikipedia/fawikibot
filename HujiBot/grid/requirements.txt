@@ -5,6 +5,7 @@ dnspython==2.0.0
 idna==3.3
 ipwhois==1.2.0
 mwclient==0.10.1
+mwparserfromhell>=0.5.2
 oauthlib==3.2.1
 persiantools==3.0.1
 Pillow==9.1.1
@@ -17,4 +18,3 @@ six==1.16.0
 toolforge==5.0.0
 urllib3==1.26.9
 wcwidth==0.2.5
-wikitextparser==0.49.2
