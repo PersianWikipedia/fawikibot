@@ -85,7 +85,7 @@ LEFT JOIN user_groups
   AND ug_group = 'bot'
 WHERE
   rev_timestamp >= DATE_FORMAT(
-    DATE_SUB(NOW(), INTERVAL 30 DAY),
+    DATE_SUB(NOW(), INTERVAL 1 YEAR),
     '%Y%m%d000000'
   )
   AND actor_user <> 0
