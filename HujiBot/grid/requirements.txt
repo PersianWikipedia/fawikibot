@@ -1,4 +1,4 @@
-certifi==2022.5.18.1
+certifi==2022.12.7
 charset-normalizer==2.0.12
 cidr-trie==3.1.2
 dnspython==2.0.0
