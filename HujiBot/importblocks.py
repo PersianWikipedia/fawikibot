@@ -138,14 +138,17 @@ WHERE
                     blocked = 2
                 else:
                     pywikibot.output("Blocking %s" % ip)
-                    self.site.blockuser(
-                        target,
-                        "1 year",
-                        self.blocksummary,
-                        anononly=False,
-                        allowusertalk=True,
-                    )
-                    blocked = 1
+                    try:
+                        self.site.blockuser(
+                            target,
+                            "1 year",
+                            self.blocksummary,
+                            anononly=False,
+                            allowusertalk=True,
+                        )
+                        blocked = 1
+                    except pywikibot.exceptions.APIError:
+                        blocked = 2
                 row = rowtemplate % (
                     ip,
                     ipinfo["cidr"],
