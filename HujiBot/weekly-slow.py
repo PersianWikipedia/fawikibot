@@ -332,7 +332,7 @@ JOIN (
   ON r.rev_id = f.rev_first
 JOIN page
   ON page_id = r.rev_page
-JOIN actor
+JOIN actor_revision
   ON rev_actor = actor_id
 LEFT JOIN user_groups
   on actor_user = ug_user
