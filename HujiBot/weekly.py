@@ -379,19 +379,23 @@ WHERE
             "sql": """
 SELECT
   page_title,
-  pl_title,
+  lt_title,
   CASE
     WHEN c2.cl_to IS NULL THEN NULL
     ELSE '{{yes}}'
   END AS under_construction
-FROM page JOIN pagelinks
+FROM page
+JOIN pagelinks
   ON page_id = pl_from
+JOIN linktarget 
+  ON pl_target_id = lt_id
 LEFT JOIN categorylinks c2
   ON page_id = c2.cl_from
   AND c2.cl_to = 'صفحه‌های_گسترده_در_دست_ساخت'
 WHERE
   page_namespace = 0
-  AND pl_namespace IN (2, 3)
+  AND pl_from_namespace = 0
+  AND lt_namespace IN (2, 3)
   AND NOT EXISTS (
     SELECT c1.cl_to
     FROM categorylinks c1
