@@ -387,7 +387,7 @@ SELECT
 FROM page
 JOIN pagelinks
   ON page_id = pl_from
-JOIN linktarget 
+JOIN linktarget
   ON pl_target_id = lt_id
 LEFT JOIN categorylinks c2
   ON page_id = c2.cl_from
@@ -1667,7 +1667,7 @@ FROM page p1
 JOIN categorylinks
   ON p1.page_id = cl_from
   AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
-JOIN linktarget 
+JOIN linktarget
   ON lt_title = page_title
   AND lt_namespace = 0
 JOIN pagelinks
@@ -1699,9 +1699,9 @@ FROM page
 JOIN categorylinks
   ON page_id = cl_from
   AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
-JOIN linktarget 
+JOIN linktarget
   ON lt_title = page_title
-JOIN pagelinks 
+JOIN pagelinks
   ON pl_target_id = lt_id
 JOIN (
   SELECT *
