@@ -789,22 +789,24 @@ LIMIT 1000
             "sqlnum": 12,
             "sql": """
 SELECT
-  pl_title,
+  lt_title,
   COUNT(*)
-FROM pagelinks
+FROM linktarget
+JOIN pagelinks
+  ON lt_id = pl_target_id
 LEFT JOIN page AS p1
-  ON p1.page_namespace = pl_namespace
-  AND p1.page_title = pl_title
+  ON p1.page_namespace = lt_namespace
+  AND p1.page_title = lt_title
 JOIN logging_userindex
-  ON pl_namespace = log_namespace
-  AND pl_title = log_title
+  ON lt_namespace = log_namespace
+  AND lt_title = log_title
   AND log_type = 'delete'
 JOIN page AS p2
   ON pl_from = p2.page_id
 WHERE
   p1.page_id IS NULL
-  AND pl_namespace = 0
-GROUP BY pl_title
+  AND lt_namespace = 0
+GROUP BY lt_title
 ORDER BY 2 DESC
 LIMIT 1000
 """,
@@ -1123,20 +1125,18 @@ JOIN (
   HAVING cnt = 1
 ) singleauth
   ON page_id = rev_page
-LEFT JOIN pagelinks
-  ON pl_title = page_title
-  AND pl_namespace = 4
-  AND pl_from <> 1171408 /* The report itself */
 LEFT JOIN linktarget
   ON lt_title = page_title
   AND lt_namespace = 4
+LEFT JOIN pagelinks
+  ON pl_target_id = lt_id
+  AND pl_from <> 1171408 /* The report itself */
 LEFT JOIN templatelinks
   ON tl_target_id = lt_id
 WHERE
   page_namespace = 4
   AND page_is_redirect = 0
   AND page_title NOT LIKE "اشتباه‌یاب/موارد_درست/%"
-  AND pl_title IS NULL
   AND lt_title IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/صفحه‌های پروژه یتیم تک‌نویسنده",
