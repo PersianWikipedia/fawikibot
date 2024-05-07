@@ -1451,9 +1451,11 @@ SELECT
   (
     SELECT COUNT(*)
     FROM pagelinks
+    JOIN linktarget
+      ON pl_target_id = lt_id
     WHERE
-      pl_namespace = 6
-      AND pl_title = page_title
+      lt_namespace = 6
+      AND lt_title = page_title
   ) AS links
 FROM page
 WHERE
@@ -1665,14 +1667,16 @@ FROM page p1
 JOIN categorylinks
   ON p1.page_id = cl_from
   AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
+JOIN linktarget 
+  ON lt_title = page_title
+  AND lt_namespace = 0
 JOIN pagelinks
-  ON pl_title = page_title
-  AND pl_namespace = 0
+  ON pl_target_id = lt_id
 JOIN page p2
   ON pl_from = p2.page_id
   AND p2.page_namespace = 0
 WHERE p1.page_namespace = 0
-GROUP BY pl_title
+GROUP BY lt_title
 ORDER BY cnt DESC
 LIMIT 1000
 """,
@@ -1695,8 +1699,10 @@ FROM page
 JOIN categorylinks
   ON page_id = cl_from
   AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
-JOIN pagelinks
-  ON pl_title = page_title
+JOIN linktarget 
+  ON lt_title = page_title
+JOIN pagelinks 
+  ON pl_target_id = lt_id
 JOIN (
   SELECT *
   FROM page
@@ -1706,7 +1712,7 @@ JOIN (
 ) AS tem
   ON tem.page_id=pl_from
 WHERE
-  pl_namespace = 0
+  lt_namespace = 0
   AND pl_from_namespace=10
   AND NOT tem.page_title LIKE '%_/_%'
   AND page.page_namespace = 0
