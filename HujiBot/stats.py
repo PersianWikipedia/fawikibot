@@ -32,6 +32,7 @@ List of parameters
             python handles string formatting (i.e. %s will be replaced with a
             given string and so on).
   -maxtime  Maximum execution time of SQL queries (in minutes). Default is 30.
+  -dbname   Name of the database to run SQL queries on. Default is fawiki
 
 This bot always stores the SQL query in an HTML comment (<!-- ... -->) at the
 top of the page to allow reproducibility of the results by others.
@@ -117,6 +118,7 @@ class StatsBot:
         sqlnum=None,
         sign=True,
         maxtime=None,
+        dbname='fawiki'
     ):
         if not (sql and out and cols and summary):
             raise ValueError("You must define sql, out, cols, and summary")
@@ -129,6 +131,7 @@ class StatsBot:
         self.sign = sign
         self.sqlnum = sqlnum
         self.maxtime = 30 if maxtime is None else maxtime
+        self.dbname = dbname
 
     def run(self):
         print("Stats bot started ...")
@@ -148,7 +151,7 @@ class StatsBot:
         for col in self.cols:
             text += "!" + col + "\n"
         query_start = time.time()
-        conn = toolforge.connect("fawiki", charset="utf8")
+        conn = toolforge.connect(self.dbname, charset="utf8")
         cursor = conn.cursor()
         max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
         cursor.execute(max_time)
