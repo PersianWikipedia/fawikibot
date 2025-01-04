@@ -1201,13 +1201,13 @@ LIMIT 500
 
 
 if __name__ == "__main__":
+    maxtime = 60
+
     if len(sys.argv) > 1:
         sqlnum = int(sys.argv[1])
         if len(sys.argv) > 2:
             maxtime = int(sys.argv[2])
-        else:
-            maxtime = None
     else:
         sqlnum = 0
-        maxtime = None
+
     main(sqlnum, maxtime)

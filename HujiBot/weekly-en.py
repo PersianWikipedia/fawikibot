@@ -60,7 +60,7 @@ LIMIT 100
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}"
             + "\nآخرین به روز رسانی: ~~~~~",
             "frmt": "| {{formatnum:%d}} || [[:en:%s]] || {{formatnum:%s}}"
-            + " |dir=ltr| %s",
+            + "\n|dir=ltr| %s",
             "sign": True,
         },
     ]
@@ -85,13 +85,13 @@ LIMIT 100
 
 
 if __name__ == "__main__":
+    maxtime = 60
+
     if len(sys.argv) > 1:
         sqlnum = int(sys.argv[1])
         if len(sys.argv) > 2:
             maxtime = int(sys.argv[2])
-        else:
-            maxtime = None
     else:
         sqlnum = 0
-        maxtime = None
+
     main(sqlnum, maxtime)
