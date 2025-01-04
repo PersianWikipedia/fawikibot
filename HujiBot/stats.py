@@ -159,8 +159,14 @@ class StatsBot:
         cursor.execute(max_len)
         try:
             cursor.execute(self.sql)
-        except Exception:
-            print("Query took too long therefore StatBot was stopped!")
+        except Exception as ex:
+            bot_end = time.time()
+            pywikibot.output(
+                "Start time: %s" % time.asctime(time.gmtime(bot_end))
+            )
+            pywikibot.output("Maxtime was set to %d" % self.maxtime)
+            print("Query error or taking took too long. StatBot was stopped!")
+            print(ex)
             return
         results = cursor.fetchall()
         query_end = time.time()
