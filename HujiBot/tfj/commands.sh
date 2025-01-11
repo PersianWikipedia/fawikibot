@@ -9,4 +9,5 @@ tfj run "inactive-users" --command ~/tfj/jobs/inactive-users.sh -e ~/tfj/logs/in
 tfj run "monthly" --command ~/tfj/jobs/monthly.sh -e ~/tfj/logs/monthly.log -o ~/tfj/logs/monthly.log --image tf-python37 --schedule "@monthly"
 tfj run "nightly" --command ~/tfj/jobs/nightly.sh -e ~/tfj/logs/nightly.log -o ~/tfj/logs/nightly.log --image tf-python37 --schedule "@daily"
 tfj run "weekly" --command ~/tfj/jobs/weekly.sh -e ~/tfj/logs/weekly.log -o ~/tfj/logs/weekly.log --image tf-python37 --schedule "0 11 * * 5"
+tfj run "weekly-en" --command ~/tfj/jobs/weekly-en.sh -e ~/tfj/logs/weekly-en.log -o ~/tfj/logs/weekly-en.log --image tf-python37 --schedule "0 11 * * 5"
 tfj run "weekly-slow" --command ~/tfj/jobs/weekly-slow.sh -e ~/tfj/logs/weekly-slow.log -o ~/tfj/logs/weekly-slow.log --image tf-python37 --schedule "30 10 * * 5"
