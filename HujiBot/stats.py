@@ -134,6 +134,7 @@ class StatsBot:
         self.dbname = dbname
 
     def run(self):
+        print("--------------------")
         print("Stats bot started ...")
         print("Process number: %s" % self.sqlnum)
         pywikibot.output("Process number: %s" % self.sqlnum)
@@ -162,7 +163,7 @@ class StatsBot:
         except Exception as ex:
             bot_end = time.time()
             pywikibot.output(
-                "Start time: %s" % time.asctime(time.gmtime(bot_end))
+                "End time: %s" % time.asctime(time.gmtime(bot_end))
             )
             pywikibot.output("Maxtime was set to %d" % self.maxtime)
             print("Query error or taking took too long. StatBot was stopped!")
