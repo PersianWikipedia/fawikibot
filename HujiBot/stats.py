@@ -154,7 +154,7 @@ class StatsBot:
         query_start = time.time()
         conn = toolforge.connect(self.dbname, charset="utf8")
         cursor = conn.cursor()
-        max_time = "SET SESSION MAX_STATEMENT_TIME = 60 * %d;" % (self.maxtime)
+        max_time = "SET SESSION MAX_STATEMENT_TIME = %d;" % (60 * self.maxtime)
         cursor.execute(max_time)
         max_len = "SET SESSION GROUP_CONCAT_MAX_LEN = 15000;"
         cursor.execute(max_len)
