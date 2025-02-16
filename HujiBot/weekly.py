@@ -542,8 +542,8 @@ FROM externallinks
 JOIN page
   ON el_from = page_id
 WHERE
-  LEFT(el_to, 7) = 'mailto:'
-  AND el_to NOT LIKE '%wikimedia.org%'
+  LEFT(el_to_domain_index, 7) = 'mailto:'
+  AND el_to_domain_index NOT LIKE '%wikimedia.org%'
 """,
             "out": "وپ:گزارش دیتابیس/صفحه‌های دارای پیوند به رایانامه",
             "cols": ["ردیف", "صفحه"],
