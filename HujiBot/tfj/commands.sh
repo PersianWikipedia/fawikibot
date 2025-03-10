@@ -6,6 +6,7 @@ tfj run "image-resizer" --command ~/tfj/jobs/image_resizer.sh -e ~/tfj/logs/imag
 tfj run "import-all-blocks" --command ~/tfj/jobs/import-all-blocks.sh -e ~/tfj/logs/import-all-blocks.log -o ~/tfj/logs/import-all-blocks.log --image tf-python37 --schedule "@monthly"
 tfj run "import-blocks" --command ~/tfj/jobs/import-blocks.sh -e ~/tfj/logs/import-blocks.log -o ~/tfj/logs/import-blocks.log --image tf-python37 --schedule "@weekly"
 tfj run "inactive-users" --command ~/tfj/jobs/inactive-users.sh -e ~/tfj/logs/inactive-users.log -o ~/tfj/logs/inactive-users.log --image tf-python37 --schedule "@weekly"
+tfj run "active-users" --command ~/tfj/jobs/active-users.sh -e ~/tfj/logs/active-users.log -o ~/tfj/logs/active-users.log --image tf-python37 --schedule "@weekly"
 tfj run "monthly" --command ~/tfj/jobs/monthly.sh -e ~/tfj/logs/monthly.log -o ~/tfj/logs/monthly.log --image tf-python37 --schedule "@monthly"
 tfj run "nightly" --command ~/tfj/jobs/nightly.sh -e ~/tfj/logs/nightly.log -o ~/tfj/logs/nightly.log --image tf-python37 --schedule "@daily"
 tfj run "weekly" --command ~/tfj/jobs/weekly.sh -e ~/tfj/logs/weekly.log -o ~/tfj/logs/weekly.log --image tf-python37 --schedule "0 11 * * 5"
