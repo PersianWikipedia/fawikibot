@@ -87,7 +87,7 @@ def checkdisambig(htmltxt):
     disambig_list=[]
     dismbigresults=[]
     
-    htmltxt=re.sub(r'<div role="note" class="hatnote navigation-not-searchable">(.*?)</div>','',htmltxt)#حذف ابهام‌زدایی در الگو تغییرمسیر
+    htmltxt=re.sub(ur'<a ?[^>]+? class="mw-disambig" [^>]+?>.*?</a>',u'',htmltxt) # حذف ابهام‌زدایی از طریق الگو (دیگر کاربردها، تغییرمسیر، ...)
     a_list=htmltxt.split('<a ')
     for i in a_list:
         item=i.split('>')[0]
