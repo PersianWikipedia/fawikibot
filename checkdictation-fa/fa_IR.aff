@@ -17,17 +17,17 @@
 ##
 ##
 ## For more information check:
-##  Lilak: https://github.com/m-o-s-t-a-f-a/lilak
-##  File Version 3.0, 2016-12-29
+##  Lilak: https://github.com/b00f/lilak
+##  File Version 3.3, 2019-11-20
 ##
 
 SET UTF-8
 LANG fa_FA
 FLAG long
 
-TRY یاندمر‌هوبتسشلزگکفخپجآقچعحغصذطضژظثئءؤًأُةَِّٔ
+TRY یاندمر‌هوبتسشلزگکفخپجآقچعحغصذطضژئظثءًؤأُةَِّٔ
 KEY ضصثقفغعهخحجچپ|شسیبلاتنمکگ|ظطزرذدئو
-IGNORE ًٌٍَُِّـْ
+#IGNORE ًٌٍَُِّـْ
 
 NOSPLITSUGS
 
@@ -113,10 +113,15 @@ SFX si      N        1
 SFX si      0        ‌هاست/FFWW     .
 
 
-SFX sj      N        2
+SFX sj      N        8
 SFX sj      0        ان/sa          .
 SFX sj      0        انی/FFWW       .
-
+SFX sj      0        انم/FFWW       .
+SFX sj      0        انت/FFWW       .
+SFX sj      0        انش/FFWW       .
+SFX sj      0        انمان/FFWW       .
+SFX sj      0        انتان/FFWW       .
+SFX sj      0        انشان/FFWW       .
 
 SFX sk      N        2
 SFX sk      0        ‌ی/FFWW        .
@@ -172,20 +177,22 @@ SFX sr      0        ند/FFWW        .
 
 
 SFX st      N        2
-SFX st      0        تر/sdsl        .
-SFX st      0        ترین/sg        .
+SFX st      0        تر/sdslso      .
+SFX st      0        ترین/sgso      .
 
 
 ## with zwnj
 SFX su      N        2
-SFX su      0        ‌تر/sdsl       .
-SFX su      0        ‌ترین/sg       .
+SFX su      0        ‌تر/sdslso     .
+SFX su      0        ‌ترین/sgso     .
 
-
+## Ye With Kasre-Ezafe
+SFX sv      N        1
+SFX sv      0        ی             .
 
 REP 9
 REP ي   ی
-REP ئ   ی 
+REP ئ   ی
 REP ك   ک
 REP ة   ه
 REP ة   ت

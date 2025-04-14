@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+﻿#!/usr/bin/python3
 # -*- coding: utf-8  -*-
 #
 # Reza(User:reza1615), 2011
@@ -87,7 +87,7 @@ def checkdisambig(htmltxt):
     disambig_list=[]
     dismbigresults=[]
     
-    htmltxt=re.sub(r'<div role="note" class="hatnote navigation-not-searchable">(.*?)</div>','',htmltxt)#حذف ابهام‌زدایی در الگو تغییرمسیر
+    htmltxt=re.sub(r'<a ?[^>]+? class="mw-disambig" [^>]+?>.*?</a>',u'',htmltxt) # حذف ابهام‌زدایی از طریق الگو (دیگر کاربردها، تغییرمسیر، ...)
     a_list=htmltxt.split('<a ')
     for i in a_list:
         item=i.split('>')[0]
@@ -347,7 +347,7 @@ def clean_text(txt,remove_regex,faTitle):
     txt=re.sub(r'\{\{(?:عربی|شروع عربی|آغاز عربی)\}\}([\s\S]*?)\{\{(?:پایان عربی)\}\}','',txt)
     txt=re.sub(r'\{\{(?:به .+?|به انگلیسی|انگلیسی|عربی|حدیث|به عربی|به اردو|اردو|lang\-[au]r)[\s\S]*?\}\}','',txt)
     txt=re.sub(r'\[\[[^\]]\]\]','',txt)
-    txt=re.sub(r'[  ᠎             　]',' ',txt)
+    txt=re.sub(r'[�  ᠎             　]',' ',txt)
     txt=re.sub(r'\/\/.*?(?=[\s\n\|\}\]<]|$)',' ',txt)#حذف نشانی اینترنتی
     txt=re.sub(r'(\|.*?\=)',' ',txt)
     txt=re.sub(r'\[\[رده\:.*?\]\]',' ',txt)
@@ -630,7 +630,8 @@ def main(faTitle,word):
                             "6": { "color": '#a4a4a4', "title": 'مشکوک به فحاشی', "autofix": False , "syntax": False},
                             "7": { "color": '#bafce9', "title": 'نویسهٔ « یا » ناموجود', "autofix": False , "syntax": True},
                             "8": { "color": '#fadbd8', "title": 'پیوند ابهام‌دار', "autofix": "D" , "syntax": False},
-                            }
+                            },
+                  "version": "1.0.1"
                   }
     del Third_step_words
     del Fourth_step_words
@@ -707,4 +708,5 @@ def check_error_num(title):
 load_dict()
 if __name__ == "__main__":
     print(run(sys.argv[1]))
+
 
