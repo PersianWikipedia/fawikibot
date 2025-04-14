@@ -630,7 +630,8 @@ def main(faTitle,word):
                             "6": { "color": '#a4a4a4', "title": 'مشکوک به فحاشی', "autofix": False , "syntax": False},
                             "7": { "color": '#bafce9', "title": 'نویسهٔ « یا » ناموجود', "autofix": False , "syntax": True},
                             "8": { "color": '#fadbd8', "title": 'پیوند ابهام‌دار', "autofix": "D" , "syntax": False},
-                            }
+                            },
+                  "version": "1.0.1"
                   }
     del Third_step_words
     del Fourth_step_words
