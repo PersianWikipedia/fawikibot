@@ -59,7 +59,7 @@ class CategorizeBot(
                 "رده:صفحه‌هایی که رده همسنگ نمی‌پذیرند"
             ),
             pywikibot.Category(
-                self.site_fa
+                self.site_fa,
                 "رده:‍صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
             ),
         ]
