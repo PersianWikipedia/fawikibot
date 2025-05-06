@@ -45,10 +45,6 @@ class CategorizeBot(
         """
         super(CategorizeBot, self).__init__(site=True, **kwargs)
         self.generator = generator
-        self.skip_categories = [
-            "صفحه‌هایی که رده همسنگ نمی‌پذیرند",
-            "صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند",
-        ]
         self.summary = (
             "[[ویکی‌پدیا:رده‌دهی مقالات همسنگ|ربات]]: افزودن رده‌های همسنگ"
         )
@@ -57,6 +53,10 @@ class CategorizeBot(
         self.site_fa = pywikibot.Site("fa")
         self.site_en = pywikibot.Site("en")
         self.remove_parent = False
+        self.skip_categories = [
+            pywikibot.Category(self.site_fa, "رده:صفحه‌هایی که رده همسنگ نمی‌پذیرند"),
+            pywikibot.Category(self.site_fa, "رده:‍صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"),
+        ]
 
     def list_intersection(self, list1, list2):
         list3 = [value for value in list1 if value in list2]
@@ -135,7 +135,7 @@ class CategorizeBot(
             return False
 
         current_categories = self.get_existing_cats(page)
-        if len(set(self.skip_categories) & set(current_categories)) > 0:
+        if self.list_intersection(self.skip_categories, current_categories):
             pywikibot.output("Page disallows this bot; skipped.")
 
         remote_categories = list(remote_page.categories())
