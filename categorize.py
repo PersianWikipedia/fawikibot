@@ -54,8 +54,14 @@ class CategorizeBot(
         self.site_en = pywikibot.Site("en")
         self.remove_parent = False
         self.skip_categories = [
-            pywikibot.Category(self.site_fa, "رده:صفحه‌هایی که رده همسنگ نمی‌پذیرند"),
-            pywikibot.Category(self.site_fa, "رده:‍صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"),
+            pywikibot.Category(
+                self.site_fa,
+                "رده:صفحه‌هایی که رده همسنگ نمی‌پذیرند"
+            ),
+            pywikibot.Category(
+                self.site_fa
+                "رده:‍صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
+            ),
         ]
 
     def list_intersection(self, list1, list2):
