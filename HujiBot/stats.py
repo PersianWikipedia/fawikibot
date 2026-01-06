@@ -212,7 +212,7 @@ class StatsBot:
             .replace("،   ||", " ||")
             .replace("، ،", "،")
         )
-        if not self.save(text, page, self.summary):
+        if not self.save(text, page, self.summary, False, False):
             pywikibot.output("Page %s not saved." % page.title())
 
         if self.sign:
