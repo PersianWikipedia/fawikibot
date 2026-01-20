@@ -1343,7 +1343,7 @@ JOIN page
             "sign": True,
         },
         # Query #33 was moved to weekly-slow.py
-        # QUery #34 was redacted since CIDR block targets are no more shown on Wikireplica DBs
+        # QUery #34 was redacted since CIDR block targets are unavailable
         {
             "sqlnum": 36,
             "sql": """
