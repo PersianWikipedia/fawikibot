@@ -260,25 +260,27 @@ WHERE
             "sqlnum": 5,
             "sql": """
 SELECT
-  ipb_address,
+  bl_id,
   actor_name,
-  STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
+  STR_TO_DATE(LEFT(bl_timestamp,8), '%Y%m%d'),
   comment_text
-FROM ipblocks
+FROM block
+JOIN block_target
+  ON bl_target = bt_id
 JOIN comment
-  ON ipb_reason_id = comment_id
+  ON bl_reason_id = comment_id
 JOIN actor
-  ON ipb_by_actor = actor_id
+  ON bl_by_actor = actor_id
 WHERE
-  ipb_expiry = 'infinity'
-  AND ipb_user = 0
+  bl_expiry = 'infinity'
+  AND bt_user IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/آی‌پی‌های بی‌پایان بسته شده",
-            "cols": ["ردیف", "آی‌پی", "مدیر", "تاریخ", "دلیل"],
+            "cols": ["ردیف", "شناسه", "مدیر", "تاریخ", "دلیل"],
             "summary": "به روز کردن آمار",
             "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]"
             + "\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || [[:بحث کاربر:%s|]] "
+            "frmt": "| {{formatnum:%d|NOSEP}} || %s "
             + "|| [[کاربر:%s|]] "
             + "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s",
             "sign": True,
@@ -1341,42 +1343,7 @@ JOIN page
             "sign": True,
         },
         # Query #33 was moved to weekly-slow.py
-        {
-            "sqlnum": 34,
-            "sql": """
-SELECT
-  ipb_address,
-  MID(ipb_address, INSTR(ipb_address, '/') + 1) AS cnt,
-  actor_name,
-  STR_TO_DATE(LEFT(ipb_timestamp,8), '%Y%m%d'),
-  STR_TO_DATE(LEFT(ipb_expiry,8), '%Y%m%d'),
-  comment_text
-FROM ipblocks
-JOIN actor
-  ON ipb_by_actor = actor_id
-JOIN comment
-  ON ipb_reason_id = comment_id
-WHERE ipb_address LIKE '%/%'
-""",
-            "out": "وپ:گزارش_دیتابیس/محدوده_آی‌پی‌های_بسته‌شده",
-            "cols": [
-                "ردیف",
-                "بازه",
-                "تعداد آی‌پی",
-                "مدیر",
-                "تاریخ بستن",
-                "انقضا",
-                "دلیل",
-            ],
-            "summary": "به روز کردن آمار",
-            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]"
-            + "\nآخرین به روز رسانی: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || %s || "
-            + "{{formatnum:%s|NOSEP}} || [[کاربر:%s]] "
-            + "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} "
-            + "|| {{عبارت چپ‌چین|{{formatnum:%s|NOSEP}}}} || %s",
-            "sign": True,
-        },
+        # QUery #34 was redacted since CIDR block targets are no more shown on Wikireplica DBs
         {
             "sqlnum": 36,
             "sql": """
@@ -1504,22 +1471,22 @@ LIMIT 500
             "sqlnum": 40,
             "sql": """
 SELECT
-  user_name blockee,
+  bt_user_text blockee,
   actor_name blocker,
-  REPLACE(STR_TO_DATE(ipb_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime,
-  REPLACE(STR_TO_DATE(ipb_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend,
+  REPLACE(STR_TO_DATE(bl_timestamp, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blocktime,
+  REPLACE(STR_TO_DATE(bl_expiry, '%Y%m%d%H%i%s'), 'T', ' ساعت ') blockend,
   comment_text
-FROM ipblocks
+FROM block
+JOIN block_target
+  ON bl_target = bt_id
 JOIN comment
-  ON ipb_reason_id = comment_id
-JOIN user
-  ON ipb_user = user_id
+  ON bl_reason_id = comment_id
 JOIN actor
-  ON ipb_by_actor = actor_id
+  ON bl_by_actor = actor_id
 WHERE
-  ipb_user <> 0
-  AND ipb_expiry NOT IN ('infinity', 'indefinite')
-  AND ipb_expiry > CONCAT(DATE_FORMAT(NOW(), '%Y%m%d'), '000000')
+  bt_user IS NOT NULL
+  AND bl_expiry NOT IN ('infinity', 'indefinite')
+  AND bl_expiry > CONCAT(DATE_FORMAT(NOW(), '%Y%m%d'), '000000')
 """,
             "out": "وپ:گزارش دیتابیس/کاربران بسته شده",
             "cols": [
@@ -1569,21 +1536,23 @@ ORDER BY cnt DESC
             "sqlnum": 42,
             "sql": """
 SELECT
-  ipb_address,
+  bl_id,
   actor_name,
-  STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'),
-  STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
+  STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d'),
+  STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d'),
   comment_text
-FROM ipblocks
+FROM block
+JOIN block_target
+  ON bl_target = bt_id
 JOIN actor
-  ON ipb_by_actor = actor_id
+  ON bl_by_actor = actor_id
 JOIN comment
-  ON ipb_reason_id = comment_id
+  ON bl_reason_id = comment_id
 WHERE
-  STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d') >
-    DATE_ADD(STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d'), INTERVAL 2 YEAR)
-  AND ipb_expiry <> 'infinity'
-  AND ipb_user = 0
+  STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d') >
+    DATE_ADD(STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d'), INTERVAL 2 YEAR)
+  AND bl_expiry <> 'infinity'
+  AND bt_user IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/آی‌پی‌های بسته‌شده به مدت طولانی",
             "cols": [
@@ -1740,7 +1709,7 @@ SELECT
   COUNT(rev_id) AS recent_edits,
   GROUP_CONCAT(DISTINCT(ug_group) SEPARATOR ' ') AS groups,
   CASE
-    WHEN ipb_user IS NULL THEN ''
+    WHEN bl_id IS NULL THEN ''
     ELSE '{{yes}}'
   END AS blocked
 FROM revision_userindex
@@ -1766,8 +1735,10 @@ JOIN (
   ON old_user = actor_user
 LEFT JOIN user_groups
   ON actor_user = ug_user
-LEFT JOIN ipblocks
-  ON actor_user = ipb_user
+LEFT JOIN block_target
+  ON actor_user = bt_user
+LEFT JOIN block
+  ON bl_target = bt_id
 WHERE
   actor_user <> 0
   AND rev_timestamp > CONCAT(
