@@ -18,7 +18,6 @@ from functools import lru_cache
 from pywikibot.bot import (
     SingleSiteBot,
     ExistingPageBot,
-    NoRedirectPageBot,
     AutomaticTWSummaryBot,
 )
 import re
@@ -30,7 +29,6 @@ docuReplacements = {"&params;": pagegenerators.parameterHelp}
 class CategorizeBot(
     SingleSiteBot,
     ExistingPageBot,
-    NoRedirectPageBot,
     AutomaticTWSummaryBot,
 ):
     update_options = {
