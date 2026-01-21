@@ -49,7 +49,9 @@ SELECT
   STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d') AS start_date,
   STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d') AS expiry,
   0 - DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d')) AS days_left,
-  DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')) AS block_age
+  DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')) AS block_age,
+  bt_range_start,
+  bt_range_end
 FROM block
 JOIN block_target
   ON bl_target = bt_id
@@ -61,7 +63,7 @@ WHERE
   )
   AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d')) > -30
   AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')) > 300
-  AND bt_range_start = bt_range_end -- exclude CIDRs
+  AND bt_address NOT LIKE '%/%' -- exclude CIDRs
 """
         cursor.execute(query)
         results = cursor.fetchall()
