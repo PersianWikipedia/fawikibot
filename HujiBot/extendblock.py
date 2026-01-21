@@ -45,21 +45,23 @@ class FindProxyBot:
         cursor = conn.cursor()
         query = """
 SELECT
-  ipb_address,
-  STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d') AS start_date,
-  STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d') AS expiry,
-  0 - DATEDIFF(NOW(), STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d')) AS days_left,
-  DATEDIFF(NOW(), STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')) AS block_age
-FROM ipblocks
+  bt_address,
+  STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d') AS start_date,
+  STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d') AS expiry,
+  0 - DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d')) AS days_left,
+  DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')) AS block_age
+FROM block
+JOIN block_target
+  ON bl_target = bt_id
 WHERE
-  ipb_user = 0
-  AND ipb_expiry NOT IN (
+  bt_user IS NULL
+  AND bl_expiry NOT IN (
     'infinity',
     'indefinite'
   )
-  AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d')) > -30
-  AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')) > 300
-  AND ipb_range_start = ipb_range_end -- exclude CIDRs
+  AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d')) > -30
+  AND DATEDIFF(NOW(), STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')) > 300
+  AND bt_range_start = bt_range_end -- exclude CIDRs
 """
         cursor.execute(query)
         results = cursor.fetchall()
