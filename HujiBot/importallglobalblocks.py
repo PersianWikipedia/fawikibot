@@ -88,7 +88,7 @@ WHERE
             ip = ipdata[0].decode("ASCII")
             pywikibot.output("Checking %s" % ip)
             target = pywikibot.User(self.site, ip)
-            if target.isBlocked():
+            if target.is_blocked():
                 pywikibot.output("It was already blocked")
             else:
                 try:
