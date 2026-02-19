@@ -60,7 +60,7 @@ WHERE
   AND DATEDIFF(
     NOW(),
     STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
-  ) BETWEEN 8
+  ) > 8
   AND DATEDIFF(
     STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d'),
     STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
