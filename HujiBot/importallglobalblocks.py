@@ -43,30 +43,37 @@ class ImportBlockBot:
         cursor = conn.cursor()
         query = """
 SELECT
-  ipb_address
-FROM ipblocks
-JOIN comment_ipblocks
-  ON ipb_reason_id = comment_id
+  bt_address
+FROM block
+JOIN block_target
+  ON bl_target = bt_id
+JOIN comment_block
+  ON bl_reason_id = comment_id
 WHERE
-  ipb_user = 0
-  AND ipb_auto = 0
-  AND ipb_sitewide = 1
-  AND ipb_expiry NOT IN (
+  bt_user IS NULL
+  AND bt_auto = 0
+  AND bl_sitewide = 1
+  AND bl_expiry NOT IN (
     'infinity',
     'indefinite'
   )
   AND DATEDIFF(
     NOW(),
-    STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')
-  ) > 8
+    STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
+  ) BETWEEN 8
   AND DATEDIFF(
-    STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
-    STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')
+    STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d'),
+    STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
   ) > 90
   AND (
     comment_text LIKE '%m:NOP%'
+    OR comment_text LIKE '%m:NOOP%'
     OR comment_text LIKE '%[[NOP%'
-    OR comment_text LIKE '%[[w:Open proxy%'
+    OR comment_text LIKE '%[[NOOP%'
+    OR comment_text LIKE '%Open prox%'
+    OR comment_text LIKE '%Open Prox%'
+    OR comment_text LIKE '%open prox%'
+    OR comment_text LIKE '%Hosting%'
     OR comment_text LIKE '%hosting%'
   )
 """
