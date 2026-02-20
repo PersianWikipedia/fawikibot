@@ -142,8 +142,14 @@ WHERE
             "http://check.getipintel.net/check.php"
             + "?ip=%s&contact=%s&format=json&flags=m"
         )
+
         request = requests.get(url % (ip, self.GIIemail))
-        result = request.json()
+
+        try:
+            result = request.json()
+        except Exception as e:
+            print("Exception:", e)
+
         if "result" in result.keys():
             return 1 if result["result"] == "1" else 0
         else:
