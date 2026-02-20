@@ -39,24 +39,26 @@ class ImportBlockBot:
         cursor = conn.cursor()
         query = """
 SELECT
-  ipb_address
-FROM ipblocks
+  bt_address
+FROM block
+join block_target
+  on bl_target = bt_id
 JOIN comment
-  ON ipb_reason_id = comment_id
+  ON bl_reason_id = comment_id
 WHERE
-  ipb_user = 0
-  AND ipb_auto = 0
-  AND ipb_expiry NOT IN (
+  bt_user IS NULL
+  AND bt_auto = 0
+  AND bl_expiry NOT IN (
     'infinity',
     'indefinite'
   )
   AND DATEDIFF(
     NOW(),
-    STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')
+    STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
   ) BETWEEN 8 AND 15
   AND DATEDIFF(
-    STR_TO_DATE(LEFT(ipb_expiry, 8), '%Y%m%d'),
-    STR_TO_DATE(LEFT(ipb_timestamp, 8), '%Y%m%d')
+    STR_TO_DATE(LEFT(bl_expiry, 8), '%Y%m%d'),
+    STR_TO_DATE(LEFT(bl_timestamp, 8), '%Y%m%d')
   ) > 90
   AND (
     comment_text LIKE '%webhost%'
@@ -134,7 +136,7 @@ WHERE
                 pass
             else:
                 target = pywikibot.User(self.site, ip)
-                if target.isBlocked():
+                if target.is_blocked():
                     blocked = 2
                 else:
                     pywikibot.output("Blocking %s" % ip)
