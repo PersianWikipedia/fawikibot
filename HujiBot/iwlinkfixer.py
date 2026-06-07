@@ -97,6 +97,9 @@ class iwlinkfixer:
                 except pywikibot.exceptions.UnknownSiteError:
                     print("Invalid lang code; skipping...")
 
+                except pywikibot.exceptions.InvalidTitleError:
+                    print("Invalid target title; skipping...")
+
             print("")
 
         return page_text
