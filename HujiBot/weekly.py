@@ -1457,7 +1457,9 @@ SELECT
   (
     SELECT COUNT(*)
     FROM imagelinks
-    WHERE il_to = page_title
+    JOIN linktarget
+      ON il_target_id = lt_id
+    WHERE lt_title = page_title
   ) AS imagelinks,
   (
     SELECT COUNT(*)
