@@ -404,7 +404,7 @@ SELECT
   page_title,
   lt_title,
   CASE
-    WHEN c2.cl_to IS NULL THEN NULL
+    WHEN c2.lt_title IS NULL THEN NULL
     ELSE '{{yes}}'
   END AS under_construction
 FROM page
@@ -414,17 +414,22 @@ JOIN linktarget
   ON pl_target_id = lt_id
 LEFT JOIN categorylinks c2
   ON page_id = c2.cl_from
-  AND c2.cl_to = 'صفحه‌های_گسترده_در_دست_ساخت'
+LEFT JOIN linktarget lt2
+  ON c2.cl_target_id = lt2.lt_id
+  AND lt2.lt_title = 'صفحه‌های_گسترده_در_دست_ساخت'
+  AND lt2.lt_namespace = 14
 WHERE
   page_namespace = 0
   AND pl_from_namespace = 0
   AND lt_namespace IN (2, 3)
   AND NOT EXISTS (
-    SELECT c1.cl_to
+    SELECT lt1.lt_title
     FROM categorylinks c1
+    JOIN linktarget lt1
+      on c1.cl_target_id = lt1.lt_id
     WHERE
       page_id = c1.cl_from
-      AND c1.cl_to = 'مقاله‌های_نامزد_حذف_سریع'
+      AND lt1.lt_title = 'مقاله‌های_نامزد_حذف_سریع'
   )
 """,
             "out": "وپ:گزارش دیتابیس/مقاله‌های دارای پیوند به صفحه کاربری",
@@ -748,7 +753,7 @@ WHERE
   page_namespace NOT IN (6, 14)
   AND page_is_redirect = 0
   AND page_namespace IN (0, 4, 12)
-  AND cl_to IS NULL
+  AND lt_title IS NULL
   AND page_len < 10
 ORDER BY page_len
 """,
@@ -1337,7 +1342,7 @@ WHERE
         {
             "sqlnum": 31,
             "sql": """
-SELECT cl_to
+SELECT lt_title
 FROM categorylinks
 JOIN page
   ON cl_from = page_id
@@ -1554,9 +1559,9 @@ FROM categorylinks
 JOIN linktarget
   ON cl_target_id = lt_id
 JOIN logging
-  ON log_title = cl_to
+  ON log_title = lt_title
 LEFT JOIN page
-  ON cl_to = page_title
+  ON lt_title = page_title
   AND page_namespace = 14
 WHERE
   log_action = 'delete'
@@ -1843,11 +1848,11 @@ SELECT
     WHEN page_namespace = 0 THEN page_title
     ELSE CONCAT(':{{ns:', page_namespace, '}}:', page_title)
   END AS page_title,
-  cl_to
+  lt_title
 FROM (
   SELECT
     cl_from,
-    cl_to
+    lt_title
   FROM categorylinks
   JOIN linktarget
     ON cl_target_id = lt_id
