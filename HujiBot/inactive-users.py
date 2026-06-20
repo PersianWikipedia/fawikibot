@@ -138,8 +138,8 @@ SELECT
   actor_name,
   STR_TO_DATE(LEFT(MAX(rev_timestamp), 8), '%Y%m%d') AS latest,
   group_concat(distinct ug.ug_group)
-FROM revision
-JOIN actor
+FROM revision_userindex
+JOIN actor_revision
   ON rev_actor = actor_id
   AND actor_user <> 0
 JOIN user_groups AS ug
