@@ -75,21 +75,21 @@ def main(*args):
         cursor = conn.cursor()
         sql = """
 SELECT DISTINCT
-  concat('کاربر:', page_title) AS title
-FROM page
-JOIN revision
-  ON rev_page = page_id
-  AND rev_id = page_latest
-JOIN categorylinks
-  ON page_id = cl_from
+  CONCAT('کاربر:', p.page_title) AS title
+FROM page p
+JOIN revision r
+  ON r.rev_page = p.page_id
+ AND r.rev_id = p.page_latest
+JOIN categorylinks cl
+  ON p.page_id = cl.cl_from
 WHERE
-  page_namespace = 2
-  AND page_title like '%/صفحه_تمرین'
-  AND rev_timestamp < DATE_FORMAT(
+  p.page_namespace = 2
+  AND p.page_title LIKE '%/صفحه_تمرین'
+  AND r.rev_timestamp < DATE_FORMAT(
     DATE_SUB(NOW(), INTERVAL 1 YEAR),
     '%Y%m%d000000'
   )
-ORDER BY rev_timestamp
+ORDER BY r.rev_timestamp
 """
         cursor.execute(sql.encode("utf-8"))
         results = cursor.fetchall()
