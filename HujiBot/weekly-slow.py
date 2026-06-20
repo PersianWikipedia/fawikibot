@@ -1128,6 +1128,37 @@ HAVING imagelinks + links <= 1
             + "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}",
             "sign": True,
         },
+        {
+            "sqlnum": 57,
+            "sql": """
+SELECT
+  p.page_title,
+  COUNT(*) AS pages
+FROM page p
+JOIN categorylinks c1
+  ON p.page_id = c1.cl_from
+JOIN linktarget c1lt
+  ON c1.cl_target_id = c1lt.lt_id
+ AND c1lt.lt_namespace = 14
+ AND c1lt.lt_title = 'بحث‌های_نبح'
+JOIN categorylinks c2
+  ON p.page_namespace = 14
+JOIN linktarget c2lt
+  ON c2.cl_target_id = c2lt.lt_id
+ AND c2lt.lt_title = p.page_title
+WHERE
+  p.page_namespace = 14
+GROUP BY p.page_title
+ORDER BY p.page_title
+""",
+            "out": "وپ:گزارش دیتابیس/آمار طبقه‌بندی شدهٔ نبح‌های باز",
+            "cols": ["ردیف", "صفحه", "تعداد"],
+            "summary": "به روز کردن آمار",
+            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]\n{{/بالا}}"
+            + "\n\nآخرین به روز رسانی: ~~~~~",
+            "frmt": "| {{formatnum:%d}} || [[:رده:%s]] || {{formatnum:%s}} ",
+            "sign": True,
+        },
     ]
 
     for t in tasks:
