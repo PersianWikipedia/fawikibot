@@ -603,7 +603,7 @@ WHERE
   AND page_is_redirect = 0
   AND rev_timestamp <
     CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 4 YEAR), '%Y%m%d'), '000000')
-  AND cl_to IS NULL
+  AND lt_title IS NULL
 ORDER BY rev_timestamp
 LIMIT 5000
 """,
