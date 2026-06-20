@@ -402,22 +402,22 @@ WHERE
             "sql": """
 SELECT
   page_title,
-  lt_title,
+  ltc.lt_title,
   CASE
-    WHEN c2.lt_title IS NULL THEN NULL
+    WHEN ltc.lt_title IS NULL THEN NULL
     ELSE '{{yes}}'
   END AS under_construction
 FROM page
 JOIN pagelinks
   ON page_id = pl_from
-JOIN linktarget
-  ON pl_target_id = lt_id
+JOIN linktarget ltp
+  ON pl_target_id = ltp.lt_id
 LEFT JOIN categorylinks c2
   ON page_id = c2.cl_from
-LEFT JOIN linktarget lt2
-  ON c2.cl_target_id = lt2.lt_id
-  AND lt2.lt_title = 'صفحه‌های_گسترده_در_دست_ساخت'
-  AND lt2.lt_namespace = 14
+LEFT JOIN linktarget ltc
+  ON c2.cl_target_id = ltc.lt_id
+  AND ltc.lt_title = 'صفحه‌های_گسترده_در_دست_ساخت'
+  AND ltc.lt_namespace = 14
 WHERE
   page_namespace = 0
   AND pl_from_namespace = 0
