@@ -1450,47 +1450,6 @@ ORDER BY COUNT(*) DESC;
             "sign": True,
         },
         {
-            "sqlnum": 38,
-            "sql": """
-SELECT
-  page_title,
-  (
-    SELECT COUNT(*)
-    FROM imagelinks
-    JOIN linktarget
-      ON il_target_id = lt_id
-    WHERE lt_title = page_title
-  ) AS imagelinks,
-  (
-    SELECT COUNT(*)
-    FROM pagelinks
-    JOIN linktarget
-      ON pl_target_id = lt_id
-    WHERE
-      lt_namespace = 6
-      AND lt_title = page_title
-  ) AS links
-FROM page
-WHERE
-  page_namespace = 6
-  AND page_is_redirect = 1
-HAVING imagelinks + links <= 1
-""",
-            "out": "وپ:گزارش_دیتابیس/"
-            + "صفحه‌های بدون استفاده تغییرمسیر پرونده",
-            "cols": [
-                "ردیف",
-                "صفحه پرونده",
-                "تعداد تراگنجایش",
-                "تعداد پیوند ورودی",
-            ],
-            "summary": "به روز کردن آمار",
-            "pref": "[[رده:گزارش‌های دیتابیس ویکی‌پدیا]]" + "\n: ~~~~~",
-            "frmt": "| {{formatnum:%d|NOSEP}} || [[:پرونده:%s|]] "
-            + "|| {{formatnum:%s|NOSEP}} || {{formatnum:%s|NOSEP}}",
-            "sign": True,
-        },
-        {
             "sqlnum": 39,
             "sql": """
 SELECT
