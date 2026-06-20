@@ -30,27 +30,27 @@ def main(sqlnum, maxtime):
             "sqlnum": 1,
             "sql": """
 SELECT
-  page_title,
-  cat_pages,
-  cat_subcats,
-  cat_files,
-  COUNT(ll_lang)
-FROM page
-JOIN category
-  ON page_title = cat_title
-LEFT JOIN categorylinks
-  ON page_id = cl_from
-LEFT JOIN langlinks
-  ON page_id = ll_from
+  p.page_title,
+  c.cat_pages,
+  c.cat_subcats,
+  c.cat_files,
+  COUNT(ll.ll_lang)
+FROM page p
+JOIN category c
+  ON p.page_title = c.cat_title
+LEFT JOIN categorylinks cl
+  ON p.page_id = cl.cl_from
+LEFT JOIN langlinks ll
+  ON p.page_id = ll.ll_from
 WHERE
-  page_namespace = 14
-  AND page_is_redirect = 0
-  AND cl_from IS NULL
+  p.page_namespace = 14
+  AND p.page_is_redirect = 0
+  AND cl.cl_from IS NULL
 GROUP BY
-  page_title,
-  cat_pages,
-  cat_subcats,
-  cat_files
+  p.page_title,
+  c.cat_pages,
+  c.cat_subcats,
+  c.cat_files
 LIMIT 5000
 """,
             "out": "وپ:گزارش دیتابیس/رده‌های رده‌بندی نشده",
@@ -73,18 +73,18 @@ LIMIT 5000
             "sqlnum": 2,
             "sql": """
 SELECT
-  page_title,
-  STR_TO_DATE(LEFT(rev_timestamp, 8), '%Y%m%d')
-FROM page
-JOIN revision
-  ON page_latest = rev_id
-LEFT JOIN categorylinks
-  ON page_id = cl_from
+  p.page_title,
+  STR_TO_DATE(LEFT(r.rev_timestamp, 8), '%Y%m%d')
+FROM page p
+JOIN revision r
+  ON p.page_latest = r.rev_id
+LEFT JOIN categorylinks cl
+  ON p.page_id = cl.cl_from
 WHERE
-  page_namespace = 10
-  AND cl_to IS NULL
-  AND page_is_redirect = 0
-ORDER BY page_latest
+  p.page_namespace = 10
+  AND p.page_is_redirect = 0
+  AND cl.cl_from IS NULL
+ORDER BY p.page_latest
 LIMIT 5000
 """,
             "out": "وپ:گزارش دیتابیس/الگوهای رده‌بندی نشده",
@@ -860,22 +860,25 @@ LIMIT 1000
             "sqlnum": 14,
             "sql": """
 SELECT
-  page_title,
-  STR_TO_DATE(LEFT(MIN(rev_timestamp), 8), '%Y%m%d'),
-  COUNT(ll_lang)
-FROM page
-JOIN category
-  ON page_title = cat_title
-JOIN revision
-  ON rev_page = page_id
-  AND rev_parent_id = 0
-LEFT JOIN categorylinks
-  ON page_title = cl_to
-LEFT JOIN templatelinks
-  ON tl_from = page_id
-LEFT JOIN linktarget
-  ON tl_target_id = lt_id
-  AND lt_title IN (
+  p.page_title,
+  STR_TO_DATE(LEFT(MIN(r.rev_timestamp), 8), '%Y%m%d'),
+  COUNT(ll.ll_lang)
+FROM page p
+JOIN category c
+  ON p.page_title = c.cat_title
+JOIN revision r
+  ON r.rev_page = p.page_id
+ AND r.rev_parent_id = 0
+
+LEFT JOIN categorylinks cl
+  ON cl.cl_from = p.page_id
+
+LEFT JOIN templatelinks tl
+  ON tl.tl_from = p.page_id
+
+LEFT JOIN linktarget lt
+  ON tl.tl_target_id = lt.lt_id
+ AND lt.lt_title IN (
     'رده_خالی',
     'رده_بهتر',
     'رده_ابهام‌زدایی',
@@ -883,19 +886,31 @@ LEFT JOIN linktarget
     'رده_ردیابی_کردن',
     'رده_ردیابی'
   )
-LEFT JOIN langlinks
-  ON page_id = ll_from
+
+LEFT JOIN langlinks ll
+  ON ll.ll_from = p.page_id
+
 WHERE
-  page_namespace = 14
-  AND page_is_redirect = 0
-  AND cl_to IS NULL
-  AND tl_target_id IS NULL
+  p.page_namespace = 14
+  AND p.page_is_redirect = 0
+
+  -- modern replacement for cl_to IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM categorylinks cl2
+    JOIN linktarget ltc
+      ON cl2.cl_target_id = ltc.lt_id
+    WHERE ltc.lt_namespace = 14
+      AND ltc.lt_title = p.page_title
+  )
+
+  AND tl.tl_target_id IS NULL
+
 GROUP BY
-  page_title,
-  rev_timestamp
+  p.page_title
 ORDER BY
- COUNT(ll_lang),
- page_title
+  COUNT(ll.ll_lang),
+  p.page_title
 LIMIT 5000
 """,
             "out": "وپ:گزارش دیتابیس/رده‌های خالی",
