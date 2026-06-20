@@ -421,7 +421,7 @@ LEFT JOIN linktarget ltc
 WHERE
   page_namespace = 0
   AND pl_from_namespace = 0
-  AND lt_namespace IN (2, 3)
+  AND ltp.lt_namespace IN (2, 3)
   AND NOT EXISTS (
     SELECT lt1.lt_title
     FROM categorylinks c1
