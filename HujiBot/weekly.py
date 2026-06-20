@@ -193,16 +193,22 @@ ORDER BY log_id DESC
         {
             "sqlnum": 2,
             "sql": """
-SELECT page_title
-FROM categorylinks
-JOIN page
-  ON cl_from = page_id
-LEFT JOIN imagelinks
-  ON il_to = page_title
+SELECT p.page_title
+FROM page p
+JOIN categorylinks cl
+  ON cl.cl_from = p.page_id
+JOIN linktarget cat
+  ON cat.lt_id = cl.cl_target_id
+JOIN linktarget filelt
+  ON filelt.lt_namespace = 6
+ AND filelt.lt_title = p.page_title
+LEFT JOIN imagelinks il
+  ON il.il_target_id = filelt.lt_id
 WHERE
-  cl_to = 'پرونده‌های_مالکیت_عمومی'
-  AND page_namespace = 6
-  AND il_from IS NULL
+  cat.lt_namespace = 14
+  AND cat.lt_title = 'پرونده‌های_مالکیت_عمومی'
+  AND p.page_namespace = 6
+  AND il.il_from IS NULL
 """,
             "out": "وپ:گزارش دیتابیس/پرونده‌های آزاد استفاده نشده",
             "cols": ["ردیف", "پرونده"],
@@ -215,15 +221,24 @@ WHERE
         {
             "sqlnum": 3,
             "sql": """
-SELECT page_title
-FROM categorylinks
-JOIN page
-  ON cl_from = page_id
-LEFT JOIN imagelinks
-  ON il_to = page_title
-WHERE cl_to = 'محتویات_غیر_آزاد'
-  AND page_namespace = 6
-  AND il_from IS NULL
+SELECT p.page_title
+FROM categorylinks cl
+JOIN page p
+  ON cl.cl_from = p.page_id
+JOIN linktarget cat
+  ON cl.cl_target_id = cat.lt_id
+WHERE
+  cat.lt_namespace = 14
+  AND cat.lt_title = 'محتویات_غیر_آزاد'
+  AND p.page_namespace = 6
+  AND NOT EXISTS (
+    SELECT 1
+    FROM imagelinks il
+    JOIN linktarget lt
+      ON lt.lt_id = il.il_target_id
+    WHERE lt.lt_namespace = 6
+      AND lt.lt_title = p.page_title
+  )
 """,
             "out": "وپ:گزارش_دیتابیس/پرونده‌های غیر آزاد استفاده نشده",
             "cols": ["ردیف", "پرونده"],
@@ -237,15 +252,17 @@ WHERE cl_to = 'محتویات_غیر_آزاد'
             "sqlnum": 4,
             "sql": """
 SELECT
-  page_title,
-  STR_TO_DATE(LEFT(page_touched,8), '%Y%m%d')
-FROM page
-LEFT JOIN categorylinks
-  ON page_id = cl_from
+  p.page_title,
+  STR_TO_DATE(LEFT(p.page_touched,8), '%Y%m%d')
+FROM page p
 WHERE
-  page_namespace = 6
-  AND page_is_redirect = 0
-  AND cl_to IS NULL
+  p.page_namespace = 6
+  AND p.page_is_redirect = 0
+  AND NOT EXISTS (
+    SELECT 1
+    FROM categorylinks cl
+    WHERE cl.cl_from = p.page_id
+  )
 """,
             "out": "وپ:گزارش دیتابیس/پرونده‌های رده‌بندی نشده",
             "cols": ["ردیف", "پرونده", "تاریخ بارگذاری"],
@@ -332,12 +349,16 @@ SELECT page_title
 FROM page
 LEFT JOIN categorylinks
   ON page_id = cl_from
-  AND cl_to NOT IN (
+LEFT JOIN linktarget
+  ON cl_target_id = lt_id
+  AND lt_title NOT IN (
     SELECT p2.page_title
     FROM page p2
     JOIN categorylinks cl2
       ON p2.page_id = cl2.cl_from
-      AND cl2.cl_to = 'رده‌های_پنهان'
+    JOIN linktarget lt2
+      ON cl2.cl_target_id = lt2.lt_id
+      AND lt2.lt_title = 'رده‌های_پنهان'
     WHERE p2.page_namespace = 14
   )
 WHERE
@@ -464,31 +485,35 @@ JOIN image i2
             "sqlnum": 14,
             "sql": """
 SELECT
-  page_title,
-  COUNT(il_to) cnt,
+  p.page_title,
+  COUNT(*) AS cnt,
   SUM(
     CASE
-      WHEN il_from_namespace = 10 THEN 1
+      WHEN il.il_from_namespace = 10 THEN 1
       ELSE 0
     END
   ) AS template,
   SUM(
     CASE
-      WHEN il_from_namespace NOT IN (
-        0,
-        10
-      )
+      WHEN il.il_from_namespace NOT IN (0, 10)
       THEN 1
       ELSE 0
     END
   ) AS nonarticle
-FROM page
-JOIN categorylinks
-  ON page_id = cl_from
-  AND cl_to = 'محتویات_غیر_آزاد'
-JOIN imagelinks
-  ON page_title = il_to
-GROUP BY page_title
+FROM page p
+JOIN categorylinks cl
+  ON p.page_id = cl.cl_from
+JOIN linktarget cat
+  ON cl.cl_target_id = cat.lt_id
+JOIN linktarget filelt
+  ON filelt.lt_namespace = 6
+ AND filelt.lt_title = p.page_title
+JOIN imagelinks il
+  ON il.il_target_id = filelt.lt_id
+WHERE
+  cat.lt_namespace = 14
+  AND cat.lt_title = 'محتویات_غیر_آزاد'
+GROUP BY p.page_title
 HAVING
   cnt > 10
   OR nonarticle > 0
@@ -522,7 +547,10 @@ SELECT
 FROM page
 JOIN categorylinks
   ON page_id = cl_from
-  AND cl_to = 'همه_مقاله‌های_خرد'
+JOIN linktarget
+  ON cl_target_id = lt_id
+  AND lt_title = 'همه_مقاله‌های_خرد'
+  AND lt_namespace = 14
 WHERE page_len > 10 * 1024
 ORDER BY page_len DESC
 """,
@@ -566,7 +594,10 @@ JOIN revision
   ON page_latest = rev_id
 LEFT JOIN categorylinks
   ON page_id = cl_from
-  AND cl_to = 'صفحه‌های_ابهام‌زدایی'
+LEFT JOIN linktarget
+  ON cl_target_id = lt_id
+  AND lt_title = 'صفحه‌های_ابهام‌زدایی'
+  AND lt_namespace = 14
 WHERE
   page_namespace = 0
   AND page_is_redirect = 0
@@ -614,7 +645,10 @@ SELECT
 FROM page
 LEFT JOIN categorylinks
   ON page_id = cl_from
-  AND cl_to IN (
+LEFT JOIN linktarget
+  ON cl_target_id = lt_id
+  AND lt_namespace = 14
+  AND lt_title IN (
   'همه_صفحه‌های_ابهام‌زدایی',
   'نام‌های_کوچک',
   'نام‌های_خانوادگی',
@@ -697,7 +731,10 @@ SELECT
 FROM page
 LEFT JOIN categorylinks
   ON page_id = cl_from
-  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
+LEFT JOIN linktarget
+  ON cl_target_id = lt_id
+  AND lt_namespace = 14
+  AND lt_title = 'همه_صفحه‌های_ابهام‌زدایی'
 JOIN (
   SELECT
     rev_page,
@@ -1304,8 +1341,10 @@ SELECT cl_to
 FROM categorylinks
 JOIN page
   ON cl_from = page_id
+JOIN linktarget
+  ON cl_target_id = lt_id
 WHERE
- page_title = cl_to
+ page_title = lt_title
  AND page_title <> 'صفحه‌های_نمایه‌نشده'
  AND page_namespace = 14
 """,
@@ -1509,9 +1548,11 @@ WHERE
             "sqlnum": 41,
             "sql": """
 SELECT
-  cl_to,
+  lt_title,
   COUNT(cl_from) cnt
 FROM categorylinks
+JOIN linktarget
+  ON cl_target_id = lt_id
 JOIN logging
   ON log_title = cl_to
 LEFT JOIN page
@@ -1520,7 +1561,7 @@ LEFT JOIN page
 WHERE
   log_action = 'delete'
   AND page_id IS NULL
-GROUP BY cl_to
+GROUP BY lt_title
 ORDER BY cnt DESC
 """,
             "out": "وپ:گزارش دیتابیس/رده‌های حذف شده مورد نیاز",
@@ -1631,21 +1672,25 @@ JOIN page
             "sql": """
 SELECT
   p1.page_title,
-  COUNT(pl_from) AS cnt
+  COUNT(*) AS cnt
 FROM page p1
-JOIN categorylinks
-  ON p1.page_id = cl_from
-  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
-JOIN linktarget
-  ON lt_title = page_title
-  AND lt_namespace = 0
-JOIN pagelinks
-  ON pl_target_id = lt_id
+JOIN categorylinks cl
+  ON p1.page_id = cl.cl_from
+JOIN linktarget cat
+  ON cl.cl_target_id = cat.lt_id
+JOIN linktarget lt
+  ON lt.lt_namespace = 0
+  AND lt.lt_title = p1.page_title
+JOIN pagelinks pl
+  ON pl.pl_target_id = lt.lt_id
 JOIN page p2
-  ON pl_from = p2.page_id
+  ON p2.page_id = pl.pl_from
   AND p2.page_namespace = 0
-WHERE p1.page_namespace = 0
-GROUP BY lt_title
+WHERE
+  p1.page_namespace = 0
+  AND cat.lt_namespace = 14
+  AND cat.lt_title = 'همه_صفحه‌های_ابهام‌زدایی'
+GROUP BY p1.page_id, p1.page_title
 ORDER BY cnt DESC
 LIMIT 1000
 """,
@@ -1661,17 +1706,21 @@ LIMIT 1000
             "sqlnum": 46,
             "sql": """
 SELECT
-  page.page_title,
-  GROUP_CONCAT(CONCAT('[[الگو:',tem.page_title,']]') SEPARATOR '، '),
+  p.page_title,
+  GROUP_CONCAT(
+    CONCAT('[[الگو:', tem.page_title, ']]')
+    SEPARATOR '، '
+  ),
   COUNT(tem.page_title) AS cnt
-FROM page
-JOIN categorylinks
-  ON page_id = cl_from
-  AND cl_to = 'همه_صفحه‌های_ابهام‌زدایی'
-JOIN linktarget
-  ON lt_title = page_title
-JOIN pagelinks
-  ON pl_target_id = lt_id
+FROM page p
+JOIN categorylinks cl
+  ON p.page_id = cl.cl_from
+JOIN linktarget cat
+  ON cl.cl_target_id = cat.lt_id
+JOIN linktarget lt
+  ON lt.lt_title = p.page_title
+JOIN pagelinks pl
+  ON pl.pl_target_id = lt.lt_id
 JOIN (
   SELECT *
   FROM page
@@ -1679,13 +1728,15 @@ JOIN (
     page_namespace = 10
     AND page_is_redirect = 0
 ) AS tem
-  ON tem.page_id=pl_from
+  ON tem.page_id = pl.pl_from
 WHERE
-  lt_namespace = 0
-  AND pl_from_namespace=10
+  cat.lt_namespace = 14
+  AND cat.lt_title = 'همه_صفحه‌های_ابهام‌زدایی'
+  AND lt.lt_namespace = 0
+  AND pl.pl_from_namespace = 10
   AND NOT tem.page_title LIKE '%_/_%'
-  AND page.page_namespace = 0
-GROUP BY page.page_title
+  AND p.page_namespace = 0
+GROUP BY p.page_title
 ORDER BY cnt DESC
 LIMIT 1000
 """,
@@ -1798,8 +1849,10 @@ FROM (
     cl_from,
     cl_to
   FROM categorylinks
+  JOIN linktarget
+    ON cl_target_id = lt_id
   JOIN page
-    ON cl_to = page_title
+    ON lt_title = page_title
     AND page_namespace = 14
   WHERE page_is_redirect = 1
   LIMIT 5000
@@ -1820,25 +1873,31 @@ JOIN page
             "sql": """
 SELECT
   CASE
-    WHEN page_namespace = 0 THEN page_title
-    ELSE CONCAT(':{{ns:', page_namespace, '}}:', page_title)
+    WHEN p.page_namespace = 0 THEN p.page_title
+    ELSE CONCAT(':{{ns:', p.page_namespace, '}}:', p.page_title)
   END AS page_title,
-  cl_to
+  redir.category_title
 FROM (
   SELECT
     cl1.cl_from,
-    cl1.cl_to
+    cat1.lt_title AS category_title
   FROM categorylinks cl1
-  JOIN page
-    ON cl1.cl_to = page_title
-    AND page_namespace = 14
+  JOIN linktarget cat1
+    ON cl1.cl_target_id = cat1.lt_id
+   AND cat1.lt_namespace = 14
+  JOIN page catpage
+    ON catpage.page_namespace = 14
+   AND catpage.page_title = cat1.lt_title
   JOIN categorylinks cl2
-   ON page_id = cl2.cl_from
-   AND cl2.cl_to = 'رده‌های_منتقل‌شده'
-   LIMIT 5000
+    ON catpage.page_id = cl2.cl_from
+  JOIN linktarget cat2
+    ON cl2.cl_target_id = cat2.lt_id
+   AND cat2.lt_namespace = 14
+   AND cat2.lt_title = 'رده‌های_منتقل‌شده'
+  LIMIT 5000
 ) redir
-JOIN page
-  ON cl_from = page_id
+JOIN page p
+  ON p.page_id = redir.cl_from
 """,
             "out": "وپ:گزارش دیتابیس/صفحه‌های دارای ردهٔ منتقل‌شده",
             "cols": ["ردیف", "صفحه", "رده"],
@@ -1947,16 +2006,24 @@ SELECT page_title
 FROM page
 WHERE
   page_id IN (
-    SELECT cl_from
-    FROM categorylinks
-    WHERE cl_to LIKE 'درگذشتگان%'
+    SELECT cl.cl_from
+    FROM categorylinks cl
+    JOIN linktarget lt
+      ON cl.cl_target_id = lt.lt_id
+    WHERE
+      lt.lt_namespace = 14
+      AND lt.lt_title LIKE 'درگذشتگان%'
   )
   AND page_id IN (
-    SELECT cl_from
-    FROM categorylinks
-    WHERE cl_to LIKE '%افراد_زنده%'
+    SELECT cl.cl_from
+    FROM categorylinks cl
+    JOIN linktarget lt
+      ON cl.cl_target_id = lt.lt_id
+    WHERE
+      lt.lt_namespace = 14
+      AND lt.lt_title LIKE '%افراد_زنده%'
   )
-  AND page_is_redirect = 0
+  AND page_is_redirect = 0;
 """,
             "out": "وپ:گزارش دیتابیس/"
             + "مقاله‌‌های دارای رده‌های درگذشتگان و افراد زنده",
@@ -2035,21 +2102,27 @@ ORDER BY
             "sqlnum": 56,
             "sql": """
 SELECT
-  CONCAT(':{{ns:', page_namespace, '}}:', page_title)
-FROM templatelinks
-JOIN linktarget
-  ON tl_target_id = lt_id
-JOIN page
-  ON page_id = tl_from
-LEFT JOIN categorylinks
-  ON cl_to = page_title
+  CONCAT(':{{ns:', p.page_namespace, '}}:', p.page_title)
+FROM templatelinks tl
+JOIN linktarget tlt
+  ON tl.tl_target_id = tlt.lt_id
+JOIN page p
+  ON p.page_id = tl.tl_from
+LEFT JOIN (
+  categorylinks cl
+  JOIN linktarget cat
+    ON cl.cl_target_id = cat.lt_id
+   AND cat.lt_namespace = 14
+)
+  ON cat.lt_title = p.page_title
 WHERE
-  lt_title = 'رده_خالی'
-  AND cl_to is null
-  AND page_title NOT LIKE 'بازبینی_گمر%'
-  AND page_title NOT LIKE 'درگذشتگان%'
-  AND page_title NOT LIKE 'زادگان%'
-ORDER BY page_title;
+  tlt.lt_namespace = 10
+  AND tlt.lt_title = 'رده_خالی'
+  AND cat.lt_id IS NULL
+  AND p.page_title NOT LIKE 'بازبینی_گمر%'
+  AND p.page_title NOT LIKE 'درگذشتگان%'
+  AND p.page_title NOT LIKE 'زادگان%'
+ORDER BY p.page_title
 """,
             "out": "وپ:گزارش دیتابیس/کاربرد مشکوک الگوی رده خالی",
             "cols": ["ردیف", "صفحه"],
@@ -2063,17 +2136,24 @@ ORDER BY page_title;
             "sqlnum": 57,
             "sql": """
 SELECT
-  page_title,
-  COUNT(*) pages
-FROM page
+  p.page_title,
+  COUNT(*) AS pages
+FROM page p
 JOIN categorylinks c1
-  ON page_id = c1.cl_from
-  AND c1.cl_to = 'بحث‌های_نبح'
+  ON p.page_id = c1.cl_from
+JOIN linktarget c1lt
+  ON c1.cl_target_id = c1lt.lt_id
+ AND c1lt.lt_namespace = 14
+ AND c1lt.lt_title = 'بحث‌های_نبح'
 JOIN categorylinks c2
-  ON c2.cl_to = page_title
-WHERE page_namespace = 14
-GROUP BY page_title
-ORDER BY page_title;
+  ON p.page_namespace = 14
+JOIN linktarget c2lt
+  ON c2.cl_target_id = c2lt.lt_id
+ AND c2lt.lt_title = p.page_title
+WHERE
+  p.page_namespace = 14
+GROUP BY p.page_title
+ORDER BY p.page_title
 """,
             "out": "وپ:گزارش دیتابیس/آمار طبقه‌بندی شدهٔ نبح‌های باز",
             "cols": ["ردیف", "صفحه", "تعداد"],
@@ -2198,19 +2278,28 @@ WHERE
             "sqlnum": 61,
             "sql": """
 SELECT
-  page_title
-FROM page
-JOIN categorylinks
-  ON cl_from = page_id
-WHERE cl_to IN (
-  'پرونده‌های_مالکیت_عمومی_ایران',
-  'محتویات_آزاد'
-)
-AND cl_from IN (
-  SELECT cl_from
-  FROM categorylinks
-  WHERE cl_to = 'محتویات_غیر_آزاد'
-)
+  p.page_title
+FROM page p
+JOIN categorylinks cl
+  ON cl.cl_from = p.page_id
+JOIN linktarget lt1
+  ON cl.cl_target_id = lt1.lt_id
+WHERE
+  (
+    lt1.lt_title = 'پرونده‌های_مالکیت_عمومی_ایران'
+    OR lt1.lt_title = 'محتویات_آزاد'
+  )
+  AND lt1.lt_namespace = 14
+  AND EXISTS (
+    SELECT 1
+    FROM categorylinks cl2
+    JOIN linktarget lt2
+      ON cl2.cl_target_id = lt2.lt_id
+    WHERE
+      cl2.cl_from = p.page_id
+      AND lt2.lt_namespace = 14
+      AND lt2.lt_title = 'محتویات_غیر_آزاد'
+  )
 """,
             "out": "ویکی‌پدیا:گزارش دیتابیس/پرونده‌های دارای برچسب متناقض",
             "cols": ["ردیف", "پرونده"],
@@ -2227,18 +2316,31 @@ SELECT
   p2.page_title,
   p1.page_title
 FROM page p1
-JOIN imagelinks
-  ON il_to = p1.page_title
-  AND p1.page_namespace = 6
+JOIN linktarget filelt
+  ON filelt.lt_namespace = 6
+ AND filelt.lt_title = p1.page_title
+JOIN imagelinks il
+  ON il.il_target_id = filelt.lt_id
 JOIN page p2
-  ON il_from = p2.page_id
+  ON il.il_from = p2.page_id
   AND p2.page_namespace = 0
+
 JOIN categorylinks cl1
-  ON cl1.cl_from = il_from
-  AND cl_to = 'افراد_زنده'
+  ON cl1.cl_from = il.il_from
+JOIN linktarget cl1lt
+  ON cl1.cl_target_id = cl1lt.lt_id
+ AND cl1lt.lt_namespace = 14
+ AND cl1lt.lt_title = 'افراد_زنده'
+
 JOIN categorylinks cl2
   ON cl2.cl_from = p1.page_id
-  AND cl2.cl_to = 'محتویات_غیر_آزاد'
+JOIN linktarget cl2lt
+  ON cl2.cl_target_id = cl2lt.lt_id
+ AND cl2lt.lt_namespace = 14
+ AND cl2lt.lt_title = 'محتویات_غیر_آزاد'
+
+WHERE
+  p1.page_namespace = 6
 ORDER BY p2.page_touched DESC
 """,
             "out": "ویکی‌پدیا:گزارش دیتابیس/پرونده‌های ناآزاد در مقالهٔ "
