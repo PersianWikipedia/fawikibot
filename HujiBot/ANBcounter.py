@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-This bot retreives a list of anonymous editors on the wiki in the
-last few hours and tries to identify proxies within that list.
+This bot updates the stats table at the top of ANB.
 """
 #
 # (C) User:Huji, 2020
@@ -23,7 +22,7 @@ class ANBcounter:
         self.level2pages = [
             "ویکی‌پدیا:تابلوی اعلانات مدیران/نام‌های کاربری نامناسب",
             "ویکی‌پدیا:تابلوی اعلانات مدیران/نقض ۳ برگردان",
-            "ویکی‌پدیا:درخواست انتقال",
+            "ویکی‌پدیا:درخواست تغییرنام",
             "ویکی‌پدیا:درخواست ادغام تاریخچه",
             "ویکی‌پدیا:درخواست برای دسترسی/گشت‌زن",
             "ویکی‌پدیا:درخواست برای دسترسی/گشت خودکار",
