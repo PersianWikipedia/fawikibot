@@ -54,11 +54,11 @@ class CategorizeBot(
         self.skip_categories = [
             pywikibot.Category(
                 self.site_fa,
-                "رده:صفحه‌هایی که رده همسنگ نمی‌پذیرند"
+                "صفحه‌هایی که رده همسنگ نمی‌پذیرند"
             ),
             pywikibot.Category(
                 self.site_fa,
-                "رده:‍صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
+                "صفحه‌هایی که رده همسنگ میلادی نمی‌پذیرند"
             ),
         ]
 
