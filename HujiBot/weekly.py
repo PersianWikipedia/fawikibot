@@ -597,18 +597,20 @@ SELECT
 FROM page
 JOIN revision
   ON page_latest = rev_id
-LEFT JOIN categorylinks
-  ON page_id = cl_from
-LEFT JOIN linktarget
-  ON cl_target_id = lt_id
-  AND lt_title = 'صفحه‌های_ابهام‌زدایی'
-  AND lt_namespace = 14
 WHERE
   page_namespace = 0
   AND page_is_redirect = 0
   AND rev_timestamp <
     CONCAT(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 4 YEAR), '%Y%m%d'), '000000')
-  AND lt_title IS NULL
+  AND page_id NOT IN (
+    SELECT cl_from
+    FROM categorylinks
+    JOIN linktarget
+     ON cl_target_id = lt_id
+  WHERE
+    lt_title = 'صفحه‌های_ابهام‌زدایی'
+    AND lt_namespace = 14
+  )
 ORDER BY rev_timestamp
 LIMIT 5000
 """,
