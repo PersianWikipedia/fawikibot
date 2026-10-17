@@ -1097,6 +1097,7 @@ SELECT
     FROM imagelinks
     JOIN linktarget
       ON il_target_id = lt_id
+      AND lt_namespace = 6
     WHERE lt_title = page_title
   ) AS imagelinks,
   (
@@ -1104,9 +1105,9 @@ SELECT
     FROM pagelinks
     JOIN linktarget
       ON pl_target_id = lt_id
+      AND lt_namespace = 6
     WHERE
-      lt_namespace = 6
-      AND lt_title = page_title
+      lt_title = page_title
   ) AS links
 FROM page
 WHERE
